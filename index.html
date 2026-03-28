@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="icon" type="image/svg+xml" href="frigideira.svg">
+
+  <meta charset="UTF-8">
+  <title>GastroAI</title>
+  <!-- Meta tags para responsividade -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+  <meta name="HandheldFriendly" content="true">
+  <meta name="MobileOptimized" content="width">
+  <!-- Fonte Poppins do Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <!-- Folha de estilo principal -->
+<link rel="stylesheet" href="style.css">
+  <!-- Biblioteca Anime.js para animações -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+</head>
+<body>
+  <!-- Botão de informação (GastroAI) no canto superior direito -->
+  <button id="ai-button" class="ai-button" aria-label="Ativar Assistente IA">
+    <div class="ai-button-icon">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+        <path fill="none" d="M0 0h24v24H0z"/>
+        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/>
+      </svg>
+    </div>
+    <span class="ai-button-text">GastroAI</span>
+  </button>
+
+  <!-- Painel de informações sobre o GastroAI -->
+  <div id="ai-info" class="ai-info">
+    <div class="ai-info-background"></div>
+    <div class="ai-info-content">
+      <h2>
+        <span>S</span><span>o</span><span>b</span><span>r</span><span>e</span> 
+        <span>a</span> 
+        <span>G</span><span>a</span><span>s</span><span>t</span><span>r</span><span>o</span><span>A</span><span>I</span>
+      </h2>
+      <p>A GastroAI é uma inteligência artificial especializada em gastronomia, criada para auxiliar cozinheiros amadores e profissionais. Com ela, podes: 🍳</p>
+      <ul>
+        <li>Obter receitas personalizadas 📚</li>
+        <li>Receber dicas de culinária 🔪</li>
+        <li>Planear refeições 🗓️</li>
+        <li>Aprender técnicas de cozinha 👨‍🍳</li>
+      </ul>
+      <p>Explora o mundo da gastronomia com a ajuda da nossa IA! 🌎🍽️</p>
+      <div class="copyright-info">
+        <p>© 2025 Kennedy Silva. Todos os direitos reservados.</p>
+        <p>GastroAI - Versão 1.0</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fundo desfocado para modal -->
+  <div class="blur-background"></div>
+  
+  <!-- Container principal com logo e animação -->
+  <div class="container">
+    <!-- Logo com letras individuais para animação -->
+    <h1 class="logo" aria-label="GastroAI">
+      <span class="logo-letter" aria-hidden="true">G</span><span class="logo-letter" aria-hidden="true">a</span><span class="logo-letter" aria-hidden="true">s</span><span class="logo-letter" aria-hidden="true">t</span><span class="logo-letter" aria-hidden="true">r</span><span class="logo-letter" aria-hidden="true">o</span><span class="logo-letter" aria-hidden="true">A</span><span class="logo-letter" aria-hidden="true">I</span>
+    </h1>
+    
+    <!-- Animação SVG da frigideira -->
+    <svg class="pl" viewBox="0 0 128 128" width="80px" height="80px" role="img" aria-label="A pan being used to flip a blob resembling bacon as it splashes drops of grease in and out">
+      <clipPath id="pan-clip">
+        <rect rx="12" ry="14" x="4" y="52" width="68" height="28" />
+      </clipPath>
+      <defs>
+        <linearGradient id="pl-grad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#000" />
+          <stop offset="100%" stop-color="#fff" />
+        </linearGradient>
+        <mask id="pl-mask">
+          <rect x="0" y="0" width="88" height="80" fill="url(#pl-grad)" />
+        </mask>
+      </defs>
+      <g fill="currentColor">
+        <g fill="none" stroke-dasharray="20 221" stroke-dashoffset="20" stroke-linecap="round" stroke-width="4">
+          <g stroke="hsl(38,90%,50%)">
+            <circle class="pl__ring" cx="44" cy="40" r="35" transform="rotate(90,44,40)" />
+          </g>
+          <g stroke="hsl(8,90%,40%)" mask="url(#pl-mask)">
+            <circle class="pl__ring" cx="44" cy="40" r="35" transform="rotate(90,44,40)" />
+          </g>
+        </g>
+        <g fill="hsla(223,10%,70%,0)">
+          <!-- Gotas de óleo animadas -->
+          <g class="pl__drop pl__drop--1">
+            <circle class="pl__drop-inner" cx="13" cy="60" r="2" />
+          </g>
+          <g class="pl__drop pl__drop--2">
+            <circle class="pl__drop-inner" cx="13" cy="60" r="2" />
+          </g>
+          <g class="pl__drop pl__drop--3">
+            <circle class="pl__drop-inner" cx="67" cy="72" r="2" />
+          </g>
+          <g class="pl__drop pl__drop--4">
+            <circle class="pl__drop-inner" cx="67" cy="72" r="2" />
+          </g>
+          <g class="pl__drop pl__drop--5">
+            <circle class="pl__drop-inner" cx="67" cy="72" r="2" />
+          </g>
+        </g>
+        <!-- Frigideira -->
+        <g class="pl__pan">
+          <rect rx="2" ry="2" x="4" y="66" width="68" height="14" clip-path="url(#pan-clip)" id="pan" />
+          <rect rx="2" ry="2" x="76" y="66" width="48" height="7" />
+        </g>
+        <!-- Sombra da frigideira -->
+        <rect class="pl__shadow" fill="hsla(223,10%,50%,0.2)" rx="3.5" ry="3.5" x="10" y="121" width="60" height="7" />
+      </g>
+    </svg>
+  </div>
+
+  <!-- Elemento para animação de comida -->
+  <div class="food-movement"></div>
+
+  <!-- Botão de chat -->
+  <div class="chat-button-container">
+    <button id="chat-button" class="chat-button" aria-label="Iniciar Chat">
+      <div class="chat-button-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+          <path fill="none" d="M0 0h24v24H0z"/>
+          <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/>
+        </svg>
+      </div>
+      <span class="chat-button-text">Iniciar Chat</span>
+    </button>
+  </div>  
+  
+  <!-- Overlay de transição com animação de carregamento -->
+  <div id="transition-overlay" class="transition-overlay">
+    <div class="loading-container">
+      <div class="food-icon"></div>
+      <div class="food-icon"></div>
+      <div class="food-icon"></div>
+    </div>
+  </div>
+
+  <!-- Botão de desafio -->
+  <div class="desafio-button-container">
+    <button id="desafio-button" class="desafio-button" aria-label="Ver Desafio">
+      <div class="desafio-button-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+          <path fill="none" d="M0 0h24v24H0z"/>
+          <path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94.63 1.5 1.98 2.63 3.61 2.96V19H7v2h10v-2h-4v-3.1c1.63-.33 2.98-1.46 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2zM7 10.82C5.84 10.4 5 9.3 5 8V7h2v3.82zM12 16c-1.65 0-3-1.35-3-3V5h6v8c0 1.65-1.35 3-3 3zm7-8c0 1.3-.84 2.4-2 2.82V7h2v1z"
+            fill="#ff9800"/>
+        </svg>
+      </div>
+      <span class="desafio-button-text">Desafio</span>
+    </button>
+  </div>
+
+  <!-- Botão de receitas -->
+  <div class="recipes-button-container">
+    <button id="recipes-button" class="recipes-button" aria-label="Ver Receitas">
+      <div class="recipes-button-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+          <!-- Contorno principal do livro -->
+          <path d="M2 6v14c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2z" 
+                fill="#00000030" stroke="#666666" stroke-width="0.5"/>
+          <!-- Páginas do livro com contorno -->
+          <path d="M12 5v14c-2-1.5-4.5-2-7-2V3c2.5 0 5 .5 7 2z" 
+                fill="#ffffff" stroke="#999999" stroke-width="0.3"/>
+          <path d="M12 5v14c2-1.5 4.5-2 7-2V3c-2.5 0-5 .5-7 2z" 
+                fill="#f0f0f0" stroke="#999999" stroke-width="0.3"/>
+          <!-- Capas do livro com contorno mais forte -->
+          <path d="M3 3v14c2.5 0 5 .5 7 2V5c-2-1.5-4.5-2-7-2z" 
+                fill="#ff9800" stroke="#e65100" stroke-width="0.5"/>
+          <path d="M21 3v14c-2.5 0-5 .5-7 2V5c2-1.5 4.5-2 7-2z" 
+                fill="#ff9800" stroke="#e65100" stroke-width="0.5"/>
+          <!-- Linhas nas páginas mais escuras -->
+          <path d="M8 8h3m2 0h3M8 11h3m2 0h3M8 14h3m2 0h3" 
+                stroke="#666666" stroke-width="0.7"/>
+        </svg>
+      </div>
+      <span class="recipes-button-text">Receitas</span>
+    </button>
+  </div>
+
+  <!-- Script principal da aplicação -->
+<script src="main.js"></script>
+</body>
+</html>

@@ -1,0 +1,31 @@
+# Dependências
+node_modules/
+.pnp
+.pnp.js
+
+# Arquivos de ambiente
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Cache
+.cache/
+.parcel-cache/
+
+# Build
+dist/
+build/
+
+# Vercel
+.vercel
+
+# API Keys (segurança extra)
+**/api-keys.js
+**/*api-key*

@@ -32,3 +32,6 @@ build/
 
 # Internal documentation
 .planning/
+
+# Test coverage output
+coverage/

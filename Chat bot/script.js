@@ -13,6 +13,26 @@ const foodImages = [
 ];
 
 // ===============================================================
+// SECURITY: DOMPurify Configuration for XSS Prevention
+// ===============================================================
+const SANITIZE_CONFIG = {
+  ALLOWED_TAGS: ['p', 'strong', 'em', 'ul', 'ol', 'li', 'code', 'pre', 'br', 'a', 'h1', 'h2', 'h3', 'h4', 'blockquote', 'span'],
+  ALLOWED_ATTR: ['href', 'target', 'rel', 'class'],
+  ALLOW_DATA_ATTR: false,
+  ADD_ATTR: ['target'],
+  FORBID_TAGS: ['script', 'style', 'iframe', 'form', 'input', 'object', 'embed'],
+  FORBID_ATTR: ['onerror', 'onclick', 'onload', 'onmouseover']
+};
+
+function sanitizeHtml(html) {
+  if (typeof DOMPurify === 'undefined') {
+    console.warn('[Security] DOMPurify not loaded, stripping all HTML tags');
+    return html.replace(/<[^>]*>/g, '');
+  }
+  return DOMPurify.sanitize(html, SANITIZE_CONFIG);
+}
+
+// ===============================================================
 // CONFIGURAÇÃO DO MATTER.JS (MOTOR DE FÍSICA PARA ANIMAÇÕES)
 // ===============================================================
 
@@ -337,8 +357,9 @@ document.addEventListener('DOMContentLoaded', () => {
             chatMessages.appendChild(messageElement);
 
             const contentElement = messageElement.querySelector('.message-content');
-            // Converter markdown para HTML
-            const htmlContent = marked.parse(message);
+            // Converter markdown para HTML e sanitizar para prevenir XSS
+            const rawHtml = marked.parse(message);
+            const htmlContent = sanitizeHtml(rawHtml);
 
             // Calcular tempo de digitação (limitado a MAX_TYPING_TIME)
             let typingTime = Math.min(htmlContent.length * TYPING_SPEED, MAX_TYPING_TIME);

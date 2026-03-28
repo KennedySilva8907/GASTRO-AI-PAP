@@ -7,9 +7,9 @@
   "routes": [
     { "src": "/api/(.*)", "dest": "/api/index.js" },
     { "src": "/", "dest": "/index.html" },
-    { "src": "/chatbot", "dest": "/public/chatbot/chatbot.html" },
-    { "src": "/desafios", "dest": "/public/Desafios/desafio.html" },
-    { "src": "/receitas", "dest": "/public/receitas/receitas.html" },
+    { "src": "/chatbot", "dest": "/public/chat/chatbot.html" },
+    { "src": "/desafios", "dest": "/public/challenges/desafio.html" },
+    { "src": "/receitas", "dest": "/public/recipes/receitas.html" },
     { "src": "/(.*)", "dest": "/public/$1" }
   ]
 }

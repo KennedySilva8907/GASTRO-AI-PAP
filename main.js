@@ -170,21 +170,21 @@ document.addEventListener('DOMContentLoaded', function() {
   if (chatButton) {
     chatButton.addEventListener('click', function(e) {
       e.preventDefault();
-      handlePageTransition('Chat bot/chatbot.html');
+      handlePageTransition('chat/chatbot.html');
     });
   }
-  
+
   if (recipesButton) {
     recipesButton.addEventListener('click', function(e) {
       e.preventDefault();
-      handlePageTransition('Receitas/receitas.html');
+      handlePageTransition('recipes/receitas.html');
     });
   }
-  
+
   if (desafioButton) {
     desafioButton.addEventListener('click', function(e) {
       e.preventDefault();
-      handlePageTransition('Desafios/desafio.html');
+      handlePageTransition('challenges/desafio.html');
     });
   }
   

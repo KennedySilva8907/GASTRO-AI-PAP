@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <link rel="icon" type="image/svg+xml" href="frigideira.svg">
+
+    <!-- Meta tags para configuração básica -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GastroAI Chatbot</title>
+    
+    <!-- Importação de fontes externas do Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    
+    <!-- Link para o arquivo CSS personalizado -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Container para animações de comida (provavelmente usado pelo Matter.js) -->
+    <div id="food-container"></div>
+    
+    <!-- Container principal do chatbot -->
+    <div id="chat-container">
+        <!-- Cabeçalho do chat com título animado por letra -->
+        <div id="chat-header">
+            <h2>
+                <!-- Cada letra em um span separado para possível animação individual -->
+                <span class="letter">G</span><span class="letter">a</span>
+                <span class="letter">s</span><span class="letter">t</span><span class="letter">r</span>
+                <span class="letter">o</span><span class="letter">A</span><span class="letter">I</span>
+                <span class="letter"> </span>
+                <span class="letter">C</span><span class="letter">h</span><span class="letter">a</span><span class="letter">t</span>
+                <span class="letter">b</span><span class="letter">o</span><span class="letter">t</span>
+            </h2>
+        </div>
+        
+        <!-- Área onde as mensagens do chat serão exibidas -->
+        <div id="chat-messages"></div>
+        
+        <!-- Formulário para entrada do usuário -->
+        <form id="chat-form">
+            <!-- Campo de entrada de texto -->
+            <input type="text" id="user-input" placeholder="Digite sua mensagem...">
+            
+            <!-- Controles do chat (enviar, parar, limpar) -->
+            <div class="chat-controls">
+                <!-- Botão de enviar mensagem -->
+                <button id="submit-button" class="control-button submit-button" type="submit" title="Enviar mensagem">
+                    <span class="button-icon">➤</span>
+                </button>
+                
+                <!-- Botão para interromper a resposta do chatbot (inicialmente desativado) -->
+                <button id="stop-button" class="control-button stop-button" type="button" disabled title="Parar mensagem">
+                    <span class="button-icon">■</span>
+                </button>
+                
+                <!-- Botão para limpar o histórico de mensagens -->
+                <button id="clear-button" class="control-button clear-button" type="button" title="Limpar mensagens">
+                    <span class="button-icon">✕</span>
+                </button>
+                
+                <button type="button" id="export-button" class="control-button export-button" title="Exportar esta conversa">
+                    <span class="button-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="7 10 12 15 17 10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                        </svg>
+                    </span>
+                </button>
+                
+            </div>
+        </form>
+    </div>
+    
+    <!-- Overlay de transição com animação de carregamento -->
+    <div id="transition-overlay" class="transition-overlay">
+        <div class="loading-container">
+            <!-- Ícones de comida para animação de carregamento -->
+            <div class="food-icon"></div>
+            <div class="food-icon"></div>
+            <div class="food-icon"></div>
+        </div>
+    </div>
+    
+    <!-- Botão de voltar para navegação -->
+    <button id="back-button" class="back-button" aria-label="Voltar">
+        <div class="back-button-icon">
+            <!-- Ícone SVG de seta para voltar -->
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+                <path fill="none" d="M0 0h24v24H0z"/>
+                <path d="M19 13H5.83l5.59 5.59L10 20l-8-8 8-8 1.41 1.41L5.83 11H19v2z"/>
+            </svg>
+        </div>
+        <span class="back-button-text">Voltar</span>
+    </button>
+    
+    <!-- Bibliotecas JavaScript externas -->
+    <!-- Matter.js para física e animações -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.18.0/matter.min.js"></script>
+    <!-- Typed.js para efeito de digitação -->
+    <script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12"></script>
+    <!-- Marked para renderização de Markdown -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    
+    <!-- Script JavaScript personalizado -->
+    <script src="script.js"></script>
+</body>
+</html>

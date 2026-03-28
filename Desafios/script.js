@@ -3,7 +3,26 @@
     // ===== CONFIGURAÇÕES INICIAIS =====
     // Configuração da API Gemini
 const RECIPE_API_URL = '/api/gemini'; // Para as receitas
-    
+
+// ===============================================================
+// SECURITY: DOMPurify Configuration for XSS Prevention
+// ===============================================================
+const SANITIZE_CONFIG = {
+  ALLOWED_TAGS: ['p', 'strong', 'em', 'ul', 'ol', 'li', 'code', 'pre', 'br', 'a', 'h1', 'h2', 'h3', 'h4', 'span', 'i', 'div'],
+  ALLOWED_ATTR: ['href', 'target', 'rel', 'class', 'id'],
+  ALLOW_DATA_ATTR: false,
+  FORBID_TAGS: ['script', 'style', 'iframe', 'form', 'input', 'object', 'embed'],
+  FORBID_ATTR: ['onerror', 'onclick', 'onload', 'onmouseover']
+};
+
+function sanitizeHtml(html) {
+  if (typeof DOMPurify === 'undefined') {
+    console.warn('[Security] DOMPurify not loaded, stripping all HTML tags');
+    return html.replace(/<[^>]*>/g, '');
+  }
+  return DOMPurify.sanitize(html, SANITIZE_CONFIG);
+}
+
     // Referências aos elementos principais
     const mainContainer = document.getElementById('main-container');
     const backgroundAnimation = document.querySelector('.background-animation');
@@ -1299,24 +1318,29 @@ ingredientsSection.appendChild(ingredientsList);
             lottieWrapper.style.marginLeft = '65px'; // Move 65px para a direita
             lottieWrapper.style.width = '300px';
             lottieWrapper.style.height = '300px';
-            
-            // Criar o elemento dotlottie-player usando a API innerHTML
-            lottieWrapper.innerHTML = `
-                <dotlottie-player 
-                    src="https://lottie.host/15d4805b-6402-467a-9d06-76db89c1c9aa/jA93Oi7HJN.lottie" 
-                    background="transparent" 
-                    speed="1" 
-                    style="width: 100%; height: 100%" 
-                    loop 
-                    autoplay>
-                </dotlottie-player>
-            `;
-            
+
+            // Criar o elemento dotlottie-player usando DOM API para evitar XSS
+            const lottiePlayer = document.createElement('dotlottie-player');
+            lottiePlayer.setAttribute('src', 'https://lottie.host/15d4805b-6402-467a-9d06-76db89c1c9aa/jA93Oi7HJN.lottie');
+            lottiePlayer.setAttribute('background', 'transparent');
+            lottiePlayer.setAttribute('speed', '1');
+            lottiePlayer.setAttribute('loop', '');
+            lottiePlayer.setAttribute('autoplay', '');
+            lottiePlayer.style.width = '100%';
+            lottiePlayer.style.height = '100%';
+            lottieWrapper.appendChild(lottiePlayer);
+
             lottieContainer.appendChild(lottieWrapper);
-            
+
             congratsTitle.textContent = 'Parabéns! Desafio Concluído!';
-            congratsMessage.innerHTML = `Você completou o desafio culinário de nível ${level.charAt(0).toUpperCase() + level.slice(1)}! O seu prato certamente ficou delicioso.<br><br>👨‍🍳 Você é um verdadeiro chef! 👨‍🍳`;
-            
+            congratsMessage.textContent = '';
+            const congratsHtml = sanitizeHtml(
+                'Você completou o desafio culinário de nível ' +
+                (level.charAt(0).toUpperCase() + level.slice(1)) +
+                '! O seu prato certamente ficou delicioso.<br><br>👨‍🍳 Você é um verdadeiro chef! 👨‍🍳'
+            );
+            congratsMessage.insertAdjacentHTML('beforeend', congratsHtml);
+
             congratsContainer.appendChild(congratsTitle);
             congratsContainer.appendChild(lottieContainer);
             congratsContainer.appendChild(congratsMessage);
@@ -1354,8 +1378,9 @@ ingredientsSection.appendChild(ingredientsList);
             
             congratsTitle.textContent = 'Tempo Esgotado!';
             congratsMessage.textContent = 'O tempo para completar o desafio terminou, mas não desanime! Algumas das melhores criações culinárias exigem tempo.';
-            congratsMessage.innerHTML += '<br><br>⏰ Tente novamente quando estiver pronto! ⏰';
-            
+            const timeoutHtml = sanitizeHtml('<br><br>⏰ Tente novamente quando estiver pronto! ⏰');
+            congratsMessage.insertAdjacentHTML('beforeend', timeoutHtml);
+
             congratsContainer.appendChild(congratsTitle);
             congratsContainer.appendChild(timeoutContainer);
             congratsContainer.appendChild(congratsMessage);
@@ -1673,17 +1698,19 @@ ingredientsSection.appendChild(ingredientsList);
     // Adicionar tratamento de erros global
     window.addEventListener('error', function(event) {
         console.error('Erro capturado:', event.error);
-        
+
         // Se o erro ocorrer durante a geração de receita, mostrar mensagem amigável
         if (mainContainer.querySelector('.countdown-container')) {
             const errorMessage = document.createElement('div');
             errorMessage.className = 'error-message';
-            errorMessage.innerHTML = `
-                <h3>Ops! Algo deu errado</h3>
-                <p>Não foi possível gerar a sua receita. Por favor, tente novamente.</p>
-                <button class="back-button standardized-button">Voltar</button>
-            `;
-            
+            errorMessage.textContent = '';
+            const errorHtml = sanitizeHtml(
+                '<h3>Ops! Algo deu errado</h3>' +
+                '<p>Não foi possível gerar a sua receita. Por favor, tente novamente.</p>' +
+                '<button class="back-button standardized-button">Voltar</button>'
+            );
+            errorMessage.insertAdjacentHTML('beforeend', errorHtml);
+
             // Limpar o conteúdo atual
             mainContainer.innerHTML = '';
             mainContainer.appendChild(errorMessage);

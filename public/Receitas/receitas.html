@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <link rel="icon" type="image/svg+xml" href="frigideira.svg">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pratos Típicos Mundiais</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- GSAP para animações -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+</head>
+<body>
+    <!-- Container principal -->
+    <div class="container">
+        <!-- Cabeçalho com carrossel vertical -->
+        <header class="c-header c-header--archive c-header--project-list">
+            <div class="c-mouse-vertical-carousel js-carousel u-media-wrapper u-media-wrapper--16-9">
+                <!-- Lista de pratos típicos para navegação -->
+                <ul class="c-mouse-vertical-carousel__list js-carousel-list">
+                    <!-- Item 1: Bacalhau à Brás (Portugal) -->
+                    <li class="c-mouse-vertical-carousel__list-item js-carousel-list-item" data-item-id="0">
+                        <a href="#" data-video-id="FzCOdimBIeU?si=_rb5XGFLGRzBZD5F" data-recipe="bacalhau_a_bras"> 
+                            <p class="c-mouse-vertical-carousel__eyebrow u-b4">
+                                <span>01</span> Portugal
+                            </p>
+                            <p class="c-mouse-vertical-carousel__title u-a5">
+                                Bacalhau à Brás
+                            </p>
+                        </a>
+                    </li>
+                    <!-- Item 2: Feijoada (Brasil) -->
+                    <li class="c-mouse-vertical-carousel__list-item js-carousel-list-item" data-item-id="1">
+                        <a href="#" data-video-id="B9W5-6ePVig?si=Ipmocr_SHEk9u30W" data-recipe="feijoada">
+                            <p class="c-mouse-vertical-carousel__eyebrow u-b4">
+                                <span>02</span> Brasil
+                            </p>
+                            <p class="c-mouse-vertical-carousel__title u-a5">
+                                Feijoada
+                            </p>
+                        </a>
+                    </li>
+                    <!-- Item 3: Spaghetti alla Carbonara (Itália) -->
+                    <li class="c-mouse-vertical-carousel__list-item js-carousel-list-item" data-item-id="2">
+                         <a href="#" data-video-id="wrnej4DANv4?si=Z4l8KplVBDPC4uzZ" data-recipe="carbonara">
+                            <p class="c-mouse-vertical-carousel__eyebrow u-b4">
+                                <span>03</span> Itália
+                            </p>
+                            <p class="c-mouse-vertical-carousel__title u-a5">
+                                Spaghetti alla Carbonara
+                            </p>
+                        </a>
+                    </li>
+                    <!-- Item 4: Ramen Tonkotsu (Japão) -->
+                    <li class="c-mouse-vertical-carousel__list-item js-carousel-list-item" data-item-id="3">
+                         <a href="#" data-video-id="mm4nT-UoTvU?si=xojwxXRy8u6ghzkN" data-recipe="ramen">
+                            <p class="c-mouse-vertical-carousel__eyebrow u-b4">
+                                <span>04</span> Japão
+                            </p>
+                            <p class="c-mouse-vertical-carousel__title u-a5">
+                                Ramen Tonkotsu
+                            </p>
+                        </a>
+                    </li>
+                    <!-- Item 5: Coq au Vin (França) -->
+                    <li class="c-mouse-vertical-carousel__list-item js-carousel-list-item" data-item-id="4">
+                         <a href="#" data-video-id="lfjIxW4RWkM?si=JDfY7otlUyEhLMmw" data-recipe="coq_au_vin">
+                            <p class="c-mouse-vertical-carousel__eyebrow u-b4">
+                                <span>05</span> França
+                            </p>
+                            <p class="c-mouse-vertical-carousel__title u-a5">
+                                Coq au Vin
+                            </p>
+                        </a>
+                    </li>
+                    <!-- Item 6: Texas Brisket BBQ (EUA) -->
+                    <li class="c-mouse-vertical-carousel__list-item js-carousel-list-item" data-item-id="5">
+                         <a href="#" data-video-id="RRVVTB_aJJA?si=mxUCwMmMun8e_x7n" data-recipe="brisket">
+                            <p class="c-mouse-vertical-carousel__eyebrow u-b4">
+                                <span>06</span> EUA
+                            </p>
+                            <p class="c-mouse-vertical-carousel__title u-a5">
+                                Texas Brisket BBQ
+                            </p>
+                        </a>
+                    </li>
+                    <!-- Item 7: Mole Poblano (México) -->
+                    <li class="c-mouse-vertical-carousel__list-item js-carousel-list-item" data-item-id="6">
+                         <a href="#" data-video-id="9FKDcxehh5s?si=6ROliUb9E5wyb6sR" data-recipe="mole_poblano">
+                            <p class="c-mouse-vertical-carousel__eyebrow u-b4">
+                                <span>07</span> México
+                            </p>
+                            <p class="c-mouse-vertical-carousel__title u-a5">
+                               Mole Poblano
+                            </p>
+                        </a>
+                    </li>
+                    <!-- Item 8: Mapo Tofu (China) -->
+                    <li class="c-mouse-vertical-carousel__list-item js-carousel-list-item" data-item-id="7">
+                         <a href="#" data-video-id="_IjJwKpQvWc?si=AheM7UlUO4q01Hbg" data-recipe="mapo_tofu">
+                            <p class="c-mouse-vertical-carousel__eyebrow u-b4">
+                                <span>08</span> China
+                            </p>
+                            <p class="c-mouse-vertical-carousel__title u-a5">
+                                Mapo Tofu
+                            </p>
+                        </a>
+                    </li>
+                    <!-- Item 9: Butter Chicken (Índia) -->
+                    <li class="c-mouse-vertical-carousel__list-item js-carousel-list-item" data-item-id="8">
+                         <a href="#" data-video-id="9V2OtpSyY2g?si=aJt3g4uIHZ9WTNqN" data-recipe="butter_chicken">
+                            <p class="c-mouse-vertical-carousel__eyebrow u-b4">
+                                <span>09</span> Índia
+                            </p>
+                            <p class="c-mouse-vertical-carousel__title u-a5">
+                               Butter Chicken
+                            </p>
+                        </a>
+                    </li>
+                    <!-- Item 10: Moussaka (Grécia) -->
+                    <li class="c-mouse-vertical-carousel__list-item js-carousel-list-item" data-item-id="9">
+                         <a href="#" data-video-id="3MAxCpAlCn0?si=l4-_N_g3tAkOnY65" data-recipe="moussaka">
+                            <p class="c-mouse-vertical-carousel__eyebrow u-b4">
+                                <span>10</span> Grécia
+                            </p>
+                            <p class="c-mouse-vertical-carousel__title u-a5">
+                               Moussaka
+                            </p>
+                        </a>
+                    </li>
+                </ul>
+
+                <!-- Imagens de fundo para cada prato -->
+                <i class="c-mouse-vertical-carousel__bg-img js-carousel-bg-img" style="background-image: url('https://asset.skoiy.com/gta2554ejcwslaya/s1h7fqyzpgpb.jpg')"></i>
+                <i class="c-mouse-vertical-carousel__bg-img js-carousel-bg-img" style="background-image: url('https://cdn.shopify.com/s/files/1/0748/1684/8190/files/20240717170612-recipe-20kit-20thumbnail-20photo-20-20-20.png')"></i>
+                <i class="c-mouse-vertical-carousel__bg-img js-carousel-bg-img" style="background-image: url('https://www.pingodoce.pt/wp-content/uploads/2015/03/esparguete-a-carbonara.jpg')"></i>
+                <i class="c-mouse-vertical-carousel__bg-img js-carousel-bg-img" style="background-image: url('https://assets.epicurious.com/photos/63c17f620a2588545b65efc9/16:9/w_4015,h_2258,c_limit/Atsuko-p-85_VOG_final.jpg')"></i>
+                <i class="c-mouse-vertical-carousel__bg-img js-carousel-bg-img" style="background-image: url('https://assets.bonappetit.com/photos/5a57d1dbdc307a5ad51400d4/16:9/w_5168,h_2907,c_limit/Instant-Pot-Coq-Au-Vin.jpg')"></i>
+                <i class="c-mouse-vertical-carousel__bg-img js-carousel-bg-img" style="background-image: url('https://www.biltmore.com/wp-content/uploads/2023/11/texas-brisket-1-scaled.jpg')"></i>
+                <i class="c-mouse-vertical-carousel__bg-img js-carousel-bg-img" style="background-image: url('https://assets.vogue.com/photos/5997430d1c4b8c7a8020b0e0/16:9/w_1280,c_limit/00-social-tout-mole-sauce.jpg')"></i>
+                <i class="c-mouse-vertical-carousel__bg-img js-carousel-bg-img" style="background-image: url('https://img.taste.com.au/vmzx0F6U/w643-h428-cfill-q90/taste/2022/07/mapo-tofu-recipe-180109-2.png')"></i>
+                <i class="c-mouse-vertical-carousel__bg-img js-carousel-bg-img" style="background-image: url('https://images.pexels.com/photos/2474661/pexels-photo-2474661.jpeg')"></i>
+                <i class="c-mouse-vertical-carousel__bg-img js-carousel-bg-img" style="background-image: url('https://media-assets.lacucinaitaliana.it/photos/61fa988128bbd1b96fb66383/16:9/w_2560%2Cc_limit/moussaka-grecia.jpg')"></i>
+                
+                <!-- Overlay de gradiente para melhorar a legibilidade do texto -->
+                <i class="c-gradient-overlay"></i>
+            </div>
+        </header>
+    </div>
+
+    <!-- Modal para exibição de receitas e vídeos -->
+    <div class="modal" id="recipeModal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <div class="modal-body">
+                <!-- Container para o vídeo do YouTube -->
+                <div class="video-container">
+                    <iframe width="560" height="315" src="" frameborder="0" allowfullscreen></iframe>
+                </div>
+                <!-- Container para o conteúdo da receita -->
+                <div class="recipe-container">
+                    <h2 id="recipeTitle"></h2>
+                    <div id="recipeContent"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Container com todas as receitas (oculto por padrão, carregado via JavaScript) -->
+    <div id="recipes-data">
+        <!-- Bacalhau à Brás (Portugal) -->
+        <article id="recipe-bacalhau_a_bras" class="recipe-content">
+            <h3>Ingredientes:</h3>
+            <ul>
+                <li>500g de bacalhau demolhado e desfiado</li>
+                <li>500g de batata palha fina</li>
+                <li>1 cebola grande, picada finamente</li>
+                <li>3 dentes de alho, picados</li>
+                <li>6 ovos, batidos</li>
+                <li>Azeite q.b. (quanto baste)</li>
+                <li>Azeitonas pretas sem caroço</li>
+                <li>Salsa fresca picada</li>
+                <li>Sal e pimenta q.b. (quanto baste)</li>
+            </ul>
+            <h3>Instruções:</h3>
+            <ol>
+                <li>Demolhe o bacalhau em água fria durante 24 horas, mudando a água várias vezes.</li>
+                <li>Escorra e coza o bacalhau, retire a pele e as espinhas, depois desfie.</li>
+                <li>Aloure a cebola e o alho em azeite até ficarem macios.</li>
+                <li>Junte o bacalhau e as batatas fritas, envolva bem.</li>
+                <li>Deite os ovos batidos sobre a mistura, cozinhe em lume brando, mexendo sempre.</li>
+                <li>Tempere com sal e pimenta.</li>
+                <li>Decore com azeitonas pretas e salsa.</li>
+            </ol>
+        </article>
+
+        <!-- Feijoada (Brasil) -->
+        <article id="recipe-feijoada" class="recipe-content">
+            <h3>Ingredientes:</h3>
+            <ul>
+                <li>1 kg de feijão vermelho</li>
+                <li>Carnes variadas (entrecosto, orelha, chispe, chouriço)</li>
+                <li>1 cebola grande, picada</li>
+                <li>4 dentes de alho, picados</li>
+                <li>2 folhas de louro</li>
+                <li>Azeite q.b. (quanto baste)</li>
+                <li>Sal e pimenta q.b. (quanto baste)</li>
+                <li>Cenouras às rodelas</li>
+                <li>Couve lombarda cortada</li>
+            </ul>
+            <h3>Instruções:</h3>
+            <ol>
+                <li>Ponha o feijão de molho durante a noite.</li>
+                <li>Coza o feijão com as folhas de louro até ficar macio.</li>
+                <li>Numa panela à parte, coza as carnes.</li>
+                <li>Aloure a cebola e o alho em azeite.</li>
+                <li>Junte as carnes ao feijão.</li>
+                <li>Deixe apurar em lume brando durante 1 hora.</li>
+                <li>Sirva com arroz branco.</li>
+            </ol>
+        </article>
+
+        <!-- Carbonara (Itália) -->
+        <article id="recipe-carbonara" class="recipe-content">
+            <h3>Ingredientes:</h3>
+            <ul>
+                <li>400g de esparguete</li>
+                <li>150g de bacon fumado</li>
+                <li>3 ovos grandes</li>
+                <li>50g de queijo Parmesão ralado</li>
+                <li>Pimenta preta moída na hora</li>
+                <li>Sal q.b. (quanto baste)</li>
+            </ul>
+            <h3>Instruções:</h3>
+            <ol>
+                <li>Coza a massa al dente.</li>
+                <li>Frite o bacon até ficar estaladiço.</li>
+                <li>Misture os ovos, o queijo e a pimenta.</li>
+                <li>Envolva a massa com o bacon.</li>
+                <li>Adicione a mistura de ovos fora do lume.</li>
+                <li>Sirva de imediato.</li>
+            </ol>
+        </article>
+
+        <!-- Ramen (Japão) -->
+        <article id="recipe-ramen" class="recipe-content">
+            <h3>Ingredientes:</h3>
+            <ul>
+                <li>Ossos de porco para o caldo</li>
+                <li>Massa de ramen</li>
+                <li>Barriga de porco assada</li>
+                <li>Ovos marinados</li>
+                <li>Cebolinho</li>
+                <li>Algas nori</li>
+                <li>Rebentos de bambu</li>
+                <li>Óleo de alho negro</li>
+            </ul>
+            <h3>Instruções:</h3>
+            <ol>
+                <li>Prepare o caldo durante 8-12 horas.</li>
+                <li>Coza a massa.</li>
+                <li>Prepare os acompanhamentos.</li>
+                <li>Monte a tigela com o caldo e os acompanhamentos.</li>
+                <li>Finalize com o óleo de alho.</li>
+            </ol>
+        </article>
+
+        <!-- Coq au Vin (França) -->
+        <article id="recipe-coq_au_vin" class="recipe-content">
+            <h3>Ingredientes:</h3>
+            <ul>
+                <li>1 frango inteiro</li>
+                <li>200g de bacon fumado</li>
+                <li>Vinho tinto</li>
+                <li>Cogumelos frescos</li>
+                <li>Cebolas pequenas</li>
+                <li>Cenouras</li>
+                <li>Ervas aromáticas (tomilho, louro)</li>
+            </ul>
+            <h3>Instruções:</h3>
+            <ol>
+                <li>Marine o frango no vinho.</li>
+                <li>Aloure o bacon e reserve.</li>
+                <li>Aloure o frango.</li>
+                <li>Coza os legumes.</li>
+                <li>Junte o vinho e deixe cozer lentamente.</li>
+            </ol>
+        </article>
+
+        <!-- Brisket (EUA) -->
+        <article id="recipe-brisket" class="recipe-content">
+            <h3>Ingredientes:</h3>
+            <ul>
+                <li>Peito de vaca (5-7 kg)</li>
+                <li>Sal grosso</li>
+                <li>Pimenta preta moída</li>
+                <li>Madeira de carvalho</li>
+            </ul>
+            <h3>Instruções:</h3>
+            <ol>
+                <li>Tempere a carne.</li>
+                <li>Prepare o fumeiro.</li>
+                <li>Defume durante 12-15 horas.</li>
+                <li>Deixe repousar.</li>
+                <li>Corte contra o fio da carne.</li>
+            </ol>
+        </article>
+
+        <!-- Mole Poblano (México) -->
+        <article id="recipe-mole_poblano" class="recipe-content">
+            <h3>Ingredientes:</h3>
+            <ul>
+                <li>Pimentos variados</li>
+                <li>Chocolate negro</li>
+                <li>Amendoim</li>
+                <li>Especiarias</li>
+                <li>Frango</li>
+            </ul>
+            <h3>Instruções:</h3>
+            <ol>
+                <li>Torre os ingredientes.</li>
+                <li>Triture tudo até formar uma pasta.</li>
+                <li>Cozinhe o molho lentamente.</li>
+                <li>Sirva com frango.</li>
+            </ol>
+        </article>
+
+        <!-- Mapo Tofu (China) -->
+        <article id="recipe-mapo_tofu" class="recipe-content">
+            <h3>Ingredientes:</h3>
+            <ul>
+                <li>Tofu macio</li>
+                <li>Carne de porco picada</li>
+                <li>Pasta de feijão douban</li>
+                <li>Óleo de pimenta sichuan</li>
+                <li>Cebolinho</li>
+            </ul>
+            <h3>Instruções:</h3>
+            <ol>
+                <li>Corte o tofu em cubos.</li>
+                <li>Salteie a carne.</li>
+                <li>Adicione os temperos.</li>
+                <li>Incorpore o tofu suavemente.</li>
+                <li>Finalize com óleo de pimenta.</li>
+            </ol>
+        </article>
+
+        <!-- Butter Chicken (Índia) -->
+        <article id="recipe-butter_chicken" class="recipe-content">
+            <h3>Ingredientes:</h3>
+            <ul>
+                <li>Frango tandoori</li>
+                <li>Manteiga clarificada</li>
+                <li>Tomate</li>
+                <li>Natas</li>
+                <li>Especiarias indianas</li>
+            </ul>
+            <h3>Instruções:</h3>
+            <ol>
+                <li>Marine o frango.</li>
+                <li>Prepare o molho de tomate.</li>
+                <li>Cozinhe o frango.</li>
+                <li>Misture com o molho.</li>
+                <li>Finalize com natas.</li>
+            </ol>
+        </article>
+
+        <!-- Moussaka (Grécia) -->
+        <article id="recipe-moussaka" class="recipe-content">
+            <h3>Ingredientes:</h3>
+            <ul>
+                <li>Beringelas</li>
+                <li>Carne de borrego picada</li>
+                <li>Molho bechamel</li>
+                <li>Tomates</li>
+                <li>Especiarias gregas</li>
+            </ul>
+            <h3>Instruções:</h3>
+            <ol>
+                <li>Grelhe as beringelas.</li>
+                <li>Prepare o refogado de carne.</li>
+                <li>Faça o molho bechamel.</li>
+                <li>Monte as camadas.</li>
+                <li>Leve ao forno até dourar.</li>
+            </ol>
+        </article>
+    </div>
+        
+    <!-- Overlay de transição para carregamento -->
+    <div id="transition-overlay" class="transition-overlay">
+        <div class="loading-container">
+            <div class="food-icon"></div>
+            <div class="food-icon"></div>
+            <div class="food-icon"></div>
+        </div>
+    </div>
+    
+    <!-- Botão de voltar para a página inicial -->
+    <button id="back-button" class="back-button" aria-label="Voltar">
+        <div class="back-button-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+                <path fill="none" d="M0 0h24v24H0z"/>
+                <path d="M19 13H5.83l5.59 5.59L10 20l-8-8 8-8 1.41 1.41L5.83 11H19v2z"/>
+            </svg>
+        </div>
+        <span class="back-button-text">Voltar</span>
+    </button>
+    
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

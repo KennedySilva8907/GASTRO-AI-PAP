@@ -1,0 +1,1368 @@
+/* Reset geral */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Remove linhas de progresso desnecessárias */
+[class*="progress-line"],
+.progress-line,
+.progress-line-fill,
+.c-mouse-vertical-carousel__progress-line {
+    display: none !important;
+}
+
+/* Estilos base e variáveis */
+:root {
+    --primary-bg: #021417;
+    --primary-text: #fff;
+    --secondary-text: rgba(255, 255, 255, 0.9);
+    --modal-bg: #fefefe;
+    --modal-text: #333;
+    --modal-secondary: #555;
+    --gradient-start: rgba(2, 21, 25, 0);
+    --gradient-mid: rgba(2, 21, 25, 0.8);
+    --gradient-end: rgba(2, 21, 25, 1);
+    --scrollbar-thumb: rgba(255, 255, 255, 0.4);
+    --scrollbar-track: rgba(255, 255, 255, 0.15);
+}
+
+/* Configurações básicas do HTML e corpo */
+html, body {
+    height: 100%;
+    width: 100%;
+    overflow-x: hidden;
+}
+
+body {
+    color: var(--primary-text);
+    background-color: var(--primary-bg);
+    font-family: Arial, sans-serif;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Reset de listas */
+ul,
+ol,
+li {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+/* Container principal */
+.container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    align-items: center;
+    min-height: 100vh;
+    height: auto;
+    width: 100%;
+    position: relative;
+    z-index: 2;
+    padding-right: 5%;
+    padding-bottom: 40px;
+    pointer-events: none;
+}
+
+/* Cabeçalho */
+.c-header {
+    display: block;
+    width: 100%;
+    position: relative;
+    z-index: 3;
+}
+
+/* Tipografia */
+.u-a5 {
+    font-family: Arial, sans-serif;
+    font-size: 34px;
+    line-height: 1.2;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    font-weight: 700;
+    text-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
+    color: var(--primary-text);
+    transition: all 0.3s ease;
+}
+
+.u-b4 {
+    font-family: Arial, sans-serif;
+    font-size: 13px;
+    line-height: 18px;
+    letter-spacing: 0.4px;
+    font-weight: normal;
+    color: var(--secondary-text);
+    transition: all 0.3s ease;
+}
+
+/* Links */
+a {
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+    outline: none;
+}
+
+a:focus-visible {
+    outline: 2px solid var(--primary-text);
+    outline-offset: 2px;
+}
+
+/* Wrapper de mídia */
+.u-media-wrapper {
+    position: relative;
+    width: 100%;
+    background-size: cover;
+    background-position: center;
+    height: 0;
+    pointer-events: none;
+}
+
+.u-media-wrapper--16-9 {
+    padding-bottom: 56.25%;
+}
+
+/* Sobreposição de gradiente */
+.c-gradient-overlay {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg,
+            var(--gradient-start) 0%,
+            rgba(2, 21, 25, 0.4) 20%,
+            var(--gradient-mid) 40%,
+            rgba(2, 21, 25, 0.95) 70%,
+            var(--gradient-end) 100%);
+    z-index: 2;
+    pointer-events: none !important;
+}
+
+/* Carrossel vertical */
+.js-carousel {
+    position: fixed;
+    height: 100vh;
+    width: 100%;
+    overflow: visible;
+    top: 0;
+    left: 0;
+}
+
+/* Lista do carrossel */
+.js-carousel-list {
+    position: absolute;
+    width: 100%;
+    right: 0;
+    top: 5vh;
+    z-index: 3;
+    max-width: 600px;
+    margin-right: 0;
+    height: auto;
+    max-height: 90vh;
+    padding: 60px 20px 120px 20px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+    mask-image: linear-gradient(to bottom,
+            transparent 0%,
+            black 2%,
+            black 98%,
+            transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom,
+            transparent 0%,
+            black 2%,
+            black 98%,
+            transparent 100%);
+    -webkit-overflow-scrolling: touch;
+    pointer-events: auto;
+    scroll-behavior: smooth;
+}
+/* Pontos de navegação */
+.progress-dots {
+    position: fixed;
+    right: 30px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    z-index: 11;
+    padding: 15px;
+    pointer-events: none !important;
+    user-select: none;
+}
+
+.progress-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform, background-color;
+    pointer-events: none !important;
+}
+
+.progress-dot.active {
+    background: var(--primary-text);
+    animation: dotPulse 2s infinite;
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+}
+
+/* Estilização da barra de rolagem */
+.js-carousel-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.js-carousel-list::-webkit-scrollbar-track {
+    background: var(--scrollbar-track);
+    border-radius: 3px;
+    margin: 5px 0;
+}
+
+.js-carousel-list::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: 3px;
+}
+
+.js-carousel-list::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+/* Itens do carrossel */
+.js-carousel-list-item {
+    width: 100%;
+    position: relative;
+    opacity: 0.3;
+    transform: scale(0.92);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform, opacity;
+    margin: 15px 0;
+    padding: 0 25px;
+    pointer-events: none;
+}
+
+.js-carousel-list-item:first-child {
+    margin-top: 0;
+}
+
+.js-carousel-list-item:last-child {
+    margin-bottom: 0;
+}
+
+/* Links dos itens do carrossel */
+.js-carousel-list-item a {
+    display: block;
+    padding: 25px 0;
+    position: relative;
+    z-index: 1;
+    transition: transform 0.3s ease;
+    max-width: 85%;
+    margin-left: auto;
+    margin-right: 15%;
+    pointer-events: auto;
+}
+
+.js-carousel-list-item.is-active {
+    opacity: 1;
+    transform: scale(1.02);
+}
+
+/* Imagens de fundo */
+.js-carousel-bg-img {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    opacity: 0;
+    transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform, opacity;
+    z-index: 1;
+    transform: scale(1.05);
+    pointer-events: none !important;
+}
+
+.js-carousel-bg-img.is-visible {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* Elementos do carrossel */
+.carousel-eyebrow {
+    position: relative;
+    padding-bottom: 12px;
+    display: flex;
+    align-items: center;
+}
+
+.carousel-eyebrow span {
+    margin-right: 12px;
+}
+
+.carousel-title {
+    max-width: 400px;
+    margin-top: 8px;
+}
+
+/* Estilos do Modal */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 10000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.8);
+    padding-top: 60px;
+    pointer-events: auto;
+}
+
+.modal-content {
+    position: relative;
+    background-color: var(--modal-bg);
+    margin: 5% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 1200px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+}
+
+.close-button {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    pointer-events: auto;
+    padding: 10px;
+    transition: color 0.3s ease;
+}
+
+.close-button:hover,
+.close-button:focus {
+    color: var(--modal-text);
+}
+
+/* Animações */
+@keyframes dotPulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+    }
+}
+
+/* Media Queries para responsividade */
+@media screen and (min-height: 800px) {
+    .js-carousel-list {
+        max-height: 92vh;
+        padding-bottom: 150px;
+    }
+
+    .progress-dots {
+        gap: 30px;
+    }
+}
+
+@media screen and (min-height: 1000px) {
+    .js-carousel-list {
+        max-height: 94vh;
+        padding-bottom: 180px;
+    }
+
+    .progress-dots {
+        gap: 35px;
+    }
+}
+
+@media (max-width: 1200px) {
+    .js-carousel-list {
+        max-width: 400px;
+    }
+
+    .u-a5 {
+        font-size: 28px;
+    }
+
+    .progress-dots {
+        right: 25px;
+        gap: 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    .js-carousel-list {
+        margin-right: 0;
+        max-width: 100%;
+        padding: 40px 15px 80px 15px;
+    }
+
+    .u-a5 {
+        font-size: 24px;
+        letter-spacing: 2px;
+    }
+
+    .js-carousel-list-item {
+        margin: 20px 0;
+        padding: 0 20px;
+    }
+
+    .js-carousel-list-item a {
+        max-width: 90%;
+        margin-right: 10%;
+    }
+
+    .c-gradient-overlay {
+        background: linear-gradient(90deg,
+            var(--gradient-start) 0%,
+            rgba(2, 21, 25, 0.4) 10%,
+            var(--gradient-mid) 30%,
+            rgba(2, 21, 25, 0.95) 60%,
+            var(--gradient-end) 100%);
+    }
+
+    .modal-body {
+        flex-direction: column;
+    }
+
+    .recipe-container {
+        max-height: 50vh;
+    }
+}
+
+/* Otimizações de performance */
+.js-carousel-list,
+.js-carousel-bg-img,
+.js-carousel-list-item,
+.progress-dot {
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    transform-style: preserve-3d;
+    -webkit-transform-style: preserve-3d;
+    perspective: 1000px;
+    -webkit-perspective: 1000px;
+}
+
+/* Acessibilidade */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* Otimizações para dispositivos touch */
+@media (hover: none) {
+    .js-carousel-list-item:hover,
+    .js-carousel-list-item.is-active:hover {
+        opacity: initial;
+        transform: initial;
+    }
+
+    .close-button {
+        padding: 15px;
+    }
+}
+
+/* Estilos para impressão */
+@media print {
+    .js-carousel,
+    .progress-dots,
+    .modal {
+        display: none !important;
+    }
+
+    body {
+        background: white;
+        color: black;
+    }
+
+    .recipe-container {
+        page-break-inside: avoid;
+    }
+}
+/* Itens do carrossel para dispositivos móveis */
+@media (max-width: 768px) {
+    .js-carousel-list-item a {
+        max-width: 100%; /* Aumentado para usar toda a largura disponível */
+        margin-left: auto; /* Empurra o conteúdo para a direita */
+        margin-right: 5%; /* Pequena margem à direita */
+        padding-left: 30%; /* Empurra o texto mais para a direita */
+    }
+
+    /* Ajusta o tamanho do texto para ser maior em mobile */
+    .u-a5 {
+        font-size: 28px; /* Texto maior */
+        letter-spacing: 2px;
+    }
+
+    /* Mantém o degradê original sem alterações */
+    .c-gradient-overlay {
+        background: linear-gradient(90deg,
+            var(--gradient-start) 0%,
+            rgba(2, 21, 25, 0.4) 20%,
+            var(--gradient-mid) 40%,
+            rgba(2, 21, 25, 0.95) 70%,
+            var(--gradient-end) 100%);
+    }
+}
+
+/* Para telas ainda menores */
+@media (max-width: 480px) {
+    .js-carousel-list-item a {
+        padding-left: 35%; /* Empurra ainda mais para a direita em telas muito pequenas */
+    }
+}
+/* Container de receitas oculto */
+#recipes-data {
+    display: none;
+}
+
+/* Modal principal */
+.modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background-color: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(3px);
+    overflow-y: auto;
+}
+
+/* Conteúdo do modal */
+.modal-content {
+    position: relative;
+    background: #fff;
+    width: min(85%, 900px);
+    margin: 20px auto;
+    padding: 2rem 1rem 1rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Botão de fechar - Estilo base */
+.close-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #ff4444;
+    color: white;
+    width: 30px;
+    height: 30px;
+    border-radius: 4px;
+    border: none;
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+    z-index: 1001; /* Garantir que está acima do conteúdo mas não sobrepõe elementos importantes */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    margin: 0;
+    transition: background 0.2s;
+}
+
+.close-button:hover {
+    background: #ff0000;
+}
+
+/* Ajustes responsivos do botão */
+@media (max-width: 1200px) {
+    .close-button {
+        width: 28px;
+        height: 28px;
+        font-size: 18px;
+    }
+}
+
+@media (max-width: 992px) {
+    .close-button {
+        width: 26px;
+        height: 26px;
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 768px) {
+    .close-button {
+        width: 24px;
+        height: 24px;
+        font-size: 14px;
+        top: 8px;
+        right: 8px;
+    }
+}
+
+@media (max-width: 480px) {
+    .close-button {
+        width: 22px;
+        height: 22px;
+        font-size: 12px;
+        top: 6px;
+        right: 6px;
+    }
+}
+
+/* Ajuste do container de vídeo para evitar sobreposição */
+.video-container {
+    position: relative;
+    padding-bottom: 50%;
+    margin-top: 1.5rem; /* Adicionar margem superior para evitar sobreposição com o botão */
+    background: #000;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.video-container iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+/* Container da receita */
+.recipe-container {
+    padding: 1rem;
+    max-height: 60vh;
+    overflow-y: auto;
+  
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    color: #333;
+    margin-top: 2rem; /* ADICIONE ESTA LINHA, ou ajuste se já existir */
+}
+
+/* Estilização da barra de rolagem */
+.recipe-container::-webkit-scrollbar {
+    width: 10px;
+}
+
+.recipe-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 5px;
+}
+
+.recipe-container::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 5px;
+}
+
+.recipe-container::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* Conteúdo da receita */
+.recipe-content {
+    max-width: 650px;
+    margin: 0 auto;
+    padding: 0 15px;
+}
+
+/* Títulos */
+.recipe-container h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    color: #333;
+    line-height: 1.3;
+}
+
+.recipe-container h3 {
+    font-size: 1.2rem;
+    margin: 1.2rem 0;
+    color: #444;
+    font-weight: 600;
+}
+
+/* Listas */
+.recipe-container ul,
+.recipe-container ol {
+    padding-left: 1.5rem;
+    margin-bottom: 1.2rem;
+    list-style-position: outside;
+}
+
+.recipe-container li {
+    margin-bottom: 0.8rem;
+    color: #555;
+    line-height: 1.5;
+    padding-left: 0.5rem;
+}
+
+/* Parágrafos */
+.recipe-container p {
+    margin-bottom: 1rem;
+    line-height: 1.5;
+}
+
+/* Responsividade */
+@media (max-width: 1200px) {
+    .modal-content {
+        width: 90%;
+        max-height: 90vh;
+    }
+
+    .video-container {
+        padding-bottom: 56.25%;
+    }
+}
+
+@media (max-width: 992px) {
+    .modal-content {
+        width: 95%;
+        margin: 15px auto;
+    }
+
+    .recipe-container {
+        max-height: 55vh;
+    }
+}
+
+@media (max-width: 768px) {
+    .modal {
+        padding: 0;
+    }
+
+    .modal-content {
+        width: 100%;
+        margin: 0;
+        min-height: 100vh;
+        border-radius: 0;
+        padding: 1rem;
+    }
+
+    .video-container {
+        padding-bottom: 65%;
+    }
+
+    .recipe-content {
+        padding: 0 10px;
+    }
+
+    .recipe-container {
+        padding: 0.8rem;
+    }
+
+    .recipe-container h2 {
+        font-size: 1.3rem;
+        margin-bottom: 1.2rem;
+    }
+
+    .recipe-container h3 {
+        font-size: 1.1rem;
+        margin: 1rem 0;
+    }
+
+    .recipe-container ul,
+    .recipe-container ol {
+        padding-left: 1.2rem;
+    }
+
+    .recipe-container li {
+        margin-bottom: 0.7rem;
+        font-size: 0.95rem;
+    }
+
+    .close-button {
+        top: 15px;
+        right: 15px;
+        width: 35px;
+        height: 35px;
+        font-size: 24px;
+    }
+}
+
+@media (max-width: 480px) {
+    .modal-content {
+        padding: 1rem 0.5rem;
+    }
+
+    .recipe-container {
+        padding: 0.5rem;
+    }
+
+    .recipe-container h2 {
+        font-size: 1.2rem;
+    }
+
+    .recipe-container h3 {
+        font-size: 1rem;
+    }
+}
+
+/* Orientação Paisagem em Dispositivos Móveis */
+@media (max-height: 600px) and (orientation: landscape) {
+    .modal-content {
+        display: flex;
+        flex-direction: row;
+        max-height: 100vh;
+        overflow: hidden;
+    }
+
+    .video-container {
+        flex: 1;
+        padding-bottom: 30%;
+        margin: 0.5rem;
+    }
+
+    .recipe-container {
+        flex: 1;
+        max-height: 100vh;
+        overflow-y: auto;
+    }
+}
+
+/* Telas muito grandes */
+@media (min-width: 1400px) {
+    .modal-content {
+        max-width: 1200px;
+    }
+
+    .recipe-container {
+        max-height: 70vh;
+    }
+}
+
+/* Telas pequenas */
+@media (max-height: 500px) {
+    .modal-content {
+        margin: 0;
+        height: 100vh;
+    }
+
+    .recipe-container {
+        max-height: calc(100vh - 60px);
+    }
+}
+
+/* Suporte para telas de alta densidade */
+@media (-webkit-min-device-pixel-ratio: 2), 
+       (min-resolution: 192dpi) {
+    .modal-content {
+        border: 0.5px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .close-button {
+        border: 0.5px solid rgba(255, 255, 255, 0.1);
+    }
+}
+
+/* Preferências de movimento reduzido */
+@media (prefers-reduced-motion: reduce) {
+    .modal,
+    .modal-content,
+    .close-button {
+        transition: none !important;
+    }
+}
+
+
+/* Botão de voltar - ajustado para ficar apenas no container principal */
+.back-button {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    background-color: #ff9800;
+    border: none;
+    border-radius: 30px;
+    padding: 10px 20px;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3);
+    transition: all 0.3s ease;
+    z-index: 3; /* Reduzido para ficar abaixo do modal (z-index: 1000) */
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    animation: pulse 2s infinite;
+    pointer-events: auto; /* Garante que o botão seja clicável */
+}
+
+/* Modal principal - ajustado para garantir que fique acima do botão de voltar */
+.modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 1000; /* Mantido alto para ficar acima do botão de voltar */
+    background-color: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(3px);
+    overflow-y: auto;
+}
+
+
+.back-button:hover {
+    background-color: #f57c00;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(255, 152, 0, 0.4);
+}
+
+.back-button:active {
+    transform: translateY(-1px);
+    box-shadow: 0 3px 10px rgba(255, 152, 0, 0.3);
+}
+
+.back-button-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    background-color: white;
+    border-radius: 50%;
+    margin-right: 10px;
+    transition: all 0.3s ease;
+}
+
+.back-button:hover .back-button-icon {
+    transform: rotate(-360deg);
+}
+
+.back-button-icon svg {
+    width: 20px;
+    height: 20px;
+    fill: #ff9800;
+}
+
+.back-button-text {
+    color: white;
+    font-weight: bold;
+    font-size: 16px;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+    font-family: 'Poppins', sans-serif;
+}
+
+.back-button:hover .back-button-text {
+    transform: scale(1.05);
+}
+
+/* Sobreposição de transição */
+.transition-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgb(255, 152, 0);
+    opacity: 0;
+    z-index: 9999;
+    pointer-events: none;
+    transition: opacity 0.8s ease-in-out;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.transition-overlay.active {
+    opacity: 1;
+}
+
+/* Contentor de carregamento */
+.loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.food-icon {
+    width: 50px;
+    height: 50px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    margin: 0 10px;
+    opacity: 0.3;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.food-icon.active {
+    opacity: 1;
+    animation: bounce 0.5s ease-in-out;
+}
+
+.food-icon:nth-child(1) {
+    background-image: url('https://cdn-icons-png.flaticon.com/512/1046/1046784.png');
+}
+
+.food-icon:nth-child(2) {
+    background-image: url('https://cdn-icons-png.flaticon.com/512/1046/1046771.png');
+}
+
+.food-icon:nth-child(3) {
+    background-image: url('https://cdn-icons-png.flaticon.com/512/1046/1046755.png');
+}
+
+
+
+/* Animações relacionadas */
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+}
+
+@keyframes close-transition {
+    0% { clip-path: circle(150% at center); }
+    100% { clip-path: circle(0% at center); }
+}
+
+
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(255, 152, 0, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(255, 152, 0, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(255, 152, 0, 0);
+    }
+}
+/* Animações */
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+/* Aplicação das animações */
+.pulse { animation: pulse 0.5s; }
+
+
+
+/* Container da receita - Com controle de tamanho */
+.recipe-container {
+    padding: 1rem;
+    max-height: 60vh;
+    overflow-y: auto;
+    overflow-x: hidden; /* Evita rolagem horizontal */
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    color: #333;
+    margin-top: 2rem;
+    width: 100%;
+    box-sizing: border-box;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+/* Conteúdo da receita - Com limites claros */
+.recipe-content {
+    width: 100%;
+    max-width: 650px;
+    margin: 0 auto;
+    padding: 0 15px;
+    box-sizing: border-box;
+    word-wrap: break-word; /* Evita que palavras longas causem overflow */
+}
+
+/* Garantia que imagens e elementos não ultrapassem o container */
+.recipe-container img,
+.recipe-container video,
+.recipe-container iframe,
+.recipe-container table {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Garantia que textos fiquem contidos */
+.recipe-container h2,
+.recipe-container h3,
+.recipe-container p {
+    max-width: 100%;
+    overflow-wrap: break-word;
+}
+
+/* Dispositivos móveis médios */
+@media (max-width: 768px) {
+    .recipe-container {
+        max-height: 50vh; /* Altura reduzida */
+        width: 95%; /* Não ocupar 100% da largura */
+        margin-left: auto;
+        margin-right: auto;
+        padding: 0.8rem;
+    }
+    
+    .recipe-content {
+        padding: 0 10px;
+    }
+}
+
+/* Dispositivos móveis pequenos */
+@media (max-width: 480px) {
+    .recipe-container {
+        max-height: 60vh;
+        width: 92%; /* Ainda menor em telas pequenas */
+        padding: 0.6rem;
+        margin-top: 1.5rem;
+    }
+    
+    .recipe-content {
+        padding: 0 8px;
+    }
+}
+
+/* Para o modal que contém o recipe-container */
+.modal-content {
+    position: relative;
+    background: #fff;
+    width: min(85%, 900px); /* Limitação de largura */
+    max-width: 900px; /* Largura máxima absoluta */
+    margin: 20px auto;
+    padding: 2rem 1rem 1rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    overflow: hidden; /* Garante que nada vaze */
+}
+
+/* Modo paisagem em dispositivos móveis */
+@media (max-height: 600px) and (orientation: landscape) {
+    .modal-content {
+        display: flex;
+        height: auto; /* Não forçar altura total */
+        max-height: 90vh; /* Limitar altura */
+    }
+    
+    .recipe-container {
+        width: 50%;
+        max-height: 80vh;
+    }
+}
+
+/* Ajuste para o carrossel em telas pequenas */
+@media (max-width: 390px) {
+    /* Ajuste nos itens da lista (nomes dos pratos) */
+    .js-carousel-list-item {
+        margin-bottom: 35px !important; /* Aumenta o espaço entre itens */
+        padding-bottom: 10px !important;
+    }
+    
+    /* Reduz ligeiramente o tamanho da fonte para caber melhor */
+    .js-carousel-list-item h3 {
+        font-size: 0.9em !important;
+        line-height: 1.3 !important;
+    }
+    
+    /* Ajuste nos dots de navegação */
+    .progress-dots {
+        bottom: 15px !important; /* Move os dots para baixo */
+        z-index: 100;
+    }
+    
+    /* Torna os dots um pouco menores em telas pequenas */
+    .progress-dot {
+        width: 8px !important;
+        height: 8px !important;
+        margin: 0 4px !important;
+    }
+    
+    /* Ajuste no container principal do carrossel */
+    .js-carousel-list {
+        padding-bottom: 40px !important; /* Mais espaço no final da lista */
+    }
+}
+
+/* Ajuste específico para telas extremamente pequenas */
+@media (max-width: 340px) {
+    .js-carousel-list-item {
+        margin-bottom: 40px !important;
+    }
+    
+    .js-carousel-list-item h3 {
+        font-size: 0.85em !important;
+    }
+    
+    /* Deixa os dots ainda mais discretos */
+    .progress-dot {
+        width: 6px !important;
+        height: 6px !important;
+    }
+}
+
+/* Ajuste para o layout no iPhone SE ou dispositivos muito pequenos */
+@media (max-width: 320px) {
+    .js-carousel-list {
+        padding-bottom: 50px !important;
+    }
+    
+    .progress-dots {
+        bottom: 20px !important;
+    }
+    
+    /* Redução mais agressiva nos elementos para evitar sobreposição */
+    .js-carousel-list-item h3 {
+        font-size: 0.8em !important;
+        margin-bottom: 20px !important;
+    }
+}
+
+/* Ajuste para uma melhor distinção visual entre item ativo e não ativos */
+@media (max-width: 390px) {
+    .js-carousel-list-item.is-active {
+        transform: scale(1.03) !important; /* Destaque mais sutil */
+    }
+    
+    .js-carousel-list-item:not(.is-active) {
+        opacity: 0.4 !important; /* Maior contraste entre ativos/inativos */
+    }
+}
+
+
+/* Ajustes para dispositivos móveis incluindo iPhone SE */
+@media screen and (max-width: 428px) {
+    /* Posicionamento das dots à direita e centralizadas verticalmente */
+    .progress-dots {
+      position: fixed !important;
+      top: 50% !important;
+      right: 10px !important;
+      left: auto !important;
+      transform: translateY(-50%) !important;
+      display: flex !important;
+      flex-direction: column !important;
+    }
+    
+    /* Garantir tamanho normal das dots */
+    .progress-dot {
+      width: 12px !important;  /* Tamanho padrão - ajuste se necessário */
+      height: 12px !important; /* Tamanho padrão - ajuste se necessário */
+      margin: 5px 0 !important;
+      transform: scale(1) !important; /* Previne escala reduzida */
+      min-width: 12px !important;
+      min-height: 12px !important;
+      max-width: 12px !important;
+      max-height: 12px !important;
+    }
+    
+    /* Apenas reduz o tamanho da fonte dos títulos das receitas */
+    .js-carousel-list-item h2,
+    .js-carousel-list-item h3,
+    .js-carousel-list-item a {
+      font-size: 1.2rem !important;
+      line-height: 1.3 !important;
+    }
+  }
+  
+  /* Ajuste apenas do tamanho do texto para iPhone SE */
+  @media screen and (max-width: 375px) {
+    /* Garantir que as dots mantenham o mesmo tamanho mesmo no iPhone SE */
+    .progress-dot {
+      width: 12px !important;
+      height: 12px !important;
+      transform: scale(1) !important;
+      min-width: 12px !important;
+      min-height: 12px !important;
+    }
+    
+    .js-carousel-list-item h2,
+    .js-carousel-list-item h3,
+    .js-carousel-list-item a {
+      font-size: 1rem !important;
+    }
+  }
+  
+  /* Ajustes para dispositivos móveis incluindo iPhone SE */
+@media screen and (max-width: 428px) {
+    /* Posicionamento das dots à direita e centralizadas verticalmente */
+    .progress-dots {
+      position: fixed !important;
+      top: 50% !important;
+      right: 10px !important;
+      left: auto !important;
+      transform: translateY(-50%) !important;
+      display: flex !important;
+      flex-direction: column !important;
+    }
+    
+    /* Garantir tamanho normal das dots */
+    .progress-dot {
+      width: 12px !important;
+      height: 12px !important;
+      margin: 5px 0 !important;
+      transform: scale(1) !important;
+      min-width: 12px !important;
+      min-height: 12px !important;
+    }
+    
+    /* Reduz o tamanho da fonte dos nomes das receitas PELA METADE */
+    .js-carousel-list-item h2,
+    .js-carousel-list-item h3,
+    .js-carousel-list-item a {
+      font-size: 0.5rem !important; /* Exatamente metade do tamanho padrão (16px → 8px) */
+      line-height: 1.1 !important;
+    }
+  }
+  
+  /* Ajustes específicos para iPhone SE (375px e menores) */
+  @media screen and (max-width: 375px) {
+    /* Mantém a fonte pela metade também no iPhone SE */
+    .js-carousel-list-item h2,
+    .js-carousel-list-item h3,
+    .js-carousel-list-item a {
+      font-size: 0.5rem !important;
+      line-height: 1 !important;
+    }
+  }
+  
+  /* Modificação para o overlay de transição */
+.transition-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgb(255, 152, 0);
+    opacity: 0;
+    z-index: 9999;
+    pointer-events: none; /* Inicialmente não intercepta eventos */
+    transition: opacity 0.8s ease-in-out;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Quando ativo, deve interceptar todos os eventos */
+.transition-overlay.active {
+    opacity: 1;
+    pointer-events: all; /* Intercepta todos os eventos quando ativo */
+}
+
+/* Fortalece a distinção visual entre itens ativos/inativos em dispositivos móveis */
+@media (max-width: 768px) {
+    /* Garante que apenas o item ativo tenha opacidade total */
+    .js-carousel-list-item {
+        opacity: 0.3 !important;
+        transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+    
+    /* Sobrescreve com alta especificidade para garantir o funcionamento */
+    .js-carousel-list-item.is-active {
+        opacity: 1 !important;
+    }
+    
+    /* Desativa qualquer animação em itens que não estão no viewport */
+    .js-carousel-list-item:not(.is-active) {
+        will-change: auto !important;
+    }
+}
+

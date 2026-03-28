@@ -1,12 +1,17 @@
 {
   "name": "gastro-challenge-backend",
   "version": "1.0.0",
+  "type": "module",
   "description": "Backend seguro para o GastroChallenge",
   "main": "api/index.js",
   "scripts": {
     "start": "node api/index.js",
     "dev": "nodemon api/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write \"**/*.{js,json,css,html}\"",
+    "format:check": "prettier --check \"**/*.{js,json,css,html}\""
   },
   "keywords": [
     "gastro",
@@ -24,7 +29,11 @@
     "helmet": "^7.1.0"
   },
   "devDependencies": {
-    "nodemon": "^3.1.10"
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.1.0",
+    "eslint-config-prettier": "^9.1.0",
+    "nodemon": "^3.1.10",
+    "prettier": "^3.4.2"
   },
   "engines": {
     "node": ">=16.0.0"

@@ -55,3 +55,19 @@ globalThis.anime = vi.fn(() => ({ finished: Promise.resolve() }));
 globalThis.DOMPurify = {
   sanitize: (html) => html,
 };
+
+// IntersectionObserver API (used by src/recipes/lazy-loader.js)
+globalThis.IntersectionObserver = class {
+  constructor(callback, options) {
+    this.callback = callback;
+    this.options = options;
+    this.targets = [];
+  }
+  observe(el) { this.targets.push(el); }
+  unobserve(el) { this.targets = this.targets.filter(t => t !== el); }
+  disconnect() { this.targets = []; }
+  // Test helper: trigger intersection manually
+  triggerIntersection(entries) {
+    this.callback(entries, this);
+  }
+};

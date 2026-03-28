@@ -175,12 +175,10 @@ document.addEventListener('DOMContentLoaded', () => {
       chatForm: document.getElementById('chat-form'),
       chatMessages: document.getElementById('chat-messages'),
       userInput: document.getElementById('user-input'),
-      submitButton: document.querySelector(
-        '#chat-form button[type="submit"]'
-      ),
+      submitButton: document.querySelector('#chat-form button[type="submit"]'),
       stopButton: document.getElementById('stop-button'),
       clearButton: document.getElementById('clear-button'),
-      exportButton: document.getElementById('export-button')
+      exportButton: document.getElementById('export-button'),
     };
 
     const chatContainer = document.getElementById('chat-container');
@@ -196,9 +194,6 @@ document.addEventListener('DOMContentLoaded', () => {
     initExportButton();
     initChatDragging(chatContainer, chatHeader);
   } catch (error) {
-    handleAsyncError(
-      error,
-      'Erro ao iniciar o chat. Recarregue a página.'
-    );
+    handleAsyncError(error, 'Erro ao iniciar o chat. Recarregue a página.');
   }
 });

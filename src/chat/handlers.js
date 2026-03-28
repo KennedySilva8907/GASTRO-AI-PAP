@@ -23,7 +23,7 @@ let currentRequest = null;
 function getCurrentTime() {
   return new Date().toLocaleTimeString([], {
     hour: '2-digit',
-    minute: '2-digit'
+    minute: '2-digit',
   });
 }
 
@@ -122,14 +122,7 @@ function createMessageElement(sender, message) {
  * @param {function} resolve - Promise resolve function
  * @returns {object} Typed.js configuration
  */
-function buildTypedOptions(
-  htmlContent,
-  chatMessages,
-  sender,
-  message,
-  elements,
-  resolve
-) {
+function buildTypedOptions(htmlContent, chatMessages, sender, message, elements, resolve) {
   const typingTime = Math.min(htmlContent.length * TYPING_SPEED, MAX_TYPING_TIME);
   return {
     strings: [htmlContent],
@@ -153,14 +146,14 @@ function buildTypedOptions(
       currentTyped = null;
       conversationHistory.push({
         role: sender === 'user' ? 'user' : 'model',
-        parts: [{ text: message }]
+        parts: [{ text: message }],
       });
       if (conversationHistory.length > MAX_HISTORY * 2) {
         conversationHistory.splice(0, 2);
       }
       toggleClearButton(elements.clearButton, true);
       resolve();
-    }
+    },
   };
 }
 
@@ -175,10 +168,7 @@ function buildTypedOptions(
  */
 function addMessage(sender, message, chatMessages, sanitizeHtml, elements) {
   return new Promise((resolve) => {
-    const { messageElement, contentElement } = createMessageElement(
-      sender,
-      message
-    );
+    const { messageElement, contentElement } = createMessageElement(sender, message);
     chatMessages.appendChild(messageElement);
 
     const rawHtml = marked.parse(message);
@@ -209,31 +199,31 @@ function buildChatRequestPayload(message) {
         role: 'user',
         parts: [
           {
-            text: 'Use sempre português de Portugal nas suas respostas. Você é um assistente especializado em gastronomia. Responda apenas a perguntas relacionadas à culinária, receitas, técnicas de cozinha e temas gastronómicos.'
-          }
-        ]
+            text: 'Use sempre português de Portugal nas suas respostas. Você é um assistente especializado em gastronomia. Responda apenas a perguntas relacionadas à culinária, receitas, técnicas de cozinha e temas gastronómicos.',
+          },
+        ],
       },
       {
         role: 'model',
         parts: [
           {
-            text: 'Entendido. Sou um assistente especializado em gastronomia e vou responder apenas a perguntas relacionadas à culinária, receitas, técnicas de cozinha e temas gastronómicos, sempre utilizando o português de Portugal.'
-          }
-        ]
+            text: 'Entendido. Sou um assistente especializado em gastronomia e vou responder apenas a perguntas relacionadas à culinária, receitas, técnicas de cozinha e temas gastronómicos, sempre utilizando o português de Portugal.',
+          },
+        ],
       },
       ...conversationHistory,
-      { role: 'user', parts: [{ text: message }] }
+      { role: 'user', parts: [{ text: message }] },
     ],
     generationConfig: {
       temperature: 0.7,
-      maxOutputTokens: MAX_TOKENS
+      maxOutputTokens: MAX_TOKENS,
     },
     safetySettings: [
       {
         category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
-        threshold: 'BLOCK_MEDIUM_AND_ABOVE'
-      }
-    ]
+        threshold: 'BLOCK_MEDIUM_AND_ABOVE',
+      },
+    ],
   };
 }
 
@@ -252,7 +242,7 @@ async function getChatbotResponse(message) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(buildChatRequestPayload(message)),
-      signal: signal
+      signal: signal,
     });
 
     if (!response.ok) {
@@ -300,26 +290,14 @@ async function handleChatSubmit(event, elements, sanitizeHtml) {
     toggleStopButton(elements.stopButton, true);
 
     try {
-      await addMessage(
-        'user',
-        message,
-        elements.chatMessages,
-        sanitizeHtml,
-        elements
-      );
+      await addMessage('user', message, elements.chatMessages, sanitizeHtml, elements);
       const typingIndicator = showTypingIndicator(elements.chatMessages);
 
       const botResponse = await getChatbotResponse(message);
       if (typingIndicator && typingIndicator.parentNode) {
         elements.chatMessages.removeChild(typingIndicator);
       }
-      await addMessage(
-        'bot',
-        botResponse,
-        elements.chatMessages,
-        sanitizeHtml,
-        elements
-      );
+      await addMessage('bot', botResponse, elements.chatMessages, sanitizeHtml, elements);
     } catch (error) {
       console.error('Error in chat submission:', error);
       if (error.message !== 'Solicitação cancelada') {
@@ -364,13 +342,8 @@ async function stopCurrentRequest(elements, sanitizeHtml) {
 
   removeTypingIndicator(elements.chatMessages);
 
-  const lastBotMessage = elements.chatMessages.querySelector(
-    '.message.bot:last-child'
-  );
-  if (
-    lastBotMessage &&
-    !lastBotMessage.querySelector('.message-content').textContent.trim()
-  ) {
+  const lastBotMessage = elements.chatMessages.querySelector('.message.bot:last-child');
+  if (lastBotMessage && !lastBotMessage.querySelector('.message-content').textContent.trim()) {
     elements.chatMessages.removeChild(lastBotMessage);
   }
 

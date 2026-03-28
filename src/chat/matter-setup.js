@@ -27,7 +27,7 @@ const COLLISION_PULSE_DURATION = 100;
  */
 function wrapFoods(foods, bounds) {
   const { width, height } = bounds;
-  foods.forEach(food => {
+  foods.forEach((food) => {
     const { x, y } = food.position;
     if (x < 0) Body.setPosition(food, { x: width, y: y });
     if (x > width) Body.setPosition(food, { x: 0, y: y });
@@ -41,14 +41,14 @@ function wrapFoods(foods, bounds) {
  * @param {Matter.Body[]} foods - Array of food bodies
  */
 function maintainConstantSpeed(foods) {
-  foods.forEach(food => {
+  foods.forEach((food) => {
     const velocity = food.velocity;
     const speed = Math.sqrt(velocity.x * velocity.x + velocity.y * velocity.y);
     if (speed !== BASE_SPEED) {
       const factor = BASE_SPEED / speed;
       Body.setVelocity(food, {
         x: velocity.x * factor,
-        y: velocity.y * factor
+        y: velocity.y * factor,
       });
     }
   });
@@ -76,43 +76,38 @@ function applyCollisionPulse(body) {
 function reflectVelocities(bodyA, bodyB) {
   const collisionVector = {
     x: bodyB.position.x - bodyA.position.x,
-    y: bodyB.position.y - bodyA.position.y
+    y: bodyB.position.y - bodyA.position.y,
   };
 
   const magnitude = Math.sqrt(
-    collisionVector.x * collisionVector.x +
-    collisionVector.y * collisionVector.y
+    collisionVector.x * collisionVector.x + collisionVector.y * collisionVector.y
   );
   const normalizedVector = {
     x: collisionVector.x / magnitude,
-    y: collisionVector.y / magnitude
+    y: collisionVector.y / magnitude,
   };
 
-  const dotProductA =
-    bodyA.velocity.x * normalizedVector.x +
-    bodyA.velocity.y * normalizedVector.y;
-  const dotProductB =
-    bodyB.velocity.x * normalizedVector.x +
-    bodyB.velocity.y * normalizedVector.y;
+  const dotProductA = bodyA.velocity.x * normalizedVector.x + bodyA.velocity.y * normalizedVector.y;
+  const dotProductB = bodyB.velocity.x * normalizedVector.x + bodyB.velocity.y * normalizedVector.y;
 
   Body.setVelocity(bodyA, {
     x: bodyA.velocity.x - 2 * dotProductA * normalizedVector.x,
-    y: bodyA.velocity.y - 2 * dotProductA * normalizedVector.y
+    y: bodyA.velocity.y - 2 * dotProductA * normalizedVector.y,
   });
 
   Body.setVelocity(bodyB, {
     x: bodyB.velocity.x - 2 * dotProductB * normalizedVector.x,
-    y: bodyB.velocity.y - 2 * dotProductB * normalizedVector.y
+    y: bodyB.velocity.y - 2 * dotProductB * normalizedVector.y,
   });
 
   const separation = 1.01;
   Body.setPosition(bodyA, {
     x: bodyA.position.x - normalizedVector.x * separation,
-    y: bodyA.position.y - normalizedVector.y * separation
+    y: bodyA.position.y - normalizedVector.y * separation,
   });
   Body.setPosition(bodyB, {
     x: bodyB.position.x + normalizedVector.x * separation,
-    y: bodyB.position.y + normalizedVector.y * separation
+    y: bodyB.position.y + normalizedVector.y * separation,
   });
 }
 
@@ -152,20 +147,20 @@ function createFoodBody(foodImages, index, canvasWidth, canvasHeight) {
       sprite: {
         texture: foodImages[index % foodImages.length],
         xScale: ICON_SIZE / 256,
-        yScale: ICON_SIZE / 256
-      }
+        yScale: ICON_SIZE / 256,
+      },
     },
     restitution: 1,
     friction: 0,
     frictionAir: 0,
     inertia: Infinity,
-    slop: 0
+    slop: 0,
   });
 
   const angle = Math.random() * Math.PI * 2;
   Body.setVelocity(food, {
     x: Math.cos(angle) * BASE_SPEED,
-    y: Math.sin(angle) * BASE_SPEED
+    y: Math.sin(angle) * BASE_SPEED,
   });
 
   return food;
@@ -180,16 +175,14 @@ function handleMouseThrow(body) {
   const bodyPosition = body.position;
   const throwVector = {
     x: (mouseVelocity.x - bodyPosition.x) * 0.05,
-    y: (mouseVelocity.y - bodyPosition.y) * 0.05
+    y: (mouseVelocity.y - bodyPosition.y) * 0.05,
   };
 
-  const speed = Math.sqrt(
-    throwVector.x * throwVector.x + throwVector.y * throwVector.y
-  );
+  const speed = Math.sqrt(throwVector.x * throwVector.x + throwVector.y * throwVector.y);
   const factor = BASE_SPEED / speed;
   Body.setVelocity(body, {
     x: throwVector.x * factor,
-    y: throwVector.y * factor
+    y: throwVector.y * factor,
   });
 }
 
@@ -235,18 +228,13 @@ export function initPhysics(containerElement, foodImages) {
       width: window.innerWidth,
       height: window.innerHeight,
       wireframes: false,
-      background: 'transparent'
-    }
+      background: 'transparent',
+    },
   });
 
   const foods = [];
   for (let i = 0; i < ICON_COUNT; i++) {
-    const food = createFoodBody(
-      foodImages,
-      i,
-      window.innerWidth,
-      window.innerHeight
-    );
+    const food = createFoodBody(foodImages, i, window.innerWidth, window.innerHeight);
     foods.push(food);
   }
 
@@ -257,8 +245,8 @@ export function initPhysics(containerElement, foodImages) {
     mouse: mouse,
     constraint: {
       stiffness: 0.2,
-      render: { visible: false }
-    }
+      render: { visible: false },
+    },
   });
 
   World.add(world, mouseConstraint);
@@ -274,6 +262,6 @@ export function initPhysics(containerElement, foodImages) {
       Render.stop(render);
       Engine.clear(engine);
       render.canvas.remove();
-    }
+    },
   };
 }

@@ -24,14 +24,10 @@ export async function preloadImages(urls) {
   const failed = results.filter((r) => r.status === 'rejected');
   if (failed.length > 0) {
     // eslint-disable-next-line no-console
-    console.warn(
-      `[Preloader] ${failed.length}/${urls.length} images failed to load`
-    );
+    console.warn(`[Preloader] ${failed.length}/${urls.length} images failed to load`);
   }
 
-  return results
-    .filter((r) => r.status === 'fulfilled')
-    .map((r) => r.value);
+  return results.filter((r) => r.status === 'fulfilled').map((r) => r.value);
 }
 
 /**

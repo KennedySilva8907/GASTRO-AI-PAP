@@ -69,8 +69,7 @@ try {
   if (isMobile) {
     const viewportMeta = document.querySelector('meta[name="viewport"]');
     if (viewportMeta) {
-      viewportMeta.content =
-        'width=device-width, initial-scale=1, maximum-scale=1';
+      viewportMeta.content = 'width=device-width, initial-scale=1, maximum-scale=1';
     }
     document.documentElement.style.webkitOverflowScrolling = 'touch';
   }
@@ -112,8 +111,7 @@ try {
 
         setTimeout(() => {
           clearInterval(animationInterval);
-          document.body.style.animation =
-            'close-transition 1s ease-in-out forwards';
+          document.body.style.animation = 'close-transition 1s ease-in-out forwards';
 
           setTimeout(() => {
             window.location.href = '../index.html';

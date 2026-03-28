@@ -127,6 +127,7 @@ export class VerticalCarousel {
         };
 
         img.onerror = () => {
+          // eslint-disable-next-line no-console
           console.error(`Failed to load image: ${imgUrl}`);
           updateProgress();
         };

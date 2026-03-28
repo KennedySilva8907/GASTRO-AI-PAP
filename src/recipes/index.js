@@ -61,8 +61,8 @@ function loadRecipeData() {
  */
 try {
   const recipes = loadRecipeData();
-  const carousel = new VerticalCarousel({}, recipes);
-  const modalHandler = new ResponsiveModalHandler();
+  new VerticalCarousel({}, recipes);
+  new ResponsiveModalHandler();
 
   // Initialize mobile optimizations
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);

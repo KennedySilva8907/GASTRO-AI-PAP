@@ -170,8 +170,8 @@ function createFoodBody(foodImages, index, canvasWidth, canvasHeight) {
  * Handles mouse drag end event for throwing food icons
  * @param {Matter.Body} body - Food body being dragged
  */
-function handleMouseThrow(body) {
-  const mouseVelocity = event.mouse.mouseupPosition;
+function handleMouseThrow(body, mouseEvent) {
+  const mouseVelocity = mouseEvent.mouse.mouseupPosition;
   const bodyPosition = body.position;
   const throwVector = {
     x: (mouseVelocity.x - bodyPosition.x) * 0.05,
@@ -206,7 +206,7 @@ function setupPhysicsEvents(engine, render, foods, mouseConstraint) {
   Events.on(mouseConstraint, 'enddrag', (event) => {
     const body = event.body;
     if (foods.includes(body)) {
-      handleMouseThrow(body);
+      handleMouseThrow(body, event);
     }
   });
 }

@@ -44,6 +44,7 @@ export const SANITIZE_CONFIG_EXTENDED = {
  */
 export function sanitizeHtml(html, config = SANITIZE_CONFIG) {
   if (typeof DOMPurify === 'undefined') {
+    // eslint-disable-next-line no-console
     console.warn('[Security] DOMPurify not loaded, stripping all HTML tags');
     return html.replace(/<[^>]*>/g, '');
   }

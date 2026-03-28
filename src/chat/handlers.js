@@ -250,7 +250,7 @@ async function getChatbotResponse(message) {
       try {
         const errorData = await response.json();
         errorMsg += ` - ${JSON.stringify(errorData)}`;
-      } catch (_) {
+      } catch {
         // Ignore if error response is not valid JSON
       }
       throw new Error(errorMsg);
@@ -263,8 +263,9 @@ async function getChatbotResponse(message) {
     return data.candidates[0].content.parts[0].text.trim();
   } catch (error) {
     if (error.name === 'AbortError') {
-      throw new Error('Solicitação cancelada');
+      throw new Error('Solicitação cancelada', { cause: error });
     }
+    // eslint-disable-next-line no-console
     console.error('Error in getChatbotResponse:', error);
     throw error;
   } finally {
@@ -299,6 +300,7 @@ async function handleChatSubmit(event, elements, sanitizeHtml) {
       }
       await addMessage('bot', botResponse, elements.chatMessages, sanitizeHtml, elements);
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Error in chat submission:', error);
       if (error.message !== 'Solicitação cancelada') {
         removeTypingIndicator(elements.chatMessages);

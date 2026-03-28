@@ -367,7 +367,7 @@ function extractInstructions(text) {
     .map((line) => line.trim())
     .filter((line) => line.length > 0)
     .map((line) => line.replace(/^[-•*]\s*/, ''))
-    .map((line) => line.replace(/^(\d+)[\.\)][\s]+/, ''))
+    .map((line) => line.replace(/^(\d+)[.)]\s+/, ''))
     .filter((line) => !/limp[ae]r?|lav[ae]r?/i.test(line));
 
   return instructions.map((instruction) => {
@@ -407,7 +407,7 @@ function extractTips(text) {
     .split('\n')
     .map((line) => line.trim())
     .filter((line) => line.length > 0)
-    .map((line) => line.replace(/^[\d\.\)]+\s*/, ''))
+    .map((line) => line.replace(/^[\d.)]+\s*/, ''))
     .map((line) => line.replace(/^[-•*]\s*/, ''))
     .map((line) => line.replace(/ID [Úú]nico:?\s*\d+/gi, '').trim())
     .filter((line) => line.length > 0);

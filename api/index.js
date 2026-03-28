@@ -125,7 +125,6 @@ async function handleChat(req, res) {
         });
 
         if (!response.ok) {
-            const errorText = await response.text();
             console.error('Gemini API Error (chat):', response.status);
             return res.status(response.status).json({
                 error: 'An error occurred processing your request',
@@ -180,7 +179,6 @@ async function handleGemini(req, res) {
         });
 
         if (!response.ok) {
-            const errorText = await response.text();
             console.error('Gemini API Error (gemini):', response.status);
             return res.status(response.status).json({
                 error: 'An error occurred processing your request',

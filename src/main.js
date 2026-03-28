@@ -3,7 +3,7 @@
  * Handles navigation transitions, AI info modal, food animations, and mouse effects.
  */
 import { foodImages } from './shared/constants.js';
-import { getRandomFoodImage, createFoodElement, createFoodParticles } from './shared/animations.js';
+import { createFoodElement, createFoodParticles } from './shared/animations.js';
 
 /**
  * Disable all navigation buttons during page transitions.

@@ -23,6 +23,7 @@ export class UserFacingError extends Error {
  */
 export function handleAsyncError(error, fallbackMessage) {
   // Log technical details for debugging
+  // eslint-disable-next-line no-console
   console.error('[Error]', error);
 
   // Return user-facing message
@@ -40,5 +41,6 @@ export function handleAsyncError(error, fallbackMessage) {
  */
 export function showUserNotification(message, type = 'info') {
   // Future: integrate with toast notification library
+  // eslint-disable-next-line no-console
   console.log(`[${type.toUpperCase()}]`, message);
 }

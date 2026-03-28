@@ -29,3 +29,6 @@ build/
 # API Keys (segurança extra)
 **/api-keys.js
 **/*api-key*
+
+# Internal documentation
+.planning/

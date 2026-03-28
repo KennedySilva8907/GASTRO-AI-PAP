@@ -79,6 +79,14 @@ function init() {
     setupChallengeButtons();
     ensureFontAwesome();
     ensureDotLottie();
+
+    const backButton = document.getElementById('back-button');
+    if (backButton) {
+      backButton.addEventListener('click', (e) => {
+        e.preventDefault();
+        navigateHome();
+      });
+    }
   } catch (error) {
     handleAsyncError(error, 'Erro ao iniciar os desafios.');
   }
@@ -511,10 +519,38 @@ function handleNewRecipeClick(level) {
 /**
  * Handles back button click.
  */
+function navigateHome() {
+  const transitionOverlay = document.getElementById('transition-overlay');
+  const foodIcons = document.querySelectorAll('.food-icon');
+
+  if (transitionOverlay) {
+    transitionOverlay.classList.add('active');
+  }
+
+  let currentIcon = 0;
+  const animationInterval = setInterval(() => {
+    if (foodIcons[currentIcon]) {
+      foodIcons[currentIcon].classList.add('active');
+      setTimeout(() => {
+        foodIcons[currentIcon].classList.remove('active');
+        currentIcon = (currentIcon + 1) % foodIcons.length;
+      }, 400);
+    }
+  }, 500);
+
+  setTimeout(() => {
+    clearInterval(animationInterval);
+    document.body.style.animation = 'close-transition 1s ease-in-out forwards';
+    setTimeout(() => {
+      window.location.href = '../index.html';
+    }, 1000);
+  }, 4000);
+}
+
 function handleBackClick() {
   showConfirmDialog(
-    'Voltar',
-    'Tem certeza que deseja voltar à página inicial? Seu progresso será perdido.',
+    'Voltar ao Menu',
+    'Tem certeza que deseja voltar ao menu de níveis? O seu progresso será perdido.',
     () => {
       if (currentTimer) {
         currentTimer.stop();

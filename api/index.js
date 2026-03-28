@@ -1,14 +1,56 @@
-const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN || '*';
+const ALLOWED_ORIGINS = [
+    'http://localhost:5173',
+    'http://localhost:3000',
+    process.env.PRODUCTION_URL
+].filter(Boolean);
+
 const MAX_BODY_SIZE = 50000;
 
+const ERROR_CODES = {
+    GEMINI_API: 'ERR_GEMINI_001',
+    INVALID_INPUT: 'ERR_INPUT_001',
+    NOT_FOUND: 'ERR_NOTFOUND_001',
+    METHOD_NOT_ALLOWED: 'ERR_METHOD_001',
+    PAYLOAD_TOO_LARGE: 'ERR_PAYLOAD_001',
+    API_KEY_MISSING: 'ERR_CONFIG_001',
+    INTERNAL: 'ERR_INTERNAL_001',
+    CORS: 'ERR_CORS_001'
+};
+
+function setCorsHeaders(req, res) {
+    const origin = req.headers.origin;
+
+    // No origin header (server-to-server, Postman, same-origin)
+    if (!origin) {
+        res.setHeader('Access-Control-Allow-Origin', ALLOWED_ORIGINS[0]);
+        res.setHeader('Access-Control-Allow-Credentials', true);
+        res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+        res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Accept');
+        return true;
+    }
+
+    // Check if origin is in whitelist
+    if (ALLOWED_ORIGINS.includes(origin)) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+        res.setHeader('Access-Control-Allow-Credentials', true);
+        res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+        res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Accept');
+        return true;
+    }
+
+    // Origin not allowed
+    return false;
+}
+
 export default async function handler(req, res) {
-    res.setHeader('Access-Control-Allow-Credentials', true);
-    res.setHeader('Access-Control-Allow-Origin', ALLOWED_ORIGIN);
-    res.setHeader('Access-Control-Allow-Methods', 'POST,OPTIONS');
-    res.setHeader(
-        'Access-Control-Allow-Headers',
-        'Accept, Content-Type, Content-Length'
-    );
+    // Set CORS headers and check if origin is allowed
+    const allowed = setCorsHeaders(req, res);
+    if (!allowed) {
+        return res.status(403).json({
+            error: 'Origin not allowed',
+            code: ERROR_CODES.CORS
+        });
+    }
 
     if (req.method === 'OPTIONS') {
         res.status(200).end();
@@ -17,7 +59,10 @@ export default async function handler(req, res) {
 
     const bodySize = JSON.stringify(req.body || {}).length;
     if (bodySize > MAX_BODY_SIZE) {
-        return res.status(413).json({ error: 'Pedido demasiado grande' });
+        return res.status(413).json({
+            error: 'Request payload too large',
+            code: ERROR_CODES.PAYLOAD_TOO_LARGE
+        });
     }
 
     const { url } = req;
@@ -30,13 +75,21 @@ export default async function handler(req, res) {
         } else if (path === 'gemini' || path.startsWith('gemini/')) {
             return await handleGemini(req, res);
         } else {
-            return res.status(404).json({ error: 'Endpoint não encontrado' });
+            return res.status(404).json({
+                error: 'Endpoint not found',
+                code: ERROR_CODES.NOT_FOUND
+            });
         }
     } catch (error) {
-        console.error('Erro no roteador da API:', error);
-        return res.status(500).json({ 
-            error: 'Erro interno do servidor',
-            details: error.message 
+        console.error('[API Router Error]', {
+            message: error.message,
+            stack: error.stack,
+            url: req.url,
+            timestamp: new Date().toISOString()
+        });
+        return res.status(500).json({
+            error: 'An error occurred processing your request',
+            code: ERROR_CODES.INTERNAL
         });
     }
 }
@@ -44,7 +97,10 @@ export default async function handler(req, res) {
 // Função para lidar com o endpoint /api/chat
 async function handleChat(req, res) {
     if (req.method !== 'POST') {
-        return res.status(405).json({ error: 'Método não permitido' });
+        return res.status(405).json({
+            error: 'Method not allowed',
+            code: ERROR_CODES.METHOD_NOT_ALLOWED
+        });
     }
 
     try {
@@ -52,13 +108,16 @@ async function handleChat(req, res) {
         const API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent';
 
         if (!API_KEY) {
-            console.error('GEMINI_API_KEY não encontrada');
-            return res.status(500).json({ error: 'API key não configurada' });
+            console.error('[Config Error] GEMINI_API_KEY not found in environment');
+            return res.status(500).json({
+                error: 'Service temporarily unavailable',
+                code: ERROR_CODES.API_KEY_MISSING
+            });
         }
 
         const response = await fetch(`${API_URL}?key=${API_KEY}`, {
             method: 'POST',
-            headers: { 
+            headers: {
                 'Content-Type': 'application/json',
                 'User-Agent': 'GastroAI-Chat/1.0'
             },
@@ -68,17 +127,24 @@ async function handleChat(req, res) {
         if (!response.ok) {
             const errorText = await response.text();
             console.error('Gemini API Error (chat):', response.status);
-            return res.status(response.status).json({ error: 'Erro na API Gemini' });
+            return res.status(response.status).json({
+                error: 'An error occurred processing your request',
+                code: ERROR_CODES.GEMINI_API
+            });
         }
 
         const data = await response.json();
         return res.status(200).json(data);
 
     } catch (error) {
-        console.error('Erro no chat:', error);
-        return res.status(500).json({ 
-            error: 'Erro interno do servidor',
-            details: error.message 
+        console.error('[Chat Error]', {
+            message: error.message,
+            stack: error.stack,
+            timestamp: new Date().toISOString()
+        });
+        return res.status(500).json({
+            error: 'An error occurred processing your request',
+            code: ERROR_CODES.INTERNAL
         });
     }
 }
@@ -86,7 +152,10 @@ async function handleChat(req, res) {
 // Função para lidar com o endpoint /api/gemini
 async function handleGemini(req, res) {
     if (req.method !== 'POST') {
-        return res.status(405).json({ error: 'Método não permitido' });
+        return res.status(405).json({
+            error: 'Method not allowed',
+            code: ERROR_CODES.METHOD_NOT_ALLOWED
+        });
     }
 
     try {
@@ -94,13 +163,16 @@ async function handleGemini(req, res) {
         const API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent';
 
         if (!API_KEY) {
-            console.error('GEMINI_API_KEY não encontrada');
-            return res.status(500).json({ error: 'API key não configurada' });
+            console.error('[Config Error] GEMINI_API_KEY not found in environment');
+            return res.status(500).json({
+                error: 'Service temporarily unavailable',
+                code: ERROR_CODES.API_KEY_MISSING
+            });
         }
 
         const response = await fetch(`${API_URL}?key=${API_KEY}`, {
             method: 'POST',
-            headers: { 
+            headers: {
                 'Content-Type': 'application/json',
                 'User-Agent': 'GastroAI-Recipes/1.0'
             },
@@ -110,17 +182,24 @@ async function handleGemini(req, res) {
         if (!response.ok) {
             const errorText = await response.text();
             console.error('Gemini API Error (gemini):', response.status);
-            return res.status(response.status).json({ error: 'Erro na API Gemini' });
+            return res.status(response.status).json({
+                error: 'An error occurred processing your request',
+                code: ERROR_CODES.GEMINI_API
+            });
         }
 
         const data = await response.json();
         return res.status(200).json(data);
 
     } catch (error) {
-        console.error('Erro no gemini:', error);
-        return res.status(500).json({ 
-            error: 'Erro interno do servidor',
-            details: error.message 
+        console.error('[Gemini Error]', {
+            message: error.message,
+            stack: error.stack,
+            timestamp: new Date().toISOString()
+        });
+        return res.status(500).json({
+            error: 'An error occurred processing your request',
+            code: ERROR_CODES.INTERNAL
         });
     }
 }

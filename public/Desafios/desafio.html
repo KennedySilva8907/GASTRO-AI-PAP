@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <link rel="icon" type="image/png" href="chef.png">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Título da página -->
+    <title>Desafio Culinário - GastroAI</title>
+    <!-- Importação de fontes do Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Pacifico&display=swap" rel="stylesheet">
+    <!-- Folha de estilos principal -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- SEÇÃO 1: ELEMENTOS DE NAVEGAÇÃO E TRANSIÇÃO -->
+    <!-- Overlay de transição para animação de saída -->
+    <div id="transition-overlay" class="transition-overlay">
+        <div class="loading-container">
+            <div class="food-icon"></div>
+            <div class="food-icon"></div>
+            <div class="food-icon"></div>
+        </div>
+    </div>
+
+    <!-- Botão de navegação para voltar à página anterior -->
+    <button id="back-button" class="menu-back-button" aria-label="Voltar">
+        <div class="back-button-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+                <path fill="none" d="M0 0h24v24H0z"/>
+                <path d="M19 13H5.83l5.59 5.59L10 20l-8-8 8-8 1.41 1.41L5.83 11H19v2z"/>
+            </svg>
+        </div>
+        <span class="back-button-text">Voltar</span>
+    </button>
+
+    <!-- Elemento para animação de fundo -->
+    <div class="background-animation"></div>
+    
+    <!-- SEÇÃO 2: CONTEÚDO PRINCIPAL -->
+    <!-- Container principal da aplicação -->
+    <div class="culinary-challenge-container" id="main-container">
+        <!-- Cabeçalho com título e imagem do chef -->
+        <div class="challenge-header">
+            <h1 class="gradient-text">Desafio Culinário do Chef</h1>
+            <p class="typing-text">Escolha o seu nível e demonstre as suas habilidades na cozinha!</p>
+            <div id="chef-svg-container">
+                <img src="chef.png" id="chef-image" alt="Chef AI">
+            </div>
+        </div>
+        
+        <!-- SEÇÃO 3: NÍVEIS DE DESAFIO -->
+        <!-- Grid de cartões com os diferentes níveis de desafio -->
+        <div class="challenge-levels">
+            <!-- Nível Principiante -->
+            <div class="challenge-level easy">
+                <h3 class="shadow-pulse">Principiante</h3>
+                <p>Receitas <span class="highlight">simples e rápidas</span> para quem está a começar.</p>
+                <button class="challenge-button easy-button" data-level="principiante">Começar</button>
+            </div>
+            
+            <!-- Nível Intermédio -->
+            <div class="challenge-level medium">
+                <h3 class="shadow-pulse">Intermédio</h3>
+                <p>Técnicas <span class="highlight">mais elaboradas</span> para quem já tem experiência.</p>
+                <button class="challenge-button medium-button" data-level="intermedio">Começar</button>
+            </div>
+            
+            <!-- Nível Avançado -->
+            <div class="challenge-level hard">
+                <h3 class="shadow-pulse">Avançado</h3>
+                <p>Desafios <span class="highlight">complexos</span> para cozinheiros experientes.</p>
+                <button class="challenge-button hard-button" data-level="avancado">Começar</button>
+            </div>
+            
+            <!-- Nível Extremo -->
+            <div class="challenge-level extreme">
+                <h3 class="shadow-pulse">Extremo</h3>
+                <p>Pratos <span class="highlight">sofisticados</span> dignos de um chef profissional.</p>
+                <button class="challenge-button extreme-button" data-level="extremo">Começar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script principal da aplicação -->
+    <script src="script.js"></script>
+</body>
+</html>

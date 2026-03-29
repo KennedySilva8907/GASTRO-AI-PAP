@@ -75,13 +75,6 @@ function init() {
     mainContainer = document.getElementById('main-container');
     backgroundAnimation = document.querySelector('.background-animation');
 
-    // Enter animation
-    const transitionOverlay = document.getElementById('transition-overlay');
-    if (transitionOverlay && sessionStorage.getItem('pageTransition') === 'forward') {
-      sessionStorage.removeItem('pageTransition');
-      transitionOverlay.classList.add('slide-out-left');
-    }
-
     initFoodAnimation();
     setupChallengeButtons();
     ensureFontAwesome();
@@ -528,11 +521,30 @@ function handleNewRecipeClick(level) {
  */
 function navigateHome() {
   const transitionOverlay = document.getElementById('transition-overlay');
-  if (transitionOverlay) transitionOverlay.classList.add('slide-in-left');
-  sessionStorage.setItem('pageTransition', 'back');
+  const foodIcons = document.querySelectorAll('.food-icon');
+
+  if (transitionOverlay) {
+    transitionOverlay.classList.add('active');
+  }
+
+  let currentIcon = 0;
+  const animationInterval = setInterval(() => {
+    if (foodIcons[currentIcon]) {
+      foodIcons[currentIcon].classList.add('active');
+      setTimeout(() => {
+        foodIcons[currentIcon].classList.remove('active');
+        currentIcon = (currentIcon + 1) % foodIcons.length;
+      }, 400);
+    }
+  }, 500);
+
   setTimeout(() => {
-    window.location.href = '../index.html';
-  }, 320);
+    clearInterval(animationInterval);
+    document.body.style.animation = 'close-transition 1s ease-in-out forwards';
+    setTimeout(() => {
+      window.location.href = '../index.html';
+    }, 1000);
+  }, 4000);
 }
 
 function handleBackClick() {

@@ -32,15 +32,29 @@ function disableAllButtons() {
  */
 function handlePageTransition(targetUrl) {
   const transitionOverlay = document.getElementById('transition-overlay');
+  const foodIcons = document.querySelectorAll('.food-icon');
 
   disableAllButtons();
-  sessionStorage.setItem('pageTransition', 'forward');
+  transitionOverlay.classList.add('active');
 
-  transitionOverlay.classList.add('slide-in-right');
+  let currentIcon = 0;
+  const animationInterval = setInterval(() => {
+    foodIcons[currentIcon].classList.add('active');
+
+    setTimeout(() => {
+      foodIcons[currentIcon].classList.remove('active');
+      currentIcon = (currentIcon + 1) % foodIcons.length;
+    }, 400);
+  }, 500);
 
   setTimeout(() => {
-    window.location.href = targetUrl;
-  }, 320);
+    clearInterval(animationInterval);
+    document.body.style.animation = 'open-transition 1s ease-in-out forwards';
+
+    setTimeout(() => {
+      window.location.href = targetUrl;
+    }, 1000);
+  }, 4000);
 }
 
 /**
@@ -99,17 +113,6 @@ initSparkTrail();
 
 // DOMContentLoaded — set up navigation and AI info modal
 document.addEventListener('DOMContentLoaded', () => {
-  // Dynamic copyright year
-  const yearEl = document.getElementById('copyright-year');
-  if (yearEl) yearEl.textContent = new Date().getFullYear();
-
-  // Enter animation when returning from sub-page
-  const transitionOverlay = document.getElementById('transition-overlay');
-  if (transitionOverlay && sessionStorage.getItem('pageTransition') === 'back') {
-    sessionStorage.removeItem('pageTransition');
-    transitionOverlay.classList.add('slide-out-right');
-  }
-
   // AI info button and panel
   const aiButton = document.getElementById('ai-button');
   const aiInfo = document.getElementById('ai-info');

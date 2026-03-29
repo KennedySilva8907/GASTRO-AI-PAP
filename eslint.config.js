@@ -32,9 +32,7 @@ export default [
         URL: 'readonly',
         Image: 'readonly',
         cancelAnimationFrame: 'readonly',
-        requestAnimationFrame: 'readonly',
-        sessionStorage: 'readonly',
-        localStorage: 'readonly'
+        requestAnimationFrame: 'readonly'
       }
     }
   },

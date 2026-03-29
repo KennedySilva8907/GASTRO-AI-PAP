@@ -15,20 +15,35 @@ import { initChatHandlers } from './handlers.js';
 function initBackButton() {
   const backButton = document.getElementById('back-button');
   const transitionOverlay = document.getElementById('transition-overlay');
-
-  // Enter animation: slide overlay out to left when arriving on this page
-  if (sessionStorage.getItem('pageTransition') === 'forward') {
-    sessionStorage.removeItem('pageTransition');
-    transitionOverlay.classList.add('slide-out-left');
-  }
+  const foodIcons = document.querySelectorAll('.food-icon');
 
   backButton.addEventListener('click', function (e) {
     e.preventDefault();
-    sessionStorage.setItem('pageTransition', 'back');
-    transitionOverlay.classList.add('slide-in-left');
+
+    transitionOverlay.classList.add('active');
+
+    let currentIcon = 0;
+    const animationInterval = setInterval(() => {
+      foodIcons[currentIcon].classList.add('active');
+
+      setTimeout(() => {
+        foodIcons[currentIcon].classList.remove('active');
+        currentIcon = (currentIcon + 1) % foodIcons.length;
+      }, 400);
+    }, 500);
+
     setTimeout(() => {
-      window.location.href = '../index.html';
-    }, 320);
+      clearInterval(animationInterval);
+
+      document.body.style.animation = 'close-transition 1s ease-in-out forwards';
+      document.body.style.position = 'relative';
+      document.body.style.overflow = 'hidden';
+      document.body.style.clipPath = 'circle(150% at center)';
+
+      setTimeout(() => {
+        window.location.href = '../index.html';
+      }, 1000);
+    }, 4000);
   });
 }
 

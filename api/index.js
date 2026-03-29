@@ -79,7 +79,7 @@ export default async function handler(req, res) {
     const path = url.split('/api/')[1] || '';
 
     try {
-        // Roteamento para diferentes endpoints
+        // Route incoming requests to the correct handler
         if (path === 'chat' || path.startsWith('chat/')) {
             return await handleChat(req, res);
         } else if (path === 'gemini' || path.startsWith('gemini/')) {
@@ -104,7 +104,7 @@ export default async function handler(req, res) {
     }
 }
 
-// Função para lidar com o endpoint /api/chat
+// Handler for the /api/chat endpoint
 async function handleChat(req, res) {
     if (req.method !== 'POST') {
         return res.status(405).json({
@@ -158,7 +158,7 @@ async function handleChat(req, res) {
     }
 }
 
-// Função para lidar com o endpoint /api/gemini
+// Handler for the /api/gemini endpoint
 async function handleGemini(req, res) {
     if (req.method !== 'POST') {
         return res.status(405).json({

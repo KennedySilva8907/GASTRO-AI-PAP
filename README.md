@@ -11,8 +11,6 @@ AI-powered culinary web app featuring real-time cooking challenges, a recipe car
 
 **[Live Demo](https://gastro-ai-pap.vercel.app)**
 
-![GastroAI Screenshot](docs/screenshot.png)
-
 ## Features
 
 - **Cooking Challenges** — AI-generated recipes with countdown timer and 4 difficulty levels (Beginner, Intermediate, Advanced, Extreme)

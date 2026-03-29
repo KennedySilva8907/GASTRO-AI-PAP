@@ -10,7 +10,7 @@ GASTRO-AI currently has no rate limiting implemented. The following mitigations 
 
 ## Gemini API Quota Considerations
 
-The application proxies requests to Google's Gemini API (gemini-2.0-flash-exp). Key quota factors:
+The application proxies requests to Google's Gemini API (gemini-2.5-flash). Key quota factors:
 
 - **Free tier:** Limited requests per minute (RPM) and tokens per minute (TPM)
 - **Cost exposure:** Each user chat message = 1 Gemini API call

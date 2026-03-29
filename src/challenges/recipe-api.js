@@ -169,9 +169,9 @@ function buildPrompt(level, prepTime, cuisine, meal, dietary) {
  */
 function getMaxTokensForLevel(level) {
   const tokenMap = {
-    principiante: 1024,
-    intermedio: 2048,
-    avancado: 4096,
+    principiante: 4096,
+    intermedio: 4096,
+    avancado: 8192,
     extremo: 8192,
   };
   return tokenMap[level] || 1024;
@@ -330,7 +330,7 @@ function processRecipeText(text, level) {
  */
 function extractIngredients(text) {
   const match = text.match(
-    /Ingredientes:\s*([\s\S]*?)(?=\n(?:Instruções|Instruções \(com tempos estimados\)|Dicas|$))/i
+    /(?:##\s*)?Ingredientes\s*:?\s*([\s\S]*?)(?=\n\s*(?:##\s*)?(?:Instruções|Dicas)|$)/i
   );
   if (!match) return [];
 
@@ -357,7 +357,7 @@ function extractIngredients(text) {
  */
 function extractInstructions(text) {
   const instrMatch = text.match(
-    /Instruções(?:\s*\(com tempos estimados\))?:[\s]*([\s\S]*?)(?=\n\s*\n|\n(?=Dicas|$))/i
+    /(?:##\s*)?Instruções(?:\s*\(com tempos estimados\))?\s*:?\s*([\s\S]*?)(?=\n\s*(?:##\s*)?Dicas|$)/i
   );
   if (!instrMatch?.[1]) return [];
 
@@ -399,7 +399,7 @@ function extractInstructions(text) {
  * Extracts chef tips from recipe text.
  */
 function extractTips(text) {
-  const tipsMatch = text.match(/Dicas do Chef:[\s]*([\s\S]*?)(?=$)/i);
+  const tipsMatch = text.match(/(?:##\s*)?Dicas(?:\s+do\s+Chef)?\s*:?\s*([\s\S]*?)(?=$)/i);
   if (!tipsMatch?.[1]) return [];
 
   return tipsMatch[1]

@@ -7,6 +7,7 @@
  */
 
 import { getBackgroundImageUrl } from './preloader.js';
+import { LazyBackgroundLoader } from './lazy-loader.js';
 
 /**
  * Vertical scroll carousel with GSAP animations.
@@ -41,6 +42,7 @@ export class VerticalCarousel {
    */
   init() {
     this.setupElements();
+    new LazyBackgroundLoader().init();
     this.preloadImages();
     this.createProgressDots();
     this.initScrollEvent();

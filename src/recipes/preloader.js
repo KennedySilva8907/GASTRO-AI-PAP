@@ -36,6 +36,11 @@ export async function preloadImages(urls) {
  * @returns {string|null} Image URL or null if not found
  */
 export function getBackgroundImageUrl(element) {
+  // Check data-bg first (lazy-loaded images that haven't been observed yet)
+  if (element.dataset.bg) {
+    return element.dataset.bg;
+  }
+  // Fall back to computed style (for eager-loaded first image and already-observed images)
   const style = window.getComputedStyle(element);
   const bgImage = style.backgroundImage;
   if (bgImage && bgImage !== 'none') {

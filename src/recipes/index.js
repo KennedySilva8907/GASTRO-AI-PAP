@@ -92,31 +92,21 @@ try {
   document.addEventListener('DOMContentLoaded', () => {
     const backButton = document.getElementById('back-button');
     const transitionOverlay = document.getElementById('transition-overlay');
-    const foodIcons = document.querySelectorAll('.food-icon');
+
+    // Enter animation
+    if (sessionStorage.getItem('pageTransition') === 'forward') {
+      sessionStorage.removeItem('pageTransition');
+      if (transitionOverlay) transitionOverlay.classList.add('slide-out-left');
+    }
 
     if (backButton && transitionOverlay) {
       backButton.addEventListener('click', (e) => {
         e.preventDefault();
-        transitionOverlay.classList.add('active');
-
-        let currentIcon = 0;
-        const animationInterval = setInterval(() => {
-          foodIcons[currentIcon].classList.add('active');
-
-          setTimeout(() => {
-            foodIcons[currentIcon].classList.remove('active');
-            currentIcon = (currentIcon + 1) % foodIcons.length;
-          }, 400);
-        }, 500);
-
+        sessionStorage.setItem('pageTransition', 'back');
+        transitionOverlay.classList.add('slide-in-left');
         setTimeout(() => {
-          clearInterval(animationInterval);
-          document.body.style.animation = 'close-transition 1s ease-in-out forwards';
-
-          setTimeout(() => {
-            window.location.href = '../index.html';
-          }, 1000);
-        }, 4000);
+          window.location.href = '../index.html';
+        }, 320);
       });
     }
   });

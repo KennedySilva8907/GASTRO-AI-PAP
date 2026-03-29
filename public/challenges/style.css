@@ -2022,5 +2022,62 @@ button, .challenge-level, a {
     }
 }
 
+/* === Notification Toast (from shared error handling) === */
+.notification {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 12px 24px;
+    border-radius: 8px;
+    color: white;
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    z-index: 10000;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
 
+.notification--error {
+    background: #e74c3c;
+}
 
+.notification--success {
+    background: #2ecc71;
+}
+
+.notification--info {
+    background: #3498db;
+}
+
+.notification--fade-out {
+    opacity: 0;
+}
+
+/* === State-based CSS classes (converted from inline styles) === */
+.loading-overlay--active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.result-overlay--visible {
+    display: flex;
+    opacity: 1;
+}
+
+.timer--warning {
+    color: #ff4444;
+}
+
+.timer--danger {
+    color: #ff0000;
+    animation: timer-pulse 0.5s infinite;
+}
+
+@keyframes timer-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
+.pause-button--paused {
+    background-color: #4caf50 !important;
+}

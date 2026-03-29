@@ -1366,3 +1366,77 @@ a:focus-visible {
     }
 }
 
+/* === Share Button (Phase 6: FEAT-01 Web Share API) === */
+
+.share-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 16px;
+  padding: 10px 20px;
+  background-color: var(--primary-bg);
+  color: var(--primary-text);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.share-button:hover {
+  background-color: rgba(2, 21, 23, 0.85);
+  transform: translateY(-2px);
+}
+
+.share-button:focus-visible {
+  outline: 2px solid var(--primary-bg);
+  outline-offset: 2px;
+}
+
+/* Clipboard fallback toast -- pure CSS fade, no GSAP */
+.share-feedback {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.85);
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  z-index: 20000;
+  pointer-events: none;
+  animation: shareFadeInOut 2.5s ease forwards;
+}
+
+@keyframes shareFadeInOut {
+  0%   { opacity: 0; }
+  15%  { opacity: 1; }
+  75%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* URL display fallback -- last resort manual copy */
+.share-url-display {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+  padding: 6px 10px;
+  background: #f5f5f5;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  color: var(--modal-text);
+  word-break: break-all;
+  user-select: all;
+}
+
+/* Reduced motion: disable share toast animation */
+@media (prefers-reduced-motion: reduce) {
+  .share-feedback {
+    animation: none !important;
+    opacity: 1;
+  }
+}
+

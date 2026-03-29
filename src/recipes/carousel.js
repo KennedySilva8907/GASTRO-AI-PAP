@@ -8,6 +8,7 @@
 
 import { getBackgroundImageUrl } from './preloader.js';
 import { LazyBackgroundLoader } from './lazy-loader.js';
+import { shareRecipe } from './share.js';
 
 /**
  * Vertical scroll carousel with GSAP animations.
@@ -767,6 +768,22 @@ export class VerticalCarousel {
 
         recipeTitle.textContent = this.recipes[recipeKey].title;
         recipeContent.innerHTML = this.recipes[recipeKey].content;
+
+        // Share button -- remove previous to prevent duplicates
+        const existingShareBtn = recipeContainer.querySelector('.share-button');
+        if (existingShareBtn) existingShareBtn.remove();
+
+        const shareBtn = document.createElement('button');
+        shareBtn.className = 'share-button';
+        shareBtn.setAttribute('aria-label', 'Partilhar receita: ' + this.recipes[recipeKey].title);
+        shareBtn.textContent = 'Partilhar';
+
+        shareBtn.addEventListener('click', () => {
+          const shareUrl = window.location.origin + '/recipes/receitas.html';
+          shareRecipe(this.recipes[recipeKey].title, shareUrl);
+        });
+
+        recipeContainer.appendChild(shareBtn);
 
         // Anima o conteúdo da receita
         gsap.fromTo(

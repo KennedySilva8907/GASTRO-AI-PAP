@@ -74,6 +74,9 @@ export default [
         vi: 'readonly',
         process: 'readonly',
         globalThis: 'readonly',
+        DOMException: 'readonly',
+        window: 'readonly',
+        document: 'readonly',
       }
     },
     rules: {

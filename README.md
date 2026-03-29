@@ -1,6 +1,10 @@
 # GastroAI
 
 ![Coverage](https://img.shields.io/badge/coverage-86%25-brightgreen)
+![Lighthouse Performance](https://img.shields.io/badge/lighthouse%20performance-95-brightgreen)
+![Lighthouse Accessibility](https://img.shields.io/badge/accessibility-95-brightgreen)
+![Lighthouse Best Practices](https://img.shields.io/badge/best%20practices-100-brightgreen)
+![Lighthouse SEO](https://img.shields.io/badge/seo-90-brightgreen)
 
 Plataforma web de culinária que combina desafios a tempo real, galeria de receitas e um assistente de inteligência artificial gastronómica, alimentada pela API Gemini do Google.
 

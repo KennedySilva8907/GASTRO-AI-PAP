@@ -1,10 +1,12 @@
 # GastroAI
 
+![Coverage](https://img.shields.io/badge/coverage-86%25-brightgreen)
+
 Plataforma web de culinária que combina desafios a tempo real, galeria de receitas e um assistente de inteligência artificial gastronómica, alimentada pela API Gemini do Google.
 
 ## Demo
 
-[gastro-ai-pap.vercel.app](https://gastro-ai-pap.vercel.app) <!-- substitua pelo seu URL real -->
+[gastro-ai-pap.vercel.app](https://gastro-ai-pap.vercel.app) 
 
 ## Funcionalidades
 

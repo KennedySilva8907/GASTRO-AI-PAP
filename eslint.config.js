@@ -72,6 +72,8 @@ export default [
         beforeAll: 'readonly',
         afterAll: 'readonly',
         vi: 'readonly',
+        process: 'readonly',
+        globalThis: 'readonly',
       }
     },
     rules: {
@@ -79,6 +81,6 @@ export default [
     }
   },
   {
-    ignores: ['node_modules/', 'public/', '.planning/', 'backend/']
+    ignores: ['node_modules/', 'public/', '.planning/', 'backend/', 'coverage/']
   }
 ];

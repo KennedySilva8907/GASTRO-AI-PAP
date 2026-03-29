@@ -29,7 +29,17 @@ function setCorsHeaders(req, res) {
         return true;
     }
 
-    // Check if origin is in whitelist
+    // Allow same-origin requests (origin matches the server's own host)
+    const serverOrigin = `https://${req.headers.host}`;
+    if (origin === serverOrigin) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+        res.setHeader('Access-Control-Allow-Credentials', true);
+        res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+        res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Accept');
+        return true;
+    }
+
+    // Check if origin is in explicit whitelist
     if (ALLOWED_ORIGINS.includes(origin)) {
         res.setHeader('Access-Control-Allow-Origin', origin);
         res.setHeader('Access-Control-Allow-Credentials', true);
@@ -105,7 +115,7 @@ async function handleChat(req, res) {
 
     try {
         const API_KEY = process.env.GEMINI_API_KEY;
-        const API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent';
+        const API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
 
         if (!API_KEY) {
             console.error('[Config Error] GEMINI_API_KEY not found in environment');
@@ -159,7 +169,7 @@ async function handleGemini(req, res) {
 
     try {
         const API_KEY = process.env.GEMINI_API_KEY;
-        const API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent';
+        const API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
 
         if (!API_KEY) {
             console.error('[Config Error] GEMINI_API_KEY not found in environment');

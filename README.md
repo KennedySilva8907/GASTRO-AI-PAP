@@ -95,6 +95,19 @@ GASTRO-AI-PAP/
 └── package.json
 ```
 
+## Suporte de Navegadores
+
+| Funcionalidade | Chrome | Edge | Safari | Firefox |
+|----------------|--------|------|--------|---------|
+| AI Chat | ✅ | ✅ | ✅ | ✅ |
+| Galeria de Receitas | ✅ | ✅ | ✅ | ✅ |
+| Desafios Culinários | ✅ | ✅ | ✅ | ✅ |
+| Partilhar Receita (nativo) | ✅ | ✅ | ✅ iOS | ❌ |
+| Partilhar Receita (clipboard) | ✅ | ✅ | ✅ | ✅ |
+| Animações Matter.js | ✅ | ✅ | ✅ | ✅ |
+
+> A funcionalidade de partilha nativa usa a Web Share API (disponível no Chrome, Edge e Safari iOS). Em Firefox e outros navegadores sem suporte, o URL é copiado automaticamente para a área de transferência.
+
 ## Autor
 
 **Kennedy Silva**

@@ -5,6 +5,20 @@ const ALLOWED_ORIGINS = [
 ].filter(Boolean);
 
 const MAX_BODY_SIZE = 50000;
+const GEMINI_API_URL =
+    'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
+const CHAT_MAX_OUTPUT_TOKENS = 900;
+const CHAT_MESSAGE_MAX_LENGTH = 500;
+const CHAT_HISTORY_MAX_ENTRIES = 10;
+const CHAT_HISTORY_ENTRY_MAX_LENGTH = 4000;
+const CHAT_SYSTEM_INSTRUCTION =
+    'Use sempre português de Portugal. És o assistente culinário do GastroAI e deves ajudar apenas com gastronomia, receitas, ingredientes, técnicas de cozinha, segurança alimentar, harmonizações e planeamento de refeições. Se o pedido fugir do tema gastronómico, recusa com educação e convida o utilizador a voltar a perguntas de culinária.';
+const CHAT_SAFETY_SETTINGS = [
+    {
+        category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
+        threshold: 'BLOCK_MEDIUM_AND_ABOVE'
+    }
+];
 
 const ERROR_CODES = {
     GEMINI_API: 'ERR_GEMINI_001',
@@ -50,6 +64,74 @@ function setCorsHeaders(req, res) {
 
     // Origin not allowed
     return false;
+}
+
+function normalizeChatRequestBody(body) {
+    if (!body || typeof body !== 'object' || Array.isArray(body)) {
+        return null;
+    }
+
+    const message = typeof body.message === 'string' ? body.message.trim() : '';
+    if (!message || message.length > CHAT_MESSAGE_MAX_LENGTH) {
+        return null;
+    }
+
+    const rawHistory = body.history ?? [];
+    if (!Array.isArray(rawHistory) || rawHistory.length > CHAT_HISTORY_MAX_ENTRIES) {
+        return null;
+    }
+
+    const history = [];
+    for (const entry of rawHistory) {
+        if (!entry || typeof entry !== 'object' || Array.isArray(entry)) {
+            return null;
+        }
+
+        const role = entry.role;
+        const text = typeof entry.text === 'string' ? entry.text.trim() : '';
+        if (!['user', 'model'].includes(role) || !text || text.length > CHAT_HISTORY_ENTRY_MAX_LENGTH) {
+            return null;
+        }
+
+        history.push({ role, text });
+    }
+
+    return { message, history };
+}
+
+function buildChatGeminiPayload({ message, history }) {
+    return {
+        systemInstruction: {
+            parts: [{ text: CHAT_SYSTEM_INSTRUCTION }]
+        },
+        contents: [
+            ...history.map((entry) => ({
+                role: entry.role,
+                parts: [{ text: entry.text }]
+            })),
+            {
+                role: 'user',
+                parts: [{ text: message }]
+            }
+        ],
+        generationConfig: {
+            temperature: 0.7,
+            maxOutputTokens: CHAT_MAX_OUTPUT_TOKENS
+        },
+        safetySettings: CHAT_SAFETY_SETTINGS
+    };
+}
+
+async function callGemini({ apiKey, userAgent, body }) {
+    return fetch(GEMINI_API_URL, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'User-Agent': userAgent,
+            'x-goog-api-key': apiKey
+        },
+        body: JSON.stringify(body)
+    });
 }
 
 export default async function handler(req, res) {
@@ -115,7 +197,6 @@ async function handleChat(req, res) {
 
     try {
         const API_KEY = process.env.GEMINI_API_KEY;
-        const API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
 
         if (!API_KEY) {
             console.error('[Config Error] GEMINI_API_KEY not found in environment');
@@ -125,13 +206,18 @@ async function handleChat(req, res) {
             });
         }
 
-        const response = await fetch(`${API_URL}?key=${API_KEY}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'User-Agent': 'GastroAI-Chat/1.0'
-            },
-            body: JSON.stringify(req.body)
+        const normalizedRequest = normalizeChatRequestBody(req.body);
+        if (!normalizedRequest) {
+            return res.status(400).json({
+                error: 'Invalid chat request payload',
+                code: ERROR_CODES.INVALID_INPUT
+            });
+        }
+
+        const response = await callGemini({
+            apiKey: API_KEY,
+            userAgent: 'GastroAI-Chat/1.0',
+            body: buildChatGeminiPayload(normalizedRequest)
         });
 
         if (!response.ok) {
@@ -169,7 +255,6 @@ async function handleGemini(req, res) {
 
     try {
         const API_KEY = process.env.GEMINI_API_KEY;
-        const API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
 
         if (!API_KEY) {
             console.error('[Config Error] GEMINI_API_KEY not found in environment');
@@ -179,13 +264,10 @@ async function handleGemini(req, res) {
             });
         }
 
-        const response = await fetch(`${API_URL}?key=${API_KEY}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'User-Agent': 'GastroAI-Recipes/1.0'
-            },
-            body: JSON.stringify(req.body)
+        const response = await callGemini({
+            apiKey: API_KEY,
+            userAgent: 'GastroAI-Recipes/1.0',
+            body: req.body
         });
 
         if (!response.ok) {

@@ -17,6 +17,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <!-- Folha de estilo principal -->
 <link rel="stylesheet" href="style.css">
+  <!-- Previne flash ao entrar via transição -->
   <script>if(sessionStorage.getItem('gastro-transition-meta'))document.documentElement.classList.add('page-entering');</script>
   <!-- Biblioteca Anime.js para animações -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" defer></script>
@@ -35,25 +36,59 @@
 
   <!-- Painel de informações sobre o GastroAI -->
   <div id="ai-info" class="ai-info">
-    <div class="ai-info-background"></div>
-    <div class="ai-info-content">
-      <h2>
-        <span>S</span><span>o</span><span>b</span><span>r</span><span>e</span> 
-        <span>a</span> 
-        <span>G</span><span>a</span><span>s</span><span>t</span><span>r</span><span>o</span><span>A</span><span>I</span>
-      </h2>
-      <p>A GastroAI é uma inteligência artificial especializada em gastronomia, criada para auxiliar cozinheiros amadores e profissionais. Com ela, podes: 🍳</p>
-      <ul>
-        <li>Obter receitas personalizadas 📚</li>
-        <li>Receber dicas de culinária 🔪</li>
-        <li>Planear refeições 🗓️</li>
-        <li>Aprender técnicas de cozinha 👨‍🍳</li>
-      </ul>
-      <p>Explora o mundo da gastronomia com a ajuda da nossa IA! 🌎🍽️</p>
-      <div class="copyright-info">
-        <p>© 2025 Kennedy Silva. Todos os direitos reservados.</p>
-        <p>GastroAI - Versão 1.0</p>
+    <div class="ai-info-header">
+      <svg class="ai-info-logo" viewBox="0 0 128 128" width="42" height="42" role="img" aria-label="GastroAI">
+        <clipPath id="info-pan-clip"><rect rx="12" ry="14" x="4" y="52" width="68" height="28" /></clipPath>
+        <defs>
+          <linearGradient id="info-pl-grad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#000" /><stop offset="100%" stop-color="#fff" /></linearGradient>
+          <mask id="info-pl-mask"><rect x="0" y="0" width="88" height="80" fill="url(#info-pl-grad)" /></mask>
+        </defs>
+        <g fill="#ff9800">
+          <g fill="none" stroke-dasharray="20 221" stroke-dashoffset="20" stroke-linecap="round" stroke-width="4">
+            <g stroke="hsl(38,90%,50%)"><circle class="pl__ring" cx="44" cy="40" r="35" transform="rotate(90,44,40)" /></g>
+            <g stroke="hsl(20,90%,45%)" mask="url(#info-pl-mask)"><circle class="pl__ring" cx="44" cy="40" r="35" transform="rotate(90,44,40)" /></g>
+          </g>
+          <g fill="hsla(36,90%,50%,0)">
+            <g class="pl__drop pl__drop--1"><circle class="pl__drop-inner" cx="13" cy="60" r="2" /></g>
+            <g class="pl__drop pl__drop--2"><circle class="pl__drop-inner" cx="13" cy="60" r="2" /></g>
+            <g class="pl__drop pl__drop--3"><circle class="pl__drop-inner" cx="67" cy="72" r="2" /></g>
+            <g class="pl__drop pl__drop--4"><circle class="pl__drop-inner" cx="67" cy="72" r="2" /></g>
+            <g class="pl__drop pl__drop--5"><circle class="pl__drop-inner" cx="67" cy="72" r="2" /></g>
+          </g>
+          <g class="pl__pan">
+            <rect rx="2" ry="2" x="4" y="66" width="68" height="14" clip-path="url(#info-pan-clip)" />
+            <rect rx="2" ry="2" x="76" y="66" width="48" height="7" />
+          </g>
+          <rect class="pl__shadow" fill="hsla(36,90%,50%,0.2)" rx="3.5" ry="3.5" x="10" y="121" width="60" height="7" />
+        </g>
+      </svg>
+      <div>
+        <h2 class="ai-info-title">GastroAI</h2>
+        <p class="ai-info-tagline">A tua cozinha, potenciada por IA.</p>
       </div>
+    </div>
+    <div class="ai-info-divider"></div>
+    <ul class="ai-info-features">
+      <li>
+        <span class="ai-info-dot"></span>
+        <span>Receitas internacionais personalizadas</span>
+      </li>
+      <li>
+        <span class="ai-info-dot"></span>
+        <span>Desafios cronometrados por nivel</span>
+      </li>
+      <li>
+        <span class="ai-info-dot"></span>
+        <span>Assistente gastronomico em tempo real</span>
+      </li>
+      <li>
+        <span class="ai-info-dot"></span>
+        <span>Tecnicas e dicas de cozinha profissional</span>
+      </li>
+    </ul>
+    <div class="ai-info-footer">
+      <span>&copy; <span id="copyright-year"></span> Kennedy Silva</span>
+      <span class="ai-info-version">v2.0</span>
     </div>
   </div>
 
@@ -135,8 +170,6 @@
     </button>
   </div>  
   
-  <!-- Overlay de transição com animação de carregamento -->
-
   <!-- Botão de desafio -->
   <div class="desafio-button-container">
     <button id="desafio-button" class="desafio-button" aria-label="Ver Desafio">

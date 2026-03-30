@@ -66,7 +66,7 @@ describe('API Handler Integration Tests', () => {
       const res = await request(app)
         .post('/api/chat')
         .set('Origin', 'http://localhost:3000')
-        .send({ contents: [{ role: 'user', parts: [{ text: 'hello' }] }] });
+        .send({ message: 'hello' });
 
       expect(res.status).not.toBe(403);
     });
@@ -75,7 +75,7 @@ describe('API Handler Integration Tests', () => {
       const res = await request(app)
         .post('/api/chat')
         .set('Origin', 'http://localhost:5173')
-        .send({ contents: [{ role: 'user', parts: [{ text: 'hello' }] }] });
+        .send({ message: 'hello' });
 
       expect(res.status).not.toBe(403);
     });
@@ -100,6 +100,16 @@ describe('API Handler Integration Tests', () => {
 
       expect(res.status).toBe(413);
       expect(res.body.code).toBe('ERR_PAYLOAD_001');
+    });
+
+    it('rejects malformed chat payloads with 400 and ERR_INPUT_001', async () => {
+      const res = await request(app)
+        .post('/api/chat')
+        .set('Origin', 'http://localhost:3000')
+        .send({ contents: [{ role: 'user', parts: [{ text: 'hello' }] }] });
+
+      expect(res.status).toBe(400);
+      expect(res.body.code).toBe('ERR_INPUT_001');
     });
   });
 
@@ -131,7 +141,7 @@ describe('API Handler Integration Tests', () => {
       const res = await request(app)
         .post('/api/chat')
         .set('Origin', 'http://localhost:3000')
-        .send({ contents: [{ role: 'user', parts: [{ text: 'hello' }] }] });
+        .send({ message: 'hello' });
 
       expect(res.status).toBe(500);
       expect(res.body.code).toBe('ERR_CONFIG_001');
@@ -143,11 +153,36 @@ describe('API Handler Integration Tests', () => {
       const res = await request(app)
         .post('/api/chat')
         .set('Origin', 'http://localhost:3000')
-        .send({ contents: [{ role: 'user', parts: [{ text: 'hello' }] }] });
+        .send({ message: 'hello', history: [{ role: 'user', text: 'previous turn' }] });
 
       expect(res.status).toBe(200);
       expect(res.body.candidates).toBeDefined();
       expect(res.body.candidates[0].content.parts[0].text).toBe('Test response from Gemini');
+    });
+
+    it('builds the Gemini chat payload on the server with header auth', async () => {
+      await request(app)
+        .post('/api/chat')
+        .set('Origin', 'http://localhost:3000')
+        .send({ message: 'Como fazer risoto?', history: [{ role: 'user', text: 'Olá' }] });
+
+      expect(globalThis.fetch).toHaveBeenCalledTimes(1);
+
+      const [url, options] = globalThis.fetch.mock.calls[0];
+      expect(url).toBe(
+        'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent'
+      );
+      expect(options.headers['x-goog-api-key']).toBe('test-key-12345');
+      expect(options.headers['User-Agent']).toBe('GastroAI-Chat/1.0');
+
+      const body = JSON.parse(options.body);
+      expect(body.systemInstruction.parts[0].text).toContain('português de Portugal');
+      expect(body.contents).toEqual([
+        { role: 'user', parts: [{ text: 'Olá' }] },
+        { role: 'user', parts: [{ text: 'Como fazer risoto?' }] },
+      ]);
+      expect(body.generationConfig.maxOutputTokens).toBe(900);
+      expect(body.safetySettings[0].category).toBe('HARM_CATEGORY_DANGEROUS_CONTENT');
     });
 
     it('returns error code ERR_GEMINI_001 when upstream returns non-ok', async () => {
@@ -159,7 +194,7 @@ describe('API Handler Integration Tests', () => {
       const res = await request(app)
         .post('/api/chat')
         .set('Origin', 'http://localhost:3000')
-        .send({ contents: [{ role: 'user', parts: [{ text: 'hello' }] }] });
+        .send({ message: 'hello' });
 
       expect(res.status).toBe(500);
       expect(res.body.code).toBe('ERR_GEMINI_001');
@@ -171,7 +206,7 @@ describe('API Handler Integration Tests', () => {
       const res = await request(app)
         .post('/api/chat')
         .set('Origin', 'http://localhost:3000')
-        .send({ contents: [{ role: 'user', parts: [{ text: 'hello' }] }] });
+        .send({ message: 'hello' });
 
       expect(res.status).toBe(500);
       // Body should NOT contain the raw error message or stack
@@ -187,7 +222,7 @@ describe('API Handler Integration Tests', () => {
       const res = await request(app)
         .post('/api/chat')
         .set('Origin', 'http://localhost:3000')
-        .send({ contents: [{ role: 'user', parts: [{ text: 'hello' }] }] });
+        .send({ message: 'hello' });
 
       expect(res.body.error).toBe('An error occurred processing your request');
       expect(res.body.code).toBe('ERR_INTERNAL_001');

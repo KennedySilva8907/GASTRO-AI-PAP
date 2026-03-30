@@ -24,16 +24,21 @@ Origin validation uses a three-tier check:
 
 ### POST /api/chat
 
-Proxies chat messages to Google Gemini for the AI gastronomy assistant. Supports conversation history.
+Builds the Gemini chat request server-side for the GastroAI assistant. The client only sends the latest user message plus sanitized conversation history.
 
 **Request:**
 
 ```json
 {
-  "contents": [
+  "message": "What spices go well with salmon?",
+  "history": [
     {
       "role": "user",
-      "parts": [{ "text": "What spices go well with salmon?" }]
+      "text": "I have salmon for dinner."
+    },
+    {
+      "role": "model",
+      "text": "Great choice. Do you want a lighter or richer profile?"
     }
   ]
 }
@@ -54,7 +59,7 @@ Proxies chat messages to Google Gemini for the AI gastronomy assistant. Supports
 }
 ```
 
-**Headers sent upstream:** `User-Agent: GastroAI-Chat/1.0`
+**Headers sent upstream:** `User-Agent: GastroAI-Chat/1.0`, `x-goog-api-key: <server-side only>`
 
 ### POST /api/gemini
 
@@ -75,7 +80,7 @@ Proxies recipe generation requests to Google Gemini for the timed cooking challe
 
 **Response (200):** Same format as `/api/chat`.
 
-**Headers sent upstream:** `User-Agent: GastroAI-Recipes/1.0`
+**Headers sent upstream:** `User-Agent: GastroAI-Recipes/1.0`, `x-goog-api-key: <server-side only>`
 
 ## Error Codes
 
@@ -104,8 +109,8 @@ All error responses follow the format:
 | Limit | Value | Configurable |
 |-------|-------|-------------|
 | Max request body | 50KB | `MAX_BODY_SIZE` in api/index.js |
-| Max AI response tokens | 900 | `MAX_TOKENS` in chat client |
-| Conversation history | 5 message pairs | `MAX_HISTORY` in chat client |
+| Max AI response tokens | 900 | `CHAT_MAX_OUTPUT_TOKENS` in `api/index.js` |
+| Conversation history | 5 message pairs | `MAX_HISTORY_PAIRS` in `src/chat/chat-api.js` |
 | Rate limiting | Not implemented | See [RATE-LIMITING.md](RATE-LIMITING.md) |
 
 ## Gemini Model

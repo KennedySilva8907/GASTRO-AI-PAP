@@ -3,11 +3,14 @@
  * Manages chat UI, message history, API communication, and typing animations
  */
 
-// Chat configuration constants
-const MAX_HISTORY = 5;
-const MAX_TOKENS = 900;
-const TYPING_SPEED = 10;
-const MAX_TYPING_TIME = 30000;
+import { handleAsyncError } from '../shared/errors.js';
+import {
+  buildChatRequestPayload,
+  extractChatResponseText,
+  getTypeSpeed,
+  MAX_HISTORY_ENTRIES,
+  MAX_MESSAGE_LENGTH,
+} from './chat-api.js';
 
 // Chat state
 let conversationHistory = [];
@@ -123,10 +126,9 @@ function createMessageElement(sender, message) {
  * @returns {object} Typed.js configuration
  */
 function buildTypedOptions(htmlContent, chatMessages, sender, message, elements, resolve) {
-  const typingTime = Math.min(htmlContent.length * TYPING_SPEED, MAX_TYPING_TIME);
   return {
     strings: [htmlContent],
-    typeSpeed: typingTime / htmlContent.length,
+    typeSpeed: getTypeSpeed(htmlContent),
     showCursor: false,
     contentType: 'html',
     onStringTyped: () => {
@@ -146,10 +148,10 @@ function buildTypedOptions(htmlContent, chatMessages, sender, message, elements,
       currentTyped = null;
       conversationHistory.push({
         role: sender === 'user' ? 'user' : 'model',
-        parts: [{ text: message }],
+        text: message,
       });
-      if (conversationHistory.length > MAX_HISTORY * 2) {
-        conversationHistory.splice(0, 2);
+      if (conversationHistory.length > MAX_HISTORY_ENTRIES) {
+        conversationHistory.splice(0, conversationHistory.length - MAX_HISTORY_ENTRIES);
       }
       toggleClearButton(elements.clearButton, true);
       resolve();
@@ -188,47 +190,7 @@ function addMessage(sender, message, chatMessages, sanitizeHtml, elements) {
 }
 
 /**
- * Builds API request payload for chatbot
- * @param {string} message - User message
- * @returns {object} API request body
- */
-function buildChatRequestPayload(message) {
-  return {
-    contents: [
-      {
-        role: 'user',
-        parts: [
-          {
-            text: 'Use sempre português de Portugal nas suas respostas. Você é um assistente especializado em gastronomia. Responda apenas a perguntas relacionadas à culinária, receitas, técnicas de cozinha e temas gastronómicos.',
-          },
-        ],
-      },
-      {
-        role: 'model',
-        parts: [
-          {
-            text: 'Entendido. Sou um assistente especializado em gastronomia e vou responder apenas a perguntas relacionadas à culinária, receitas, técnicas de cozinha e temas gastronómicos, sempre utilizando o português de Portugal.',
-          },
-        ],
-      },
-      ...conversationHistory,
-      { role: 'user', parts: [{ text: message }] },
-    ],
-    generationConfig: {
-      temperature: 0.7,
-      maxOutputTokens: MAX_TOKENS,
-    },
-    safetySettings: [
-      {
-        category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
-        threshold: 'BLOCK_MEDIUM_AND_ABOVE',
-      },
-    ],
-  };
-}
-
-/**
- * Fetches chatbot response from API
+ * Fetches chatbot response from the server API
  * @param {string} message - User message
  * @returns {Promise<string>} Bot response text
  */
@@ -241,7 +203,7 @@ async function getChatbotResponse(message) {
     const response = await fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(buildChatRequestPayload(message)),
+      body: JSON.stringify(buildChatRequestPayload(message, conversationHistory)),
       signal: signal,
     });
 
@@ -249,7 +211,7 @@ async function getChatbotResponse(message) {
       let errorMsg = `HTTP error! status: ${response.status}`;
       try {
         const errorData = await response.json();
-        errorMsg += ` - ${JSON.stringify(errorData)}`;
+        errorMsg = errorData?.error || errorMsg;
       } catch {
         // Ignore if error response is not valid JSON
       }
@@ -257,10 +219,7 @@ async function getChatbotResponse(message) {
     }
 
     const data = await response.json();
-    if (!data.candidates || data.candidates.length === 0) {
-      throw new Error('Resposta da API não contém conteúdo válido');
-    }
-    return data.candidates[0].content.parts[0].text.trim();
+    return extractChatResponseText(data);
   } catch (error) {
     if (error.name === 'AbortError') {
       throw new Error('Solicitação cancelada', { cause: error });
@@ -281,7 +240,7 @@ async function getChatbotResponse(message) {
  */
 async function handleChatSubmit(event, elements, sanitizeHtml) {
   event.preventDefault();
-  const message = elements.userInput.value.trim().slice(0, 500);
+  const message = elements.userInput.value.trim().slice(0, MAX_MESSAGE_LENGTH);
 
   if (message && !isProcessing) {
     isProcessing = true;
@@ -300,13 +259,15 @@ async function handleChatSubmit(event, elements, sanitizeHtml) {
       }
       await addMessage('bot', botResponse, elements.chatMessages, sanitizeHtml, elements);
     } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error('Error in chat submission:', error);
+      const userMessage = handleAsyncError(
+        error,
+        'Desculpe, ocorreu um erro ao processar a sua mensagem. Por favor, tente novamente.'
+      );
       if (error.message !== 'Solicitação cancelada') {
         removeTypingIndicator(elements.chatMessages);
         await addMessage(
           'bot',
-          'Desculpe, ocorreu um erro ao processar a sua mensagem. Por favor, tente novamente.',
+          userMessage,
           elements.chatMessages,
           sanitizeHtml,
           elements

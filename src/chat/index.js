@@ -35,6 +35,8 @@ function initButtonAnimations() {
   const clearButton = document.getElementById('clear-button');
 
   const addButtonAnimation = (button, animationName) => {
+    if (!button) return;
+
     button.addEventListener('click', () => {
       button.style.animation = `${animationName} 0.5s`;
       setTimeout(() => {
@@ -113,7 +115,7 @@ function initChatDragging(chatContainer, chatHeader) {
   function dragStart(e) {
     initialX = e.clientX - xOffset;
     initialY = e.clientY - yOffset;
-    if (e.target === chatHeader) isDragging = true;
+    if (chatHeader.contains(e.target)) isDragging = true;
   }
 
   function drag(e) {

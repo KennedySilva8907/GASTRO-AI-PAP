@@ -6,44 +6,23 @@
 import { foodImages } from '../shared/constants.js';
 import { sanitizeHtml } from '../shared/sanitizer.js';
 import { handleAsyncError } from '../shared/errors.js';
+import { navigateTo, revealPage } from '../shared/transitions.js';
 import { initPhysics } from './matter-setup.js';
 import { initChatHandlers } from './handlers.js';
+
+// Play entry reveal if arriving from home page
+revealPage();
 
 /**
  * Initializes back button functionality with transition animation
  */
 function initBackButton() {
   const backButton = document.getElementById('back-button');
-  const transitionOverlay = document.getElementById('transition-overlay');
-  const foodIcons = document.querySelectorAll('.food-icon');
+  if (!backButton) return;
 
-  backButton.addEventListener('click', function (e) {
+  backButton.addEventListener('click', (e) => {
     e.preventDefault();
-
-    transitionOverlay.classList.add('active');
-
-    let currentIcon = 0;
-    const animationInterval = setInterval(() => {
-      foodIcons[currentIcon].classList.add('active');
-
-      setTimeout(() => {
-        foodIcons[currentIcon].classList.remove('active');
-        currentIcon = (currentIcon + 1) % foodIcons.length;
-      }, 400);
-    }, 500);
-
-    setTimeout(() => {
-      clearInterval(animationInterval);
-
-      document.body.style.animation = 'close-transition 1s ease-in-out forwards';
-      document.body.style.position = 'relative';
-      document.body.style.overflow = 'hidden';
-      document.body.style.clipPath = 'circle(150% at center)';
-
-      setTimeout(() => {
-        window.location.href = '../index.html';
-      }, 1000);
-    }, 4000);
+    navigateTo('../index.html', e, { entryAnchor: '#chat-button' });
   });
 }
 

@@ -17,6 +17,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Pacifico&display=swap" rel="stylesheet">
     <!-- Folha de estilos principal -->
     <link rel="stylesheet" href="style.css">
+    <!-- Previne flash ao entrar via transição -->
+    <script>if(sessionStorage.getItem('gastro-transition-meta'))document.documentElement.classList.add('page-entering');</script>
     <!-- Font Awesome para ícones (pausa, relógio, etc.) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <!-- DOMPurify para proteção contra XSS (defer classic scripts must appear before type="module" scripts) -->
@@ -26,15 +28,6 @@
 </head>
 <body>
     <!-- SEÇÃO 1: ELEMENTOS DE NAVEGAÇÃO E TRANSIÇÃO -->
-    <!-- Overlay de transição para animação de saída -->
-    <div id="transition-overlay" class="transition-overlay">
-        <div class="loading-container">
-            <div class="food-icon"></div>
-            <div class="food-icon"></div>
-            <div class="food-icon"></div>
-        </div>
-    </div>
-
     <!-- Botão de navegação para voltar à página anterior -->
     <button id="back-button" class="menu-back-button" aria-label="Voltar">
         <div class="back-button-icon">

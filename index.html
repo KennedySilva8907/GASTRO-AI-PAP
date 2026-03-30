@@ -17,6 +17,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <!-- Folha de estilo principal -->
 <link rel="stylesheet" href="style.css">
+  <script>if(sessionStorage.getItem('gastro-transition-meta'))document.documentElement.classList.add('page-entering');</script>
   <!-- Biblioteca Anime.js para animações -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" defer></script>
 </head>
@@ -135,13 +136,6 @@
   </div>  
   
   <!-- Overlay de transição com animação de carregamento -->
-  <div id="transition-overlay" class="transition-overlay">
-    <div class="loading-container">
-      <div class="food-icon"></div>
-      <div class="food-icon"></div>
-      <div class="food-icon"></div>
-    </div>
-  </div>
 
   <!-- Botão de desafio -->
   <div class="desafio-button-container">

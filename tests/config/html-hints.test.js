@@ -95,4 +95,18 @@ describe('HTML Performance Hints', () => {
     });
   });
 
+  describe('transition bootstrapping', () => {
+    pages.forEach(({ name, path }) => {
+      it(`${name}: preload script checks the transition metadata key`, () => {
+        const html = readHTML(path);
+        expect(html).toMatch(/sessionStorage\.getItem\(['"]gastro-transition-meta['"]\)/);
+      });
+
+      it(`${name}: legacy transition overlay markup is gone`, () => {
+        const html = readHTML(path);
+        expect(html).not.toContain('transition-overlay');
+      });
+    });
+  });
+
 });

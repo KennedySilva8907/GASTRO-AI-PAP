@@ -4,6 +4,10 @@
  */
 
 import { VerticalCarousel, ResponsiveModalHandler } from './carousel.js';
+import { navigateTo, revealPage } from '../shared/transitions.js';
+
+// Play entry reveal if arriving from home page
+revealPage();
 
 /**
  * Load recipe data from DOM elements.
@@ -91,32 +95,10 @@ try {
   // Back button functionality with transition
   document.addEventListener('DOMContentLoaded', () => {
     const backButton = document.getElementById('back-button');
-    const transitionOverlay = document.getElementById('transition-overlay');
-    const foodIcons = document.querySelectorAll('.food-icon');
-
-    if (backButton && transitionOverlay) {
+    if (backButton) {
       backButton.addEventListener('click', (e) => {
         e.preventDefault();
-        transitionOverlay.classList.add('active');
-
-        let currentIcon = 0;
-        const animationInterval = setInterval(() => {
-          foodIcons[currentIcon].classList.add('active');
-
-          setTimeout(() => {
-            foodIcons[currentIcon].classList.remove('active');
-            currentIcon = (currentIcon + 1) % foodIcons.length;
-          }, 400);
-        }, 500);
-
-        setTimeout(() => {
-          clearInterval(animationInterval);
-          document.body.style.animation = 'close-transition 1s ease-in-out forwards';
-
-          setTimeout(() => {
-            window.location.href = '../index.html';
-          }, 1000);
-        }, 4000);
+        navigateTo('../index.html', e, { entryAnchor: '#recipes-button' });
       });
     }
   });

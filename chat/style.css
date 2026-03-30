@@ -396,67 +396,21 @@ body, #chat-container {
  * OVERLAY DE TRANSIÇÃO
  * =============================================================== */
 
-/* Sobreposição de transição */
-#transition-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgb(255, 152, 0);
+html.page-entering {
+    background: linear-gradient(135deg, #ff9800 0%, #f57c00 45%, #e65100 100%);
+}
+html.page-entering body {
     opacity: 0;
-    z-index: 9999;
-    pointer-events: none;
-    transition: opacity 0.8s ease-in-out;
-    display: flex;
-    justify-content: center;
-    align-items: center;
 }
 
-#transition-overlay.active {
-    opacity: 1;
-    pointer-events: auto;
+body {
+    will-change: clip-path, transform, filter, opacity;
 }
 
-/* Contentor de carregamento */
-.loading-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.food-icon {
-    width: 50px;
-    height: 50px;
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
-    margin: 0 10px;
-    opacity: 0.3;
-    transition: opacity 0.3s ease-in-out;
-}
-
-.food-icon.active {
-    opacity: 1;
-    animation: food-bounce 0.5s ease-in-out;
-}
-
-.food-icon:nth-child(1) {
-    background-image: url('https://cdn-icons-png.flaticon.com/512/1046/1046784.png');
-}
-
-.food-icon:nth-child(2) {
-    background-image: url('https://cdn-icons-png.flaticon.com/512/1046/1046771.png');
-}
-
-.food-icon:nth-child(3) {
-    background-image: url('https://cdn-icons-png.flaticon.com/512/1046/1046755.png');
-}
-
-/* Animações relacionadas */
-@keyframes food-bounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-20px); }
+@media (prefers-reduced-motion: reduce) {
+    html.page-entering body {
+        opacity: 1;
+    }
 }
 
 /* ===============================================================
@@ -678,11 +632,6 @@ body, #chat-container {
     50% { transform: translateY(-20px); }
 }
 
-/* Animação de fechamento circular */
-@keyframes close-transition {
-    0% { clip-path: circle(150% at center); }
-    100% { clip-path: circle(0% at center); }
-}
 
 /* Animação de rotação */
 @keyframes rotate {

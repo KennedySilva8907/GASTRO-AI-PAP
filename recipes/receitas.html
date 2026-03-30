@@ -9,6 +9,8 @@
     <link rel="preconnect" href="https://cdnjs.cloudflare.com">
     <title>Pratos Típicos Mundiais</title>
     <link rel="stylesheet" href="style.css">
+    <!-- Previne flash ao entrar via transição -->
+    <script>if(sessionStorage.getItem('gastro-transition-meta'))document.documentElement.classList.add('page-entering');</script>
 </head>
 <body>
     <!-- Container principal -->
@@ -386,15 +388,6 @@
         </article>
     </div>
         
-    <!-- Overlay de transição para carregamento -->
-    <div id="transition-overlay" class="transition-overlay">
-        <div class="loading-container">
-            <div class="food-icon"></div>
-            <div class="food-icon"></div>
-            <div class="food-icon"></div>
-        </div>
-    </div>
-    
     <!-- Botão de voltar para a página inicial -->
     <button id="back-button" class="back-button" aria-label="Voltar">
         <div class="back-button-icon">

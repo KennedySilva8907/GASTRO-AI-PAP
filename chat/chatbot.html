@@ -18,6 +18,8 @@
     
     <!-- Link para o arquivo CSS personalizado -->
     <link rel="stylesheet" href="style.css">
+    <!-- Previne flash ao entrar via transição -->
+    <script>if(sessionStorage.getItem('gastro-transition-meta'))document.documentElement.classList.add('page-entering');</script>
 </head>
 <body>
     <!-- Container para animações de comida (provavelmente usado pelo Matter.js) -->
@@ -75,16 +77,6 @@
                 
             </div>
         </form>
-    </div>
-    
-    <!-- Overlay de transição com animação de carregamento -->
-    <div id="transition-overlay" class="transition-overlay">
-        <div class="loading-container">
-            <!-- Ícones de comida para animação de carregamento -->
-            <div class="food-icon"></div>
-            <div class="food-icon"></div>
-            <div class="food-icon"></div>
-        </div>
     </div>
     
     <!-- Botão de voltar para navegação -->

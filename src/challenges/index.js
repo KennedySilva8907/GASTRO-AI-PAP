@@ -5,6 +5,10 @@
 
 import { foodImages as sharedFoodImages } from '../shared/constants.js';
 import { handleAsyncError } from '../shared/errors.js';
+import { navigateTo, revealPage } from '../shared/transitions.js';
+
+// Play entry reveal if arriving from home page
+revealPage();
 import { createTimer, formatTime } from './timer.js';
 import { getRecipe } from './recipe-api.js';
 import {
@@ -84,7 +88,7 @@ function init() {
     if (backButton) {
       backButton.addEventListener('click', (e) => {
         e.preventDefault();
-        navigateHome();
+        navigateHome(e);
       });
     }
   } catch (error) {
@@ -517,34 +521,10 @@ function handleNewRecipeClick(level) {
 }
 
 /**
- * Handles back button click.
+ * Handles back button click — navigates home with transition.
  */
-function navigateHome() {
-  const transitionOverlay = document.getElementById('transition-overlay');
-  const foodIcons = document.querySelectorAll('.food-icon');
-
-  if (transitionOverlay) {
-    transitionOverlay.classList.add('active');
-  }
-
-  let currentIcon = 0;
-  const animationInterval = setInterval(() => {
-    if (foodIcons[currentIcon]) {
-      foodIcons[currentIcon].classList.add('active');
-      setTimeout(() => {
-        foodIcons[currentIcon].classList.remove('active');
-        currentIcon = (currentIcon + 1) % foodIcons.length;
-      }, 400);
-    }
-  }, 500);
-
-  setTimeout(() => {
-    clearInterval(animationInterval);
-    document.body.style.animation = 'close-transition 1s ease-in-out forwards';
-    setTimeout(() => {
-      window.location.href = '../index.html';
-    }, 1000);
-  }, 4000);
+function navigateHome(event) {
+  navigateTo('../index.html', event, { entryAnchor: '#desafio-button' });
 }
 
 function handleBackClick() {

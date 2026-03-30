@@ -4,58 +4,10 @@
  */
 import { foodImages } from './shared/constants.js';
 import { createFoodElement, createFoodParticles } from './shared/animations.js';
+import { navigateTo, revealPage } from './shared/transitions.js';
 
-/**
- * Disable all navigation buttons during page transitions.
- * Prevents double-clicks during loading animation.
- */
-function disableAllButtons() {
-  const buttons = [
-    document.getElementById('chat-button'),
-    document.getElementById('recipes-button'),
-    document.getElementById('desafio-button'),
-    document.getElementById('ai-button'),
-  ];
-
-  buttons.forEach((button) => {
-    if (button) {
-      button.disabled = true;
-      button.style.pointerEvents = 'none';
-    }
-  });
-}
-
-/**
- * Manage the animated page transition to a target URL.
- * Shows food icon loading animation for 4 seconds, then navigates.
- * @param {string} targetUrl - URL to navigate to after transition
- */
-function handlePageTransition(targetUrl) {
-  const transitionOverlay = document.getElementById('transition-overlay');
-  const foodIcons = document.querySelectorAll('.food-icon');
-
-  disableAllButtons();
-  transitionOverlay.classList.add('active');
-
-  let currentIcon = 0;
-  const animationInterval = setInterval(() => {
-    foodIcons[currentIcon].classList.add('active');
-
-    setTimeout(() => {
-      foodIcons[currentIcon].classList.remove('active');
-      currentIcon = (currentIcon + 1) % foodIcons.length;
-    }, 400);
-  }, 500);
-
-  setTimeout(() => {
-    clearInterval(animationInterval);
-    document.body.style.animation = 'open-transition 1s ease-in-out forwards';
-
-    setTimeout(() => {
-      window.location.href = targetUrl;
-    }, 1000);
-  }, 4000);
-}
+// Play entry reveal if arriving from a sub-page
+revealPage();
 
 /**
  * Initialize the mouse food trail effect.
@@ -138,21 +90,21 @@ document.addEventListener('DOMContentLoaded', () => {
   if (chatButton) {
     chatButton.addEventListener('click', (e) => {
       e.preventDefault();
-      handlePageTransition('chat/chatbot.html');
+      navigateTo('chat/chatbot.html', e, { entryAnchor: '#back-button' });
     });
   }
 
   if (recipesButton) {
     recipesButton.addEventListener('click', (e) => {
       e.preventDefault();
-      handlePageTransition('recipes/receitas.html');
+      navigateTo('recipes/receitas.html', e, { entryAnchor: '#back-button' });
     });
   }
 
   if (desafioButton) {
     desafioButton.addEventListener('click', (e) => {
       e.preventDefault();
-      handlePageTransition('challenges/desafio.html');
+      navigateTo('challenges/desafio.html', e, { entryAnchor: '#back-button' });
     });
   }
 

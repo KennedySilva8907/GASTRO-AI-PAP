@@ -247,237 +247,367 @@ body {
 }
 
 /* ==================== BOTÃO DE INFORMAÇÕES (AI) ==================== */
+/* ==================== SHARED BUTTON STYLE (E3 Gradient Underline) ==================== */
+.ai-button,
+.chat-button,
+.desafio-button,
+.recipes-button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  font-family: "Poppins", sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.75);
+  position: relative;
+  transition: all 0.25s ease;
+  overflow: visible;
+  animation: none;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
+}
+
+.ai-button::after,
+.chat-button::after,
+.desafio-button::after,
+.recipes-button::after {
+  content: "";
+  position: absolute;
+  bottom: 4px;
+  left: 14px;
+  right: 14px;
+  height: 2.5px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #ff9800, #ff5722);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ai-button:hover,
+.chat-button:hover,
+.desafio-button:hover,
+.recipes-button:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  transform: translateY(-1px);
+}
+
+.ai-button:hover::after,
+.chat-button:hover::after,
+.desafio-button:hover::after,
+.recipes-button:hover::after {
+  transform: scaleX(1);
+}
+
+.ai-button:active,
+.chat-button:active,
+.desafio-button:active,
+.recipes-button:active {
+  transform: scale(0.97);
+  box-shadow: 0 1px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Shared icon style */
+.ai-button-icon,
+.chat-button-icon,
+.desafio-button-icon,
+.recipes-button-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: transparent;
+  border-radius: 0;
+  margin-right: 0;
+  transition: none;
+}
+
+.ai-button:hover .ai-button-icon,
+.chat-button:hover .chat-button-icon,
+.desafio-button:hover .desafio-button-icon,
+.recipes-button:hover .recipes-button-icon {
+  transform: none;
+}
+
+.ai-button-icon svg,
+.chat-button-icon svg,
+.desafio-button-icon svg,
+.recipes-button-icon svg {
+  width: 18px;
+  height: 18px;
+  fill: #ff9800;
+}
+
+/* Shared text style */
+.ai-button-text,
+.chat-button-text,
+.desafio-button-text,
+.recipes-button-text {
+  color: inherit;
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: 0.3px;
+  transition: none;
+}
+
+.ai-button:hover .ai-button-text,
+.chat-button:hover .chat-button-text,
+.desafio-button:hover .desafio-button-text,
+.recipes-button:hover .recipes-button-text {
+  transform: none;
+}
+
+/* AI button position */
 .ai-button {
   position: fixed;
   top: 20px;
   right: 20px;
-  background-color: #ff9800;
-  border: none;
-  border-radius: 30px;
-  padding: 10px 20px;
-  cursor: pointer;
-  box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3);
-  transition: all 0.3s ease;
   z-index: 1000;
-  display: flex;
-  align-items: center;
-  overflow: hidden;
-  animation: pulse 2s infinite;
-}
-
-.ai-button:hover {
-  background-color: #f57c00;
-  transform: translateY(-3px);
-  box-shadow: 0 6px 20px rgba(255, 152, 0, 0.4);
-}
-
-.ai-button:active {
-  transform: translateY(-1px);
-  box-shadow: 0 3px 10px rgba(255, 152, 0, 0.3);
-}
-
-.ai-button-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 30px;
-  height: 30px;
-  background-color: white;
-  border-radius: 50%;
-  margin-right: 10px;
-  transition: all 0.3s ease;
-}
-
-.ai-button:hover .ai-button-icon {
-  transform: rotate(360deg);
-}
-
-.ai-button-icon svg {
-  width: 250px;
-  height: 20px;
-  fill: #ff9800;
-}
-
-.ai-button-text {
-  color: white;
-  font-weight: bold;
-  font-size: 16px;
-  letter-spacing: 0.5px;
-  transition: all 0.3s ease;
-}
-
-.ai-button:hover .ai-button-text {
-  transform: scale(1.05);
 }
 
 /* ==================== PAINEL DE INFORMAÇÕES ==================== */
+/* ==================== PAINEL SOBRE GASTROAI ==================== */
 .ai-info {
   position: fixed;
   top: 90px;
-  right: 20px; 
-  background-color: rgba(255, 255, 255, 0.9);
-  border-radius: 10px;
-  padding: 20px; 
-  width: 300px; 
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  z-index: 999;
-  font-family: "Poppins", sans-serif;
-  color: #333;
-  overflow: hidden;
-  max-height: 56vh;
+  right: 20px;
+  width: 340px;
+  max-height: 80vh;
   overflow-y: auto;
+  z-index: 999;
   box-sizing: border-box;
   display: none;
   opacity: 0;
-  transform: translateY(-10px); 
+  transform: translateY(-12px) scale(0.97);
+  background: #FFFBEB;
+  border: 1px solid #F2E6E2;
+  border-radius: 20px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+  padding: 0;
+  font-family: "Poppins", sans-serif;
+  color: #1e293b;
 }
 
 .ai-info.show {
   display: block;
-  animation: fadeInDesktop 0.3s ease-out forwards;
+  animation: aiInfoFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* Animação para Desktop */
-@keyframes fadeInDesktop {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+@keyframes aiInfoFadeIn {
+  from { opacity: 0; transform: translateY(-12px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-/* Animação para Mobile */
-@keyframes fadeInMobile {
-  from {
-    opacity: 0;
-    transform: translateX(-50%) translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
-  }
+/* --- Header with gradient accent --- */
+.ai-info-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 24px 24px 0;
 }
 
-.ai-info-background {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image: url("https://static.vecteezy.com/system/resources/previews/002/129/263/original/abstract-white-background-with-elements-of-useful-food-vector.jpg");
-  background-size: cover;
-  background-position: center;
-  filter: blur(2px);
-  opacity: 0.1;
-  z-index: -1;
+.ai-info-logo {
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  overflow: visible;
+  display: block;
 }
 
-.ai-info-content {
-  position: relative;
-  z-index: 1;
+.ai-info-logo .pl__drop,
+.ai-info-logo .pl__drop-inner,
+.ai-info-logo .pl__pan,
+.ai-info-logo .pl__ring,
+.ai-info-logo .pl__shadow {
+  animation: pan 2s cubic-bezier(0.65, 0, 0.35, 1) infinite;
 }
 
-.ai-info h2 {
-  margin-top: 0;
-  color: #ff9800;
-  font-family: "Poppins", sans-serif;
-  font-size: 28px;
-  font-weight: 600;
-  text-shadow: -1px 10px 1px rgba(0, 0, 0, 0.1);
-  letter-spacing: 1px;
-  margin-bottom: 15px;
-  white-space: nowrap;
+.ai-info-logo .pl__drop { transform-origin: 13px 60px; }
+.ai-info-logo .pl__drop--1 { animation-name: drop-1; }
+.ai-info-logo .pl__drop--2 { animation-name: drop-2; }
+.ai-info-logo .pl__drop--3 { animation-name: drop-3; }
+.ai-info-logo .pl__drop--4 { animation-name: drop-4; }
+.ai-info-logo .pl__drop--5 { animation-name: drop-5; }
+.ai-info-logo .pl__pan { transform-origin: 36px 74px; }
+.ai-info-logo .pl__ring { animation-name: flip-ring; }
+.ai-info-logo .pl__shadow { animation-name: pan-shadow; transform-origin: 36px 124.5px; }
+
+.ai-info-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  color: #1e293b;
+  line-height: 1.2;
 }
 
-.ai-info p {
-  font-size: 16px;
-  line-height: 1.6;
-  margin-bottom: 15px;
-}
-
-.ai-info ul {
-  padding-left: 20px;
-  margin-bottom: 15px;
-}
-
-.ai-info li {
-  font-size: 14px;
+.ai-info-tagline {
+  margin: 2px 0 0;
+  font-size: 12.5px;
+  font-weight: 400;
+  color: #9a7b6a;
   line-height: 1.4;
-  margin-bottom: 8px;
-  transition: transform 0.3s ease;
 }
 
-.ai-info li:hover {
-  transform: translateZ(10px);
+/* --- Divider --- */
+.ai-info-divider {
+  height: 1px;
+  margin: 18px 24px;
+  background: linear-gradient(90deg, transparent, rgba(154, 52, 18, 0.12), transparent);
 }
 
-/* Efeito de hover nas letras do título */
-.ai-info h2 span {
-  display: inline-block;
-  transition: transform 0.3s ease;
+/* --- Feature list --- */
+.ai-info-features {
+  list-style: none;
+  padding: 0 24px;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
-.ai-info h2 span:hover {
-  transform: translateZ(10px) scale(1.1);
-}
-
-/* ==================== DIREITOS AUTORAIS E VERSÃO ==================== */
-.copyright-info {
-  margin-top: 25px;
-  padding-top: 15px;
-  border-top: 1px solid rgba(255, 152, 0, 0.3);
-  text-align: center;
-  transition: all 0.3s ease;
-}
-
-.copyright-info p {
+.ai-info-features li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
   font-size: 13px;
-  margin-bottom: 6px;
-  color: #666;
   line-height: 1.4;
+  color: #5c4033;
+  border-radius: 10px;
+  transition: background 0.2s ease, color 0.2s ease;
+  cursor: default;
 }
 
-.copyright-info p:last-child {
+.ai-info-features li:hover {
+  background: rgba(154, 52, 18, 0.05);
+}
+
+.ai-info-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #C2410C;
+  flex-shrink: 0;
+}
+
+.ai-info-features li:hover .ai-info-dot {
+  opacity: 1;
+}
+
+/* --- Footer --- */
+.ai-info-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  margin-top: 12px;
+  border-top: 1px solid rgba(154, 52, 18, 0.08);
+  font-size: 11px;
+  color: #9a7b6a;
+  letter-spacing: 0.2px;
+}
+
+.ai-info-version {
   font-weight: 600;
-  color: #ff9800;
-  font-size: 14px;
-  letter-spacing: 0.5px;
-}
-
-.copyright-info:hover {
-  background-color: rgba(255, 152, 0, 0.05);
+  color: #9A3412;
+  font-size: 10.5px;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  background: rgba(154, 52, 18, 0.08);
   border-radius: 6px;
-  padding: 8px;
-  transform: translateZ(5px);
 }
 
-/* ==================== ESTILIZAÇÃO DA BARRA DE ROLAGEM ==================== */
+/* --- Scrollbar --- */
 .ai-info::-webkit-scrollbar {
-  width: 8px;
-  background: transparent;
+  width: 4px;
 }
 
 .ai-info::-webkit-scrollbar-track {
-  background: rgba(255, 152, 0, 0.05);
-  border-radius: 10px;
-  margin: 5px;
+  background: transparent;
 }
 
 .ai-info::-webkit-scrollbar-thumb {
-  background: rgba(255, 152, 0, 0.3);
-  border-radius: 10px;
-  border: 2px solid transparent;
-  background-clip: content-box;
+  background: rgba(0, 0, 0, 0.06);
+  border-radius: 4px;
 }
 
 .ai-info::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 152, 0, 0.5);
-  border-radius: 10px;
-  border: 2px solid transparent;
-  background-clip: content-box;
+  background: rgba(0, 0, 0, 0.12);
+}
+
+/* --- Reduced motion --- */
+@media (prefers-reduced-motion: reduce) {
+  .ai-info.show {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* --- Tablet --- */
+@media (max-width: 768px) {
+  .ai-info {
+    width: 300px;
+    right: 10px;
+  }
+}
+
+/* --- Mobile --- */
+@media (max-width: 480px) {
+  .ai-info {
+    position: fixed;
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-height: 70vh;
+    border-radius: 24px 24px 0 0;
+    border: none;
+    border-top: 1px solid #F2E6E2;
+    transform: translateY(100%);
+    box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.15);
+    overflow-y: auto;
+    z-index: 2000;
+  }
+
+  .ai-info.show {
+    animation: aiInfoSlideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  @keyframes aiInfoSlideUp {
+    from { opacity: 0; transform: translateY(100%); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .ai-info-header {
+    padding: 28px 24px 0;
+  }
+
+  .ai-info-logo {
+    width: 36px;
+    height: 36px;
+  }
+
+  .ai-info-features {
+    padding: 0 20px;
+  }
+
+  .ai-info-footer {
+    padding: 16px 20px 24px;
+  }
 }
 
 /* Indicador sutil de rolagem */
@@ -513,113 +643,13 @@ body {
 }
 
 /* ==================== RESPONSIVIDADE ==================== */
-@media screen and (max-width: 768px) {
-  .ai-info {
-    top: 80px;
-    left: 50%;
-    right: auto;
-    width: calc(100% - 40px);
-    max-width: 400px;
-    transform: translateX(-50%) translateY(-10px);
-  }
-
-  .ai-info.show {
-    animation-name: fadeInMobile; /* Usa a animação mobile */
-  }
-
-  .ai-info h2 {
-    font-size: 24px;
-  }
-}
-
-@media screen and (max-width: 480px) {
-  .ai-info {
-    top: 70px;
-    width: calc(100% - 30px);
-    padding: 15px;
-    /* transform: translateX(-50%) translateY(-10px); é herdado do media query de 768px e está correto */
-  }
-
-
-  .ai-info h2 {
-    font-size: 22px;
-    margin-bottom: 10px;
-  }
-
-  .ai-info p {
-    font-size: 14px;
-    margin-bottom: 12px;
-  }
-
-  .ai-info ul {
-    padding-left: 15px;
-  }
-
-  .ai-info li {
-    font-size: 13px;
-    margin-bottom: 6px;
-  }
-
-  .copyright-info {
-    margin-top: 15px;
-    padding-top: 10px;
-  }
-
-  .copyright-info p {
-    font-size: 11px;
-  }
-
-  .copyright-info p:last-child {
-    font-size: 12px;
-  }
-}
-
-@media screen and (max-width: 320px) {
-  .ai-info {
-    padding: 12px;
- 
-  }
-
-
-  .ai-info h2 {
-    font-size: 20px;
-  }
-}
-
-@media screen and (min-width: 1600px) {
-  .ai-info {
-    top: 90px;
-    left: auto;
-    width: 350px;
-    transform: translateY(-10px); /* Posição Y inicial desktop */
-  }
-
-  .ai-info.show {
-    animation-name: fadeInDesktop; /* Garante animação desktop */
-  }
-
-  .ai-info h2 {
-    font-size: 30px;
-  }
-
-  .ai-info p {
-    font-size: 17px;
-  }
-
-  .copyright-info p {
-    font-size: 14px;
-  }
-
-  .copyright-info p:last-child {
-    font-size: 15px;
-  }
-}
+/* Legacy ai-info media queries removed — responsive handled in panel section above */
 
 
 
 
 
-/* ==================== BOTÃO DE CHAT ==================== */
+/* ==================== BUTTON CONTAINERS (positions) ==================== */
 .chat-button-container {
   position: fixed;
   bottom: 80px;
@@ -630,67 +660,6 @@ body {
   z-index: 1000;
 }
 
-.chat-button {
-  background-color: #ff9800;
-  border: none;
-  border-radius: 30px;
-  padding: 10px 20px;
-  cursor: pointer;
-  box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3);
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  overflow: hidden;
-  animation: pulse 2s infinite;
-}
-
-.chat-button:hover {
-  background-color: #f57c00;
-  transform: translateY(-3px);
-  box-shadow: 0 6px 20px rgba(255, 152, 0, 0.4);
-}
-
-.chat-button:active {
-  transform: translateY(-1px);
-  box-shadow: 0 3px 10px rgba(255, 152, 0, 0.3);
-}
-
-.chat-button-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 30px;
-  height: 30px;
-  background-color: white;
-  border-radius: 50%;
-  margin-right: 10px;
-  transition: all 0.3s ease;
-}
-
-.chat-button:hover .chat-button-icon {
-  transform: rotate(360deg);
-}
-
-.chat-button-icon svg {
-  width: 20px;
-  height: 20px;
-  fill: #ff9800;
-}
-
-.chat-button-text {
-  color: white;
-  font-weight: bold;
-  font-size: 16px;
-  letter-spacing: 0.5px;
-  transition: all 0.3s ease;
-  font-family: 'Poppins', sans-serif;
-}
-
-.chat-button:hover .chat-button-text {
-  transform: scale(1.05);
-}
-
-/* ==================== BOTÃO DE RECEITAS ==================== */
 .recipes-button-container {
   position: fixed;
   bottom: 80px;
@@ -698,132 +667,11 @@ body {
   z-index: 1000;
 }
 
-.recipes-button {
-  background-color: #ff9800;
-  border: none;
-  border-radius: 30px;
-  padding: 10px 20px;
-  cursor: pointer;
-  box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3);
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  overflow: hidden;
-  animation: pulse 2s infinite;
-}
-
-.recipes-button:hover {
-  background-color: #f57c00;
-  transform: translateY(-3px);
-  box-shadow: 0 6px 20px rgba(255, 152, 0, 0.4);
-}
-
-.recipes-button:active {
-  transform: translateY(-1px);
-  box-shadow: 0 3px 10px rgba(255, 152, 0, 0.3);
-}
-
-.recipes-button-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 30px;
-  height: 30px;
-  background-color: white;
-  border-radius: 50%;
-  margin-right: 10px;
-  transition: all 0.3s ease;
-}
-
-.recipes-button:hover .recipes-button-icon {
-  transform: rotate(360deg);
-}
-
-.recipes-button-icon svg {
-  width: 20px;
-  height: 20px;
-  fill: #ff9800;
-}
-
-.recipes-button-text {
-  color: white;
-  font-weight: bold;
-  font-size: 16px;
-  letter-spacing: 0.5px;
-  transition: all 0.3s ease;
-  font-family: 'Poppins', sans-serif;
-}
-
-.recipes-button:hover .recipes-button-text {
-  transform: scale(1.05);
-}
-
-/* ==================== BOTÃO DE DESAFIO ==================== */
 .desafio-button-container {
   position: fixed;
   bottom: 80px;
-  right: 390px; /* Posicionado à direita do botão Iniciar Chat */
+  right: 390px;
   z-index: 1000;
-}
-
-.desafio-button {
-  background-color: #ff9800;
-  border: none;
-  border-radius: 30px;
-  padding: 10px 20px;
-  cursor: pointer;
-  box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3);
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  overflow: hidden;
-  animation: pulse 2s infinite;
-}
-
-.desafio-button:hover {
-  background-color: #f57c00;
-  transform: translateY(-3px);
-  box-shadow: 0 6px 20px rgba(255, 152, 0, 0.4);
-}
-
-.desafio-button:active {
-  transform: translateY(-1px);
-  box-shadow: 0 3px 10px rgba(255, 152, 0, 0.3);
-}
-
-.desafio-button-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 30px;
-  height: 30px;
-  background-color: white;
-  border-radius: 50%;
-  margin-right: 10px;
-  transition: all 0.3s ease;
-}
-
-.desafio-button:hover .desafio-button-icon {
-  transform: rotate(360deg);
-}
-
-.desafio-button-icon svg {
-  width: 20px;
-  height: 20px;
-  fill: #ff9800;
-}
-
-.desafio-button-text {
-  color: white;
-  font-weight: bold;
-  font-size: 16px;
-  letter-spacing: 0.5px;
-  transition: all 0.3s ease;
-  font-family: 'Poppins', sans-serif;
-}
-
-.desafio-button:hover .desafio-button-text {
-  transform: scale(1.05);
 }
 
 /* ==================== ANIMAÇÃO DE PULSO PARA BOTÕES ==================== */
@@ -840,6 +688,7 @@ body {
 }
 
 /* ==================== TRANSIÇÃO ENTRE PÁGINAS ==================== */
+/* Orange gradient shown behind body as it collapses/expands via clip-path */
 html.page-entering {
   background: linear-gradient(135deg, #ff9800 0%, #f57c00 45%, #e65100 100%);
 }
@@ -1113,17 +962,6 @@ body {
     font-size: 14px;
   }
   
-  .ai-info {
-    top: 70px;
-    right: 10px;
-    width: calc(100% - 40px);
-    padding: 15px;
-  }
-  
-  .ai-info h2 {
-    font-size: 22px;
-  }
-  
   /* Botões empilhados verticalmente */
   .chat-button-container,
   .recipes-button-container,
@@ -1202,17 +1040,6 @@ body {
     font-size: 14px;
   }
   
-  .ai-info {
-    top: 70px;
-    right: 10px;
-    width: calc(100% - 40px);
-    padding: 15px;
-  }
-  
-  .ai-info h2 {
-    font-size: 22px;
-  }
-  
   /* Botões empilhados verticalmente */
   .chat-button-container,
   .recipes-button-container,
@@ -1281,12 +1108,6 @@ body {
   .ai-button {
     top: 15px;
     right: 15px;
-  }
-  
-  .ai-info {
-    top: 80px;
-    right: 15px;
-    width: calc(100% - 60px);
   }
   
   /* Botões empilhados verticalmente */
@@ -1555,11 +1376,6 @@ body {
   .desafio-button-container {
     right: 20px;
     transform: none;
-  }
-  
-  .ai-info {
-    max-height: 70vh;
-    overflow-y: auto;
   }
   
   .chat-button,

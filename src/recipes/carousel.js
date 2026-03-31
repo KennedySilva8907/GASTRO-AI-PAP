@@ -9,6 +9,174 @@
 import { getBackgroundImageUrl } from './preloader.js';
 import { LazyBackgroundLoader } from './lazy-loader.js';
 import { shareRecipe } from './share.js';
+import { buildRecipeCatalog } from './catalog.js';
+import { RecipesStageController } from './stage-controller.js';
+import { RecipePanelController } from './panel-controller.js';
+
+/**
+ * Map receitas.html legacy panel markup when Task 4 `data-*` hooks are absent.
+ * @param {RecipePanelController} panel
+ */
+function applyRecipePanelDomFallbacks(panel) {
+  const shell = panel.panel;
+  if (!shell) return;
+
+  if (!panel.closeBtn) {
+    panel.closeBtn =
+      shell.querySelector('.recipes-panel__close') ?? shell.querySelector('.close-button');
+  }
+  if (!panel.videoFrame) {
+    panel.videoFrame =
+      shell.querySelector('[data-panel-video]') ?? shell.querySelector('.video-container iframe');
+  }
+  if (!panel.countryEl) {
+    panel.countryEl = shell.querySelector('[data-panel-country]');
+  }
+  if (!panel.titleEl) {
+    panel.titleEl =
+      shell.querySelector('[data-panel-title]') ?? shell.querySelector('#recipeTitle');
+  }
+  if (!panel.summaryEl) {
+    panel.summaryEl = shell.querySelector('[data-panel-summary]');
+  }
+  if (!panel.contentEl) {
+    panel.contentEl =
+      shell.querySelector('[data-panel-content]') ?? shell.querySelector('#recipeContent');
+  }
+  if (!panel.actionsEl) {
+    panel.actionsEl = shell.querySelector('[data-panel-actions]');
+  }
+}
+
+/**
+ * Support both the legacy display:block panel and the Task 5 hidden/body-class panel.
+ * @param {HTMLElement | null | undefined} panel
+ * @returns {boolean}
+ */
+function isPanelOpen(panel) {
+  if (!panel) return false;
+  if (panel.style.display === 'block') return true;
+  if (panel.hasAttribute('hidden')) return panel.hidden === false;
+  return document.body.classList.contains('recipes-panel-open');
+}
+
+/**
+ * @param {Element[] | NodeListOf<Element>} listItems
+ * @returns {number}
+ */
+function getScrollSegmentCount(listItems) {
+  return Math.max((listItems?.length ?? 0) - 1, 0);
+}
+
+/**
+ * @param {HTMLElement} list
+ * @returns {number}
+ */
+function getScrollableRange(list) {
+  return Math.max((list?.scrollHeight ?? 0) - (list?.clientHeight ?? 0), 0);
+}
+
+/**
+ * @param {number} index
+ * @param {HTMLElement} list
+ * @param {Element[] | NodeListOf<Element>} listItems
+ * @returns {number}
+ */
+function getTargetScrollTop(index, list, listItems) {
+  const segments = getScrollSegmentCount(listItems);
+  if (segments <= 0) return 0;
+  return (getScrollableRange(list) * index) / segments;
+}
+
+/**
+ * @param {number} scrollTop
+ * @param {HTMLElement} list
+ * @param {Element[] | NodeListOf<Element>} listItems
+ * @returns {number}
+ */
+function getIndexFromScrollTop(scrollTop, list, listItems) {
+  const segments = getScrollSegmentCount(listItems);
+  const scrollableRange = getScrollableRange(list);
+  if (segments <= 0 || scrollableRange <= 0) return 0;
+  return Math.round((scrollTop / scrollableRange) * segments);
+}
+
+/** @type {number} */
+const SCROLL_EDGE_TOLERANCE_PX = 1;
+
+/**
+ * Thin page coordinator: catalog → stage (rail/hero) → floating panel + responsive modal helpers.
+ */
+export class RecipesExperience {
+  /**
+   * @param {ParentNode} [root]
+   */
+  constructor(root = document) {
+    this.root = root;
+    /** @type {RecipePanelController | null} */
+    this.panel = null;
+    /** @type {RecipesStageController | null} */
+    this.stage = null;
+    /** @type {ResponsiveModalHandler | null} */
+    this._responsiveHandler = null;
+  }
+
+  init() {
+    new LazyBackgroundLoader().init();
+
+    const catalog = buildRecipeCatalog(this.root);
+    if (catalog.length === 0) {
+      return;
+    }
+
+    this.panel = new RecipePanelController(this.root, catalog);
+    applyRecipePanelDomFallbacks(this.panel);
+
+    const panelEl = this.panel.panel;
+    const rawOpen = RecipePanelController.prototype.open;
+    const rawClose = RecipePanelController.prototype.close;
+
+    this.panel.open = (recipe, trigger) => {
+      rawOpen.call(this.panel, recipe, trigger);
+      panelEl?.dispatchEvent(new window.Event('show', { bubbles: true }));
+    };
+    this.panel.close = () => {
+      rawClose.call(this.panel);
+      panelEl?.dispatchEvent(new window.Event('hide', { bubbles: true }));
+    };
+    this.panel._onCloseClick = this.panel.close.bind(this.panel);
+
+    this.panel.init();
+
+    this.stage = new RecipesStageController(this.root, catalog, {
+      onOpen: (recipe, item) => {
+        const anchor = item.querySelector?.('a');
+        this.panel.open(
+          {
+            ...recipe,
+            summary: `${recipe.country} em destaque nas receitas do mundo.`,
+          },
+          anchor ?? item,
+        );
+      },
+    });
+    this.stage.init();
+
+    this._responsiveHandler = new ResponsiveModalHandler();
+  }
+
+  destroy() {
+    this.stage?.destroy?.();
+    if (this.panel && isPanelOpen(this.panel.panel)) {
+      this.panel.close();
+    }
+    this.panel?.destroy?.();
+    this._responsiveHandler?.destroy?.();
+    this.panel = null;
+    this.stage = null;
+    this._responsiveHandler = null;
+  }
+}
 
 /**
  * Vertical scroll carousel with GSAP animations.
@@ -35,6 +203,8 @@ export class VerticalCarousel {
     this.preloadedImages = new Set();
     this.isScrolling = false;
     this.scrollTimeout = null;
+    this._onFullscreenChange = () => this.handleFullscreenChange();
+    this._onDocumentKeydown = null;
     this.init();
   }
 
@@ -51,7 +221,18 @@ export class VerticalCarousel {
     this.setupModalEventListeners();
 
     // Ajusta o carrossel quando o modo de tela cheia muda
-    document.addEventListener('fullscreenchange', () => this.handleFullscreenChange());
+    document.addEventListener('fullscreenchange', this._onFullscreenChange);
+  }
+
+  destroy() {
+    clearTimeout(this.scrollTimeout);
+    this.scrollTimeout = null;
+
+    document.removeEventListener('fullscreenchange', this._onFullscreenChange);
+    if (this._onDocumentKeydown) {
+      document.removeEventListener('keydown', this._onDocumentKeydown);
+      this._onDocumentKeydown = null;
+    }
   }
 
   /**
@@ -61,6 +242,8 @@ export class VerticalCarousel {
     const carousel = this.getCarousel();
     const list = this.getList();
     const listItems = this.getListItems();
+    const bgImages = this.getBgImgs();
+    if (!carousel || !list) return;
 
     // Configurações de estilo para o carrossel
     carousel.style.display = 'block';
@@ -74,22 +257,24 @@ export class VerticalCarousel {
 
     // Adiciona padding extra para garantir que o último item seja visível
     const viewportHeight = window.innerHeight;
-    const lastItemHeight = listItems[listItems.length - 1].offsetHeight;
+    const lastItemHeight = listItems.length > 0 ? listItems[listItems.length - 1].offsetHeight : 0;
     const extraPadding = Math.max(viewportHeight * 0.2, lastItemHeight);
     list.style.paddingBottom = `${extraPadding}px`;
     list.style.paddingTop = '60px';
 
     // Configura as imagens de fundo com GSAP
-    gsap.set(this.getBgImgs(), {
+    gsap.set(bgImages, {
       autoAlpha: 0,
       scale: 1.05,
     });
 
     // Exibe apenas a primeira imagem inicialmente
-    gsap.set(this.getBgImgs()[0], {
-      autoAlpha: 1,
-      scale: 1,
-    });
+    if (bgImages[0]) {
+      gsap.set(bgImages[0], {
+        autoAlpha: 1,
+        scale: 1,
+      });
+    }
   }
 
   /**
@@ -97,9 +282,11 @@ export class VerticalCarousel {
    */
   preloadImages() {
     const bgImages = this.getBgImgs();
+    const totalImages = bgImages.length;
+    if (totalImages === 0) return;
+
     const loadingOverlay = this.createLoadingOverlay();
     let loadedCount = 0;
-    const totalImages = bgImages.length;
 
     // Atualiza a barra de progresso à medida que as imagens são carregadas
     const updateProgress = () => {
@@ -208,6 +395,7 @@ export class VerticalCarousel {
   preloadNextImages(currentIndex) {
     const bgImages = this.getBgImgs();
     const totalImages = bgImages.length;
+    if (totalImages === 0) return;
 
     // Carrega as próximas 2 imagens
     for (let i = 1; i <= 2; i++) {
@@ -227,6 +415,7 @@ export class VerticalCarousel {
    */
   createProgressDots() {
     const carousel = this.getCarousel();
+    if (!carousel) return;
     const progressDots = document.createElement('div');
     progressDots.className = 'progress-dots';
     const items = this.getListItems();
@@ -249,10 +438,11 @@ export class VerticalCarousel {
   handleFullscreenChange() {
     setTimeout(() => {
       const list = this.getList();
+      if (!list) return;
       const listItems = this.getListItems();
 
       const viewportHeight = window.innerHeight;
-      const lastItemHeight = listItems[listItems.length - 1].offsetHeight;
+      const lastItemHeight = listItems.length > 0 ? listItems[listItems.length - 1].offsetHeight : 0;
       const extraPadding = Math.max(viewportHeight * 0.25, lastItemHeight);
 
       // Ajusta a altura máxima com base no modo de tela cheia
@@ -265,8 +455,14 @@ export class VerticalCarousel {
    * Configura o estado inicial do carrossel
    */
   setupInitialState() {
-    this.getBgImgs()[0].classList.add('is-visible');
-    this.updateListItems(0);
+    const bgImages = this.getBgImgs();
+    if (bgImages[0]) {
+      bgImages[0].classList.add('is-visible');
+    }
+
+    if (this.getListItems().length > 0) {
+      this.updateListItems(0);
+    }
   }
 
   /**
@@ -275,6 +471,7 @@ export class VerticalCarousel {
   initScrollEvent() {
     const list = this.getList();
     const listItems = this.getListItems();
+    if (!list) return;
     let lastScrollTime = Date.now();
     const scrollThrottle = 100;
 
@@ -286,9 +483,7 @@ export class VerticalCarousel {
       if (now - lastScrollTime < scrollThrottle) return;
 
       const scrollTop = list.scrollTop;
-      const listHeight = list.scrollHeight - list.clientHeight;
-      const rawIndex = (scrollTop / listHeight) * (listItems.length - 1);
-      const newIndex = Math.round(rawIndex);
+      const newIndex = getIndexFromScrollTop(scrollTop, list, listItems);
       const isMobile = window.innerWidth <= 768;
 
       // Atualiza apenas se o índice mudar e estiver dentro dos limites
@@ -334,13 +529,11 @@ export class VerticalCarousel {
         this.isScrolling = true;
 
         const direction = e.deltaY > 0 ? 1 : -1;
-
-        const listHeight = list.scrollHeight - list.clientHeight;
         const currentIndex = this.currentIndex;
 
         // Calcula o índice alvo com base na direção da rolagem
         const targetIndex = Math.max(0, Math.min(listItems.length - 1, currentIndex + direction));
-        const targetScrollTop = (listHeight * targetIndex) / (listItems.length - 1);
+        const targetScrollTop = getTargetScrollTop(targetIndex, list, listItems);
 
         // Rola suavemente para o item alvo
         list.scrollTo({
@@ -378,7 +571,11 @@ export class VerticalCarousel {
       if (isMobile && now - lastScrollHandled < 60) return;
 
       if (scrollDebounce) {
-        cancelAnimationFrame(scrollDebounce);
+        if (isMobile) {
+          clearTimeout(scrollDebounce);
+        } else {
+          cancelAnimationFrame(scrollDebounce);
+        }
       }
 
       lastScrollHandled = now;
@@ -415,8 +612,7 @@ export class VerticalCarousel {
         if (this.isScrolling || e.detail > 1) return;
 
         const currentScrollTop = list.scrollTop;
-        const targetScrollTop =
-          (list.scrollHeight - list.clientHeight) * (index / (listItems.length - 1));
+        const targetScrollTop = getTargetScrollTop(index, list, listItems);
 
         const scrollingUp = targetScrollTop < currentScrollTop;
 
@@ -636,40 +832,42 @@ export class VerticalCarousel {
    * Configura os eventos do modal para exibição de receitas
    */
   setupModalEventListeners() {
-    const modal = document.getElementById('recipeModal');
-    const closeButton = document.querySelector('.close-button');
+    const modal = document.getElementById('recipe-panel');
+    this.openModal = () => {};
+    if (!modal) return;
+
+    const closeButton = document.querySelector('.close-button, .recipes-panel__close');
+    const modalContent = modal.querySelector('.recipe-panel__surface');
     const videoIframe = modal.querySelector('.video-container iframe');
-    const modalContent = modal.querySelector('.modal-content');
+    const recipeContainer = document.querySelector('.recipe-container');
+    if (!closeButton || !modalContent || !videoIframe || !recipeContainer) return;
 
     // Impede propagação de eventos dentro do container de receitas
-    const recipeContainer = document.querySelector('.recipe-container');
-    if (recipeContainer) {
-      recipeContainer.addEventListener('click', (e) => {
+    recipeContainer.addEventListener('click', (e) => {
+      e.stopPropagation();
+    });
+
+    // Tratamento específico para dispositivos móveis
+    recipeContainer.addEventListener(
+      'touchstart',
+      (e) => {
         e.stopPropagation();
-      });
+      },
+      { passive: true }
+    );
 
-      // Tratamento específico para dispositivos móveis
-      recipeContainer.addEventListener(
-        'touchstart',
-        (e) => {
-          e.stopPropagation();
-        },
-        { passive: true }
-      );
-
-      recipeContainer.addEventListener(
-        'touchmove',
-        (e) => {
-          e.stopPropagation();
-          // Permitir scrolling normal dentro do container
-        },
-        { passive: true }
-      );
-
-      recipeContainer.addEventListener('touchend', (e) => {
+    recipeContainer.addEventListener(
+      'touchmove',
+      (e) => {
         e.stopPropagation();
-      });
-    }
+        // Permitir scrolling normal dentro do container
+      },
+      { passive: true }
+    );
+
+    recipeContainer.addEventListener('touchend', (e) => {
+      e.stopPropagation();
+    });
 
     // Melhorar a lógica de fechamento do modal
     if (modal) {
@@ -686,6 +884,7 @@ export class VerticalCarousel {
      */
     const animateModalOpen = () => {
       modal.style.display = 'block';
+      modal.dispatchEvent(new window.Event('show'));
       gsap.fromTo(
         modal,
         { backgroundColor: 'rgba(0, 0, 0, 0)' },
@@ -726,6 +925,7 @@ export class VerticalCarousel {
         onComplete: () => {
           modal.style.display = 'none';
           videoIframe.src = '';
+          modal.dispatchEvent(new window.Event('hide'));
         },
       });
     };
@@ -806,11 +1006,12 @@ export class VerticalCarousel {
     };
 
     // Adiciona tecla ESC para fechar o modal
-    document.addEventListener('keydown', (e) => {
+    this._onDocumentKeydown = (e) => {
       if (e.key === 'Escape' && modal.style.display === 'block') {
         animateModalClose();
       }
-    });
+    };
+    document.addEventListener('keydown', this._onDocumentKeydown);
 
     // Previne que o clique dentro do conteúdo do modal propague
     modalContent.addEventListener('click', (e) => {
@@ -860,12 +1061,28 @@ export class ResponsiveModalHandler {
     this.touchStartY = 0;
     this.touchMoveY = 0;
     this.isScrolling = false;
-    this.modal = document.getElementById('recipeModal');
-    this.modalContent = this.modal.querySelector('.modal-content');
-    this.recipeContainer = this.modal.querySelector('.recipe-container');
-    this.videoContainer = this.modal.querySelector('.video-container');
+    this.modal = document.getElementById('recipe-panel');
+    this.modalContent = this.modal?.querySelector('.recipe-panel__surface');
+    this.recipeContainer = this.modal?.querySelector('.recipe-container');
+    this.videoContainer = this.modal?.querySelector('.video-container');
+    this.scrollTimeout = null;
+    this.resizeTimeout = null;
+    this.orientationTimeout = null;
 
-    this.init();
+    this.preventBodyScroll = (e) => e.preventDefault();
+    this._onModalTouchStart = this._onModalTouchStart.bind(this);
+    this._onModalTouchMove = this._onModalTouchMove.bind(this);
+    this._onModalTouchEnd = this._onModalTouchEnd.bind(this);
+    this._onRecipeTouchMove = this._onRecipeTouchMove.bind(this);
+    this._onResize = this._onResize.bind(this);
+    this._onOrientationChange = this._onOrientationChange.bind(this);
+    this._onShow = this._onShow.bind(this);
+    this._onHide = this._onHide.bind(this);
+    this._onModalContentKeydown = this._onModalContentKeydown.bind(this);
+
+    if (this.modal && this.modalContent && this.recipeContainer && this.videoContainer) {
+      this.init();
+    }
   }
 
   /**
@@ -884,93 +1101,33 @@ export class ResponsiveModalHandler {
    */
   setupTouchEvents() {
     // Gestos de deslizar para fechar em dispositivos móveis
-    this.modal.addEventListener(
-      'touchstart',
-      (e) => {
-        this.touchStartY = e.touches[0].clientY;
-      },
-      { passive: true }
-    );
-
-    this.modal.addEventListener(
-      'touchmove',
-      (e) => {
-        if (this.isScrolling) return;
-
-        this.touchMoveY = e.touches[0].clientY;
-        const deltaY = this.touchMoveY - this.touchStartY;
-
-        // Verifica se o scroll está no topo ou no final
-        const isAtTop = this.recipeContainer.scrollTop <= 0;
-        const isAtBottom =
-          this.recipeContainer.scrollHeight - this.recipeContainer.scrollTop ===
-          this.recipeContainer.clientHeight;
-
-        if ((isAtTop && deltaY > 0) || (isAtBottom && deltaY < 0)) {
-          e.preventDefault();
-          this.modalContent.style.transform = `translateY(${deltaY}px)`;
-          this.modalContent.style.transition = 'none';
-        }
-      },
-      { passive: false }
-    );
-
-    this.modal.addEventListener('touchend', () => {
-      const deltaY = this.touchMoveY - this.touchStartY;
-
-      if (Math.abs(deltaY) > 100) {
-        // Fecha o modal se o deslize for suficiente
-        this.closeModal();
-      } else {
-        // Retorna o modal à posição original
-        this.modalContent.style.transform = '';
-        this.modalContent.style.transition = 'transform 0.3s ease';
-      }
-    });
+    this.modal.addEventListener('touchstart', this._onModalTouchStart, { passive: true });
+    this.modal.addEventListener('touchmove', this._onModalTouchMove, { passive: false });
+    this.modal.addEventListener('touchend', this._onModalTouchEnd);
 
     // Detecta quando o usuário está realmente scrollando o conteúdo
-    this.recipeContainer.addEventListener(
-      'touchmove',
-      () => {
-        this.isScrolling = true;
-        clearTimeout(this.scrollTimeout);
-        this.scrollTimeout = setTimeout(() => {
-          this.isScrolling = false;
-        }, 100);
-      },
-      { passive: true }
-    );
+    this.recipeContainer.addEventListener('touchmove', this._onRecipeTouchMove, { passive: true });
   }
 
   /**
    * Configura manipulador de redimensionamento da janela
    */
   setupResizeHandler() {
-    let resizeTimeout;
-    window.addEventListener('resize', () => {
-      clearTimeout(resizeTimeout);
-      resizeTimeout = setTimeout(() => {
-        this.adjustModalSize();
-      }, 250);
-    });
+    window.addEventListener('resize', this._onResize);
   }
 
   /**
    * Configura manipulador de mudança de orientação do dispositivo
    */
   setupOrientationChange() {
-    window.addEventListener('orientationchange', () => {
-      setTimeout(() => {
-        this.adjustModalSize();
-      }, 100);
-    });
+    window.addEventListener('orientationchange', this._onOrientationChange);
   }
 
   /**
    * Ajusta o tamanho do modal com base nas dimensões da tela
    */
   adjustModalSize() {
-    if (this.modal.style.display !== 'block') return;
+    if (!isPanelOpen(this.modal)) return;
 
     const viewportHeight = window.innerHeight;
     const viewportWidth = window.innerWidth;
@@ -1007,17 +1164,8 @@ export class ResponsiveModalHandler {
    * Configura o bloqueio de rolagem quando o modal está aberto
    */
   setupScrollLock() {
-    const preventDefault = (e) => e.preventDefault();
-
-    this.modal.addEventListener('show', () => {
-      document.body.style.overflow = 'hidden';
-      document.addEventListener('touchmove', preventDefault, { passive: false });
-    });
-
-    this.modal.addEventListener('hide', () => {
-      document.body.style.overflow = '';
-      document.removeEventListener('touchmove', preventDefault);
-    });
+    this.modal.addEventListener('show', this._onShow);
+    this.modal.addEventListener('hide', this._onHide);
   }
 
   /**
@@ -1027,41 +1175,134 @@ export class ResponsiveModalHandler {
     // Melhoria de acessibilidade
     this.modal.setAttribute('role', 'dialog');
     this.modal.setAttribute('aria-modal', 'true');
-
-    // Gerenciamento de foco para navegação por teclado
-    const focusableElements = this.modalContent.querySelectorAll(
-      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-    );
-
-    if (focusableElements.length) {
-      const firstFocusable = focusableElements[0];
-      const lastFocusable = focusableElements[focusableElements.length - 1];
-
-      this.modalContent.addEventListener('keydown', (e) => {
-        if (e.key === 'Tab') {
-          if (e.shiftKey) {
-            if (document.activeElement === firstFocusable) {
-              lastFocusable.focus();
-              e.preventDefault();
-            }
-          } else {
-            if (document.activeElement === lastFocusable) {
-              firstFocusable.focus();
-              e.preventDefault();
-            }
-          }
-        }
-      });
-    }
+    this.modalContent.addEventListener('keydown', this._onModalContentKeydown);
   }
 
   /**
    * Fecha o modal usando o botão de fechar
    */
   closeModal() {
-    const closeButton = this.modal.querySelector('.close-button');
+    const closeButton = this.modal?.querySelector('.recipes-panel__close, .close-button');
     if (closeButton) {
       closeButton.click();
+    }
+  }
+
+  /**
+   * Remove gesture/resize/scroll-lock listeners created by this helper.
+   */
+  destroy() {
+    clearTimeout(this.scrollTimeout);
+    clearTimeout(this.resizeTimeout);
+    clearTimeout(this.orientationTimeout);
+
+    this.modal?.removeEventListener('touchstart', this._onModalTouchStart);
+    this.modal?.removeEventListener('touchmove', this._onModalTouchMove);
+    this.modal?.removeEventListener('touchend', this._onModalTouchEnd);
+    this.recipeContainer?.removeEventListener('touchmove', this._onRecipeTouchMove);
+    window.removeEventListener('resize', this._onResize);
+    window.removeEventListener('orientationchange', this._onOrientationChange);
+    this.modal?.removeEventListener('show', this._onShow);
+    this.modal?.removeEventListener('hide', this._onHide);
+    this.modalContent?.removeEventListener('keydown', this._onModalContentKeydown);
+    document.removeEventListener('touchmove', this.preventBodyScroll);
+    document.body.style.overflow = '';
+  }
+
+  _onModalTouchStart(e) {
+    this.touchStartY = e.touches[0].clientY;
+    this.touchMoveY = this.touchStartY;
+  }
+
+  _onModalTouchMove(e) {
+    if (this.isScrolling || !isPanelOpen(this.modal)) return;
+
+    this.touchMoveY = e.touches[0].clientY;
+    const deltaY = this.touchMoveY - this.touchStartY;
+
+    // Verifica se o scroll está no topo ou no final
+    const remainingScroll =
+      this.recipeContainer.scrollHeight -
+      this.recipeContainer.scrollTop -
+      this.recipeContainer.clientHeight;
+    const isAtTop = this.recipeContainer.scrollTop <= SCROLL_EDGE_TOLERANCE_PX;
+    const isAtBottom = remainingScroll <= SCROLL_EDGE_TOLERANCE_PX;
+
+    if ((isAtTop && deltaY > 0) || (isAtBottom && deltaY < 0)) {
+      e.preventDefault();
+      this.modalContent.style.transform = `translateY(${deltaY}px)`;
+      this.modalContent.style.transition = 'none';
+    }
+  }
+
+  _onModalTouchEnd() {
+    if (!isPanelOpen(this.modal)) return;
+
+    const deltaY = this.touchMoveY - this.touchStartY;
+
+    if (Math.abs(deltaY) > 100) {
+      // Fecha o modal se o deslize for suficiente
+      this.closeModal();
+    } else {
+      // Retorna o modal à posição original
+      this.modalContent.style.transform = '';
+      this.modalContent.style.transition = 'transform 0.3s ease';
+    }
+  }
+
+  _onRecipeTouchMove() {
+    this.isScrolling = true;
+    clearTimeout(this.scrollTimeout);
+    this.scrollTimeout = setTimeout(() => {
+      this.isScrolling = false;
+    }, 100);
+  }
+
+  _onResize() {
+    clearTimeout(this.resizeTimeout);
+    this.resizeTimeout = setTimeout(() => {
+      this.adjustModalSize();
+    }, 250);
+  }
+
+  _onOrientationChange() {
+    clearTimeout(this.orientationTimeout);
+    this.orientationTimeout = setTimeout(() => {
+      this.adjustModalSize();
+    }, 100);
+  }
+
+  _onShow() {
+    document.body.style.overflow = 'hidden';
+    document.addEventListener('touchmove', this.preventBodyScroll, { passive: false });
+    this.adjustModalSize();
+  }
+
+  _onHide() {
+    document.body.style.overflow = '';
+    document.removeEventListener('touchmove', this.preventBodyScroll);
+  }
+
+  _onModalContentKeydown(e) {
+    if (e.key !== 'Tab') return;
+
+    const focusableElements = this.modalContent.querySelectorAll(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+
+    if (!focusableElements.length) return;
+
+    const firstFocusable = focusableElements[0];
+    const lastFocusable = focusableElements[focusableElements.length - 1];
+
+    if (e.shiftKey) {
+      if (document.activeElement === firstFocusable) {
+        lastFocusable.focus();
+        e.preventDefault();
+      }
+    } else if (document.activeElement === lastFocusable) {
+      firstFocusable.focus();
+      e.preventDefault();
     }
   }
 }

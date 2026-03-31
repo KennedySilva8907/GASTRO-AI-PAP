@@ -7,167 +7,193 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Galeria de receitas t&#237;picas mundiais com v&#237;deos e instru&#231;&#245;es detalhadas.">
     <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
     <title>Pratos Típicos Mundiais</title>
     <link rel="stylesheet" href="style.css">
     <!-- Previne flash ao entrar via transição -->
     <script>if(sessionStorage.getItem('gastro-transition-meta'))document.documentElement.classList.add('page-entering');</script>
 </head>
 <body>
-    <!-- Container principal -->
-    <div class="container">
-        <!-- Cabeçalho com carrossel vertical -->
-        <header class="c-header c-header--archive c-header--project-list">
-            <div class="c-mouse-vertical-carousel js-carousel u-media-wrapper u-media-wrapper--16-9">
-                <!-- Lista de pratos típicos para navegação -->
-                <ul class="c-mouse-vertical-carousel__list js-carousel-list">
-                    <!-- Item 1: Bacalhau à Brás (Portugal) -->
-                    <li class="c-mouse-vertical-carousel__list-item js-carousel-list-item" data-item-id="0">
-                        <a href="#" data-video-id="FzCOdimBIeU?si=_rb5XGFLGRzBZD5F" data-recipe="bacalhau_a_bras"> 
-                            <p class="c-mouse-vertical-carousel__eyebrow u-b4">
+    <main class="recipes-page">
+        <section class="recipes-stage" aria-label="Vitrine de receitas do mundo">
+            <i
+                class="recipes-stage__bg js-carousel-bg-img is-visible"
+                data-depth="-72"
+                style="background-image: url('https://asset.skoiy.com/gta2554ejcwslaya/s1h7fqyzpgpb.jpg')"
+                aria-hidden="true"></i>
+            <i class="recipes-stage__bg js-carousel-bg-img" data-depth="-72" data-bg="https://cdn.shopify.com/s/files/1/0748/1684/8190/files/20240717170612-recipe-20kit-20thumbnail-20photo-20-20-20.png" aria-hidden="true"></i>
+            <i class="recipes-stage__bg js-carousel-bg-img" data-depth="-72" data-bg="https://www.pingodoce.pt/wp-content/uploads/2015/03/esparguete-a-carbonara.jpg" aria-hidden="true"></i>
+            <i class="recipes-stage__bg js-carousel-bg-img" data-depth="-72" data-bg="https://assets.epicurious.com/photos/63c17f620a2588545b65efc9/16:9/w_4015,h_2258,c_limit/Atsuko-p-85_VOG_final.jpg" aria-hidden="true"></i>
+            <i class="recipes-stage__bg js-carousel-bg-img" data-depth="-72" data-bg="https://assets.bonappetit.com/photos/5a57d1dbdc307a5ad51400d4/16:9/w_5168,h_2907,c_limit/Instant-Pot-Coq-Au-Vin.jpg" aria-hidden="true"></i>
+            <i class="recipes-stage__bg js-carousel-bg-img" data-depth="-72" data-bg="https://www.biltmore.com/wp-content/uploads/2023/11/texas-brisket-1-scaled.jpg" aria-hidden="true"></i>
+            <i class="recipes-stage__bg js-carousel-bg-img" data-depth="-72" data-bg="https://assets.vogue.com/photos/5997430d1c4b8c7a8020b0e0/16:9/w_1280,c_limit/00-social-tout-mole-sauce.jpg" aria-hidden="true"></i>
+            <i class="recipes-stage__bg js-carousel-bg-img" data-depth="-72" data-bg="https://img.taste.com.au/vmzx0F6U/w643-h428-cfill-q90/taste/2022/07/mapo-tofu-recipe-180109-2.png" aria-hidden="true"></i>
+            <i class="recipes-stage__bg js-carousel-bg-img" data-depth="-72" data-bg="https://images.pexels.com/photos/2474661/pexels-photo-2474661.jpeg" aria-hidden="true"></i>
+            <i class="recipes-stage__bg js-carousel-bg-img" data-depth="-72" data-bg="https://media-assets.lacucinaitaliana.it/photos/61fa988128bbd1b96fb66383/16:9/w_2560%2Cc_limit/moussaka-grecia.jpg" aria-hidden="true"></i>
+
+            <i class="recipes-stage__grain" data-depth="-18" aria-hidden="true"></i>
+            <i class="recipes-stage__glow recipes-stage__glow--primary" data-depth="-10" aria-hidden="true"></i>
+            <i class="recipes-stage__glow recipes-stage__glow--accent" data-depth="22" aria-hidden="true"></i>
+
+            <div class="recipes-stage__hero" data-depth="68">
+                <span class="recipes-stage__eyebrow">Sabores do mundo</span>
+                <div data-hero-title>
+                    <h1 class="recipes-stage__hero-title">Bacalhau à Brás</h1>
+                </div>
+                <p class="recipes-stage__hero-summary" data-hero-summary>
+                    Portugal em destaque nas receitas do mundo.
+                </p>
+            </div>
+
+            <aside class="recipes-rail" aria-label="Lista de receitas">
+                <ul class="recipes-rail__list js-carousel-list">
+                    <li class="recipes-rail__item js-carousel-list-item is-active" data-item-id="0">
+                        <a href="#" data-video-id="FzCOdimBIeU?si=_rb5XGFLGRzBZD5F" data-recipe="bacalhau_a_bras">
+                            <p class="recipes-rail__eyebrow c-mouse-vertical-carousel__eyebrow" data-recipe-country>
                                 <span>01</span> Portugal
                             </p>
-                            <p class="c-mouse-vertical-carousel__title u-a5">
+                            <p class="recipes-rail__title c-mouse-vertical-carousel__title" data-recipe-title>
                                 Bacalhau à Brás
                             </p>
                         </a>
                     </li>
-                    <!-- Item 2: Feijoada (Brasil) -->
-                    <li class="c-mouse-vertical-carousel__list-item js-carousel-list-item" data-item-id="1">
+                    <li class="recipes-rail__item js-carousel-list-item" data-item-id="1">
                         <a href="#" data-video-id="B9W5-6ePVig?si=Ipmocr_SHEk9u30W" data-recipe="feijoada">
-                            <p class="c-mouse-vertical-carousel__eyebrow u-b4">
+                            <p class="recipes-rail__eyebrow c-mouse-vertical-carousel__eyebrow" data-recipe-country>
                                 <span>02</span> Brasil
                             </p>
-                            <p class="c-mouse-vertical-carousel__title u-a5">
+                            <p class="recipes-rail__title c-mouse-vertical-carousel__title" data-recipe-title>
                                 Feijoada
                             </p>
                         </a>
                     </li>
-                    <!-- Item 3: Spaghetti alla Carbonara (Itália) -->
-                    <li class="c-mouse-vertical-carousel__list-item js-carousel-list-item" data-item-id="2">
-                         <a href="#" data-video-id="wrnej4DANv4?si=Z4l8KplVBDPC4uzZ" data-recipe="carbonara">
-                            <p class="c-mouse-vertical-carousel__eyebrow u-b4">
+                    <li class="recipes-rail__item js-carousel-list-item" data-item-id="2">
+                        <a href="#" data-video-id="wrnej4DANv4?si=Z4l8KplVBDPC4uzZ" data-recipe="carbonara">
+                            <p class="recipes-rail__eyebrow c-mouse-vertical-carousel__eyebrow" data-recipe-country>
                                 <span>03</span> Itália
                             </p>
-                            <p class="c-mouse-vertical-carousel__title u-a5">
+                            <p class="recipes-rail__title c-mouse-vertical-carousel__title" data-recipe-title>
                                 Spaghetti alla Carbonara
                             </p>
                         </a>
                     </li>
-                    <!-- Item 4: Ramen Tonkotsu (Japão) -->
-                    <li class="c-mouse-vertical-carousel__list-item js-carousel-list-item" data-item-id="3">
-                         <a href="#" data-video-id="mm4nT-UoTvU?si=xojwxXRy8u6ghzkN" data-recipe="ramen">
-                            <p class="c-mouse-vertical-carousel__eyebrow u-b4">
+                    <li class="recipes-rail__item js-carousel-list-item" data-item-id="3">
+                        <a href="#" data-video-id="mm4nT-UoTvU?si=xojwxXRy8u6ghzkN" data-recipe="ramen">
+                            <p class="recipes-rail__eyebrow c-mouse-vertical-carousel__eyebrow" data-recipe-country>
                                 <span>04</span> Japão
                             </p>
-                            <p class="c-mouse-vertical-carousel__title u-a5">
+                            <p class="recipes-rail__title c-mouse-vertical-carousel__title" data-recipe-title>
                                 Ramen Tonkotsu
                             </p>
                         </a>
                     </li>
-                    <!-- Item 5: Coq au Vin (França) -->
-                    <li class="c-mouse-vertical-carousel__list-item js-carousel-list-item" data-item-id="4">
-                         <a href="#" data-video-id="lfjIxW4RWkM?si=JDfY7otlUyEhLMmw" data-recipe="coq_au_vin">
-                            <p class="c-mouse-vertical-carousel__eyebrow u-b4">
+                    <li class="recipes-rail__item js-carousel-list-item" data-item-id="4">
+                        <a href="#" data-video-id="lfjIxW4RWkM?si=JDfY7otlUyEhLMmw" data-recipe="coq_au_vin">
+                            <p class="recipes-rail__eyebrow c-mouse-vertical-carousel__eyebrow" data-recipe-country>
                                 <span>05</span> França
                             </p>
-                            <p class="c-mouse-vertical-carousel__title u-a5">
+                            <p class="recipes-rail__title c-mouse-vertical-carousel__title" data-recipe-title>
                                 Coq au Vin
                             </p>
                         </a>
                     </li>
-                    <!-- Item 6: Texas Brisket BBQ (EUA) -->
-                    <li class="c-mouse-vertical-carousel__list-item js-carousel-list-item" data-item-id="5">
-                         <a href="#" data-video-id="RRVVTB_aJJA?si=mxUCwMmMun8e_x7n" data-recipe="brisket">
-                            <p class="c-mouse-vertical-carousel__eyebrow u-b4">
+                    <li class="recipes-rail__item js-carousel-list-item" data-item-id="5">
+                        <a href="#" data-video-id="RRVVTB_aJJA?si=mxUCwMmMun8e_x7n" data-recipe="brisket">
+                            <p class="recipes-rail__eyebrow c-mouse-vertical-carousel__eyebrow" data-recipe-country>
                                 <span>06</span> EUA
                             </p>
-                            <p class="c-mouse-vertical-carousel__title u-a5">
+                            <p class="recipes-rail__title c-mouse-vertical-carousel__title" data-recipe-title>
                                 Texas Brisket BBQ
                             </p>
                         </a>
                     </li>
-                    <!-- Item 7: Mole Poblano (México) -->
-                    <li class="c-mouse-vertical-carousel__list-item js-carousel-list-item" data-item-id="6">
-                         <a href="#" data-video-id="9FKDcxehh5s?si=6ROliUb9E5wyb6sR" data-recipe="mole_poblano">
-                            <p class="c-mouse-vertical-carousel__eyebrow u-b4">
+                    <li class="recipes-rail__item js-carousel-list-item" data-item-id="6">
+                        <a href="#" data-video-id="9FKDcxehh5s?si=6ROliUb9E5wyb6sR" data-recipe="mole_poblano">
+                            <p class="recipes-rail__eyebrow c-mouse-vertical-carousel__eyebrow" data-recipe-country>
                                 <span>07</span> México
                             </p>
-                            <p class="c-mouse-vertical-carousel__title u-a5">
-                               Mole Poblano
+                            <p class="recipes-rail__title c-mouse-vertical-carousel__title" data-recipe-title>
+                                Mole Poblano
                             </p>
                         </a>
                     </li>
-                    <!-- Item 8: Mapo Tofu (China) -->
-                    <li class="c-mouse-vertical-carousel__list-item js-carousel-list-item" data-item-id="7">
-                         <a href="#" data-video-id="_IjJwKpQvWc?si=AheM7UlUO4q01Hbg" data-recipe="mapo_tofu">
-                            <p class="c-mouse-vertical-carousel__eyebrow u-b4">
+                    <li class="recipes-rail__item js-carousel-list-item" data-item-id="7">
+                        <a href="#" data-video-id="_IjJwKpQvWc?si=AheM7UlUO4q01Hbg" data-recipe="mapo_tofu">
+                            <p class="recipes-rail__eyebrow c-mouse-vertical-carousel__eyebrow" data-recipe-country>
                                 <span>08</span> China
                             </p>
-                            <p class="c-mouse-vertical-carousel__title u-a5">
+                            <p class="recipes-rail__title c-mouse-vertical-carousel__title" data-recipe-title>
                                 Mapo Tofu
                             </p>
                         </a>
                     </li>
-                    <!-- Item 9: Butter Chicken (Índia) -->
-                    <li class="c-mouse-vertical-carousel__list-item js-carousel-list-item" data-item-id="8">
-                         <a href="#" data-video-id="9V2OtpSyY2g?si=aJt3g4uIHZ9WTNqN" data-recipe="butter_chicken">
-                            <p class="c-mouse-vertical-carousel__eyebrow u-b4">
+                    <li class="recipes-rail__item js-carousel-list-item" data-item-id="8">
+                        <a href="#" data-video-id="9V2OtpSyY2g?si=aJt3g4uIHZ9WTNqN" data-recipe="butter_chicken">
+                            <p class="recipes-rail__eyebrow c-mouse-vertical-carousel__eyebrow" data-recipe-country>
                                 <span>09</span> Índia
                             </p>
-                            <p class="c-mouse-vertical-carousel__title u-a5">
-                               Butter Chicken
+                            <p class="recipes-rail__title c-mouse-vertical-carousel__title" data-recipe-title>
+                                Butter Chicken
                             </p>
                         </a>
                     </li>
-                    <!-- Item 10: Moussaka (Grécia) -->
-                    <li class="c-mouse-vertical-carousel__list-item js-carousel-list-item" data-item-id="9">
-                         <a href="#" data-video-id="3MAxCpAlCn0?si=l4-_N_g3tAkOnY65" data-recipe="moussaka">
-                            <p class="c-mouse-vertical-carousel__eyebrow u-b4">
+                    <li class="recipes-rail__item js-carousel-list-item" data-item-id="9">
+                        <a href="#" data-video-id="3MAxCpAlCn0?si=l4-_N_g3tAkOnY65" data-recipe="moussaka">
+                            <p class="recipes-rail__eyebrow c-mouse-vertical-carousel__eyebrow" data-recipe-country>
                                 <span>10</span> Grécia
                             </p>
-                            <p class="c-mouse-vertical-carousel__title u-a5">
-                               Moussaka
+                            <p class="recipes-rail__title c-mouse-vertical-carousel__title" data-recipe-title>
+                                Moussaka
                             </p>
                         </a>
                     </li>
                 </ul>
+            </aside>
+        </section>
+    </main>
 
-                <!-- Imagens de fundo para cada prato -->
-                <i class="c-mouse-vertical-carousel__bg-img js-carousel-bg-img" style="background-image: url('https://asset.skoiy.com/gta2554ejcwslaya/s1h7fqyzpgpb.jpg')"></i>
-                <i class="c-mouse-vertical-carousel__bg-img js-carousel-bg-img" data-bg="https://cdn.shopify.com/s/files/1/0748/1684/8190/files/20240717170612-recipe-20kit-20thumbnail-20photo-20-20-20.png"></i>
-                <i class="c-mouse-vertical-carousel__bg-img js-carousel-bg-img" data-bg="https://www.pingodoce.pt/wp-content/uploads/2015/03/esparguete-a-carbonara.jpg"></i>
-                <i class="c-mouse-vertical-carousel__bg-img js-carousel-bg-img" data-bg="https://assets.epicurious.com/photos/63c17f620a2588545b65efc9/16:9/w_4015,h_2258,c_limit/Atsuko-p-85_VOG_final.jpg"></i>
-                <i class="c-mouse-vertical-carousel__bg-img js-carousel-bg-img" data-bg="https://assets.bonappetit.com/photos/5a57d1dbdc307a5ad51400d4/16:9/w_5168,h_2907,c_limit/Instant-Pot-Coq-Au-Vin.jpg"></i>
-                <i class="c-mouse-vertical-carousel__bg-img js-carousel-bg-img" data-bg="https://www.biltmore.com/wp-content/uploads/2023/11/texas-brisket-1-scaled.jpg"></i>
-                <i class="c-mouse-vertical-carousel__bg-img js-carousel-bg-img" data-bg="https://assets.vogue.com/photos/5997430d1c4b8c7a8020b0e0/16:9/w_1280,c_limit/00-social-tout-mole-sauce.jpg"></i>
-                <i class="c-mouse-vertical-carousel__bg-img js-carousel-bg-img" data-bg="https://img.taste.com.au/vmzx0F6U/w643-h428-cfill-q90/taste/2022/07/mapo-tofu-recipe-180109-2.png"></i>
-                <i class="c-mouse-vertical-carousel__bg-img js-carousel-bg-img" data-bg="https://images.pexels.com/photos/2474661/pexels-photo-2474661.jpeg"></i>
-                <i class="c-mouse-vertical-carousel__bg-img js-carousel-bg-img" data-bg="https://media-assets.lacucinaitaliana.it/photos/61fa988128bbd1b96fb66383/16:9/w_2560%2Cc_limit/moussaka-grecia.jpg"></i>
-                
-                <!-- Overlay de gradiente para melhorar a legibilidade do texto -->
-                <i class="c-gradient-overlay"></i>
+    <div id="recipe-panel" class="recipe-panel" role="dialog" aria-modal="true" aria-labelledby="recipeTitle" hidden>
+        <div class="recipes-panel recipe-panel__surface">
+            <button type="button" class="recipes-panel__close" aria-label="Fechar painel">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            <div class="recipes-panel__media video-container">
+                <iframe
+                    data-panel-video
+                    width="560"
+                    height="315"
+                    src=""
+                    title="Vídeo da receita"
+                    frameborder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowfullscreen></iframe>
+                <span class="recipes-panel__kicker" data-panel-country>Portugal</span>
+                <span class="recipes-panel__play-badge">
+                    <span class="recipes-panel__play-icon" aria-hidden="true"></span>
+                    Ver preparação
+                </span>
             </div>
-        </header>
-    </div>
-
-    <!-- Modal para exibição de receitas e vídeos -->
-    <div class="modal" id="recipeModal">
-        <div class="modal-content">
-            <span class="close-button">&times;</span>
-            <div class="modal-body">
-                <!-- Container para o vídeo do YouTube -->
-                <div class="video-container">
-                    <iframe width="560" height="315" src="" frameborder="0" allowfullscreen></iframe>
+            <div class="recipes-panel__content recipe-container">
+                <div class="recipes-panel__intro">
+                    <small class="recipes-panel__label">Receita em foco</small>
+                    <h2 id="recipeTitle" data-panel-title>Bacalhau à Brás</h2>
+                    <p id="recipe-panel-summary" class="recipes-panel__summary" data-panel-summary>
+                        Portugal em destaque nas receitas do mundo.
+                    </p>
                 </div>
-                <!-- Container para o conteúdo da receita -->
-                <div class="recipe-container">
-                    <h2 id="recipeTitle"></h2>
-                    <div id="recipeContent"></div>
+                <div class="recipes-panel__meta" aria-label="Destaques da receita">
+                    <span class="recipes-panel__meta-pill">Vídeo + receita</span>
                 </div>
+                <div id="recipeContent" class="recipes-panel__body-copy" data-panel-content></div>
+                <div class="recipe-panel__actions recipes-panel__actions" data-panel-actions></div>
             </div>
         </div>
     </div>
-    
+
     <!-- Container com todas as receitas (oculto por padrão, carregado via JavaScript) -->
     <div id="recipes-data">
         <!-- Bacalhau à Brás (Portugal) -->
@@ -387,7 +413,7 @@
             </ol>
         </article>
     </div>
-        
+
     <!-- Botão de voltar para a página inicial -->
     <button id="back-button" class="back-button" aria-label="Voltar">
         <div class="back-button-icon">
@@ -398,7 +424,7 @@
         </div>
         <span class="back-button-text">Voltar</span>
     </button>
-    
+
     <!-- Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" defer></script>
     <script type="module" src="script.js"></script>

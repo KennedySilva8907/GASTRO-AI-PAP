@@ -94,13 +94,33 @@ describe('recipes/style.css design contract (cinematic layers)', () => {
     expect(css).not.toMatch(/^\.recipes-rail__eyebrow span\s*\{[\s\S]*b86f37/m);
   });
 
-  it('keeps the 640px rail narrower and slightly left of the edge instead of spanning almost full width', () => {
+  it('moves the rail into normal flow on touch layouts so recipe switching stays reachable above the fold', () => {
+    const css = readRecipesCss();
+    const bodies = extractTopLevelMediaBlockBodies(css, '@media (max-width: 920px)');
+    expect(bodies.length).toBeGreaterThan(0);
+    const touchBlock = bodies[0];
+    expect(touchBlock).toMatch(
+      /\.recipes-rail\s*\{[\s\S]*?position:\s*relative;[\s\S]*?top:\s*auto;[\s\S]*?right:\s*auto;[\s\S]*?bottom:\s*auto;[\s\S]*?width:\s*auto;[\s\S]*?margin:\s*24px\s+24px\s+0;[\s\S]*?transform:\s*none;/m,
+    );
+    expect(touchBlock).toMatch(
+      /\.recipes-rail__list\s*\{[\s\S]*?max-height:\s*290px;/m,
+    );
+  });
+
+  it('keeps the portrait mobile rail compact instead of reintroducing the below-the-fold 64 percent offset', () => {
     const css = readRecipesCss();
     const bodies = extractTopLevelMediaBlockBodies(css, '@media (max-width: 640px)');
     expect(bodies.length).toBeGreaterThan(0);
     const mobileBlock = bodies[0];
+    expect(mobileBlock).not.toMatch(/top:\s*64%/m);
     expect(mobileBlock).toMatch(
-      /\.recipes-rail\s*\{[\s\S]*?right:\s*22px;[\s\S]*?top:\s*64%;[\s\S]*?bottom:\s*auto;[\s\S]*?width:\s*min\(336px,\s*calc\(100%\s*-\s*52px\)\);[\s\S]*?transform:\s*translate3d\(0,\s*-50%,\s*120px\);/m,
+      /\.recipes-stage\s*\{[\s\S]*?min-height:\s*860px;/m,
+    );
+    expect(mobileBlock).toMatch(
+      /\.recipes-rail\s*\{[\s\S]*?margin:\s*18px\s+12px\s+0;[\s\S]*?padding:\s*14px;/m,
+    );
+    expect(mobileBlock).toMatch(
+      /\.recipes-rail__list\s*\{[\s\S]*?max-height:\s*248px;/m,
     );
   });
 
@@ -123,7 +143,7 @@ describe('recipes/style.css design contract (cinematic layers)', () => {
     expect(bodies.length).toBeGreaterThan(0);
     const shortLandscapeBlock = bodies[0];
     expect(shortLandscapeBlock).toMatch(
-      /\.recipes-rail\s*\{[\s\S]*?top:\s*86px;[\s\S]*?bottom:\s*auto;[\s\S]*?width:\s*288px;/m,
+      /\.recipes-rail\s*\{[\s\S]*?position:\s*absolute;[\s\S]*?top:\s*86px;[\s\S]*?bottom:\s*auto;[\s\S]*?width:\s*288px;/m,
     );
     expect(shortLandscapeBlock).toMatch(
       /\.recipes-panel\.recipe-panel__surface\s*\{[\s\S]*?grid-template-columns:\s*minmax\(260px,\s*1\.02fr\)\s+minmax\(260px,\s*0\.98fr\);/m,

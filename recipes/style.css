@@ -914,7 +914,7 @@ html.page-entering body {
 
 @media (max-width: 920px) {
   .recipes-stage {
-    min-height: 1100px;
+    min-height: 960px;
   }
 
   .recipes-stage__hero {
@@ -926,24 +926,23 @@ html.page-entering body {
   }
 
   .recipes-rail {
+    position: relative;
     top: auto;
-    right: 24px;
-    bottom: 30px;
-    width: calc(100% - 48px);
+    right: auto;
+    bottom: auto;
+    width: auto;
+    margin: 24px 24px 0;
+    transform: none;
   }
 
   .recipes-rail__list {
-    max-height: 320px;
+    max-height: 290px;
   }
 
-  .recipes-stage__pill--2 {
-    right: 48px;
-    top: 194px;
-  }
-
+  .recipes-stage__pill--1,
+  .recipes-stage__pill--2,
   .recipes-stage__pill--3 {
-    right: 48px;
-    bottom: 280px;
+    display: none;
   }
 
   .recipes-panel.recipe-panel__surface {
@@ -964,7 +963,7 @@ html.page-entering body {
   }
 
   .recipes-stage {
-    min-height: 1180px;
+    min-height: 860px;
     border-radius: 28px;
   }
 
@@ -982,26 +981,12 @@ html.page-entering body {
   }
 
   .recipes-rail {
-    right: 22px;
-    top: 64%;
-    bottom: auto;
-    width: min(336px, calc(100% - 52px));
-    padding: 15px;
-    transform: translate3d(0, -50%, 120px);
+    margin: 18px 12px 0;
+    padding: 14px;
   }
 
   .recipes-rail__list {
-    max-height: 300px;
-  }
-
-  .recipes-stage__pill--2,
-  .recipes-stage__pill--3 {
-    display: none;
-  }
-
-  .recipes-stage__pill--1 {
-    left: 20px;
-    bottom: 350px;
+    max-height: 248px;
   }
 
   .recipes-panel.recipe-panel__surface {
@@ -1065,6 +1050,7 @@ html.page-entering body {
   }
 
   .recipes-rail {
+    position: absolute;
     top: 86px;
     right: 20px;
     bottom: auto;

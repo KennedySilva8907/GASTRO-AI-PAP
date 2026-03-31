@@ -109,4 +109,53 @@ describe('HTML Performance Hints', () => {
     });
   });
 
+  describe('recipes/receitas.html cinematic shell contract', () => {
+    it('has required stage, panel, and rail hooks; no legacy modal class', () => {
+      const html = readHTML('recipes/receitas.html');
+      expect(html).toContain('class="recipes-stage"');
+      expect(html).toContain('id="recipe-panel"');
+      expect(html).toContain('class="recipes-rail__list js-carousel-list"');
+      expect(html).not.toContain('class="modal"');
+    });
+
+    it('matches the approved cinematic A shell instead of the old carousel shell', () => {
+      const html = readHTML('recipes/receitas.html');
+      expect(html).toContain('class="recipes-stage__grain"');
+      expect(html).toContain('class="recipes-stage__glow');
+      expect(html).toContain('class="recipes-panel__media video-container"');
+      expect(html).toContain('class="recipes-panel__close"');
+      expect(html).not.toContain('c-gradient-overlay');
+      expect(html).not.toContain('c-mouse-vertical-carousel js-carousel');
+    });
+
+    it('keeps the cinematic stage concise without helper hint copy or rail excerpts', () => {
+      const html = readHTML('recipes/receitas.html');
+      expect(html).not.toContain('class="recipes-rail__hint"');
+      expect(html).not.toContain('class="recipes-rail__excerpt"');
+      expect(html).not.toContain('class="recipes-stage__pill');
+      expect(html).not.toContain('class="recipes-stage__chip"');
+      expect(html).not.toContain('class="recipes-stage__lede"');
+      expect(html).not.toContain('Seleção curada');
+      expect(html).not.toContain('Arquivo curado');
+      expect(html).not.toContain('Painel editorial');
+      expect(html).not.toMatch(/World recipes archive/i);
+      expect(html).not.toMatch(/arquivo cinematogr/i);
+      expect(html).toContain('Vídeo + receita');
+      expect(html).toContain('Sabores do mundo');
+      expect(html.match(/class="recipes-panel__meta-pill"/g) ?? []).toHaveLength(1);
+      expect(html).toContain('class="recipes-stage__grain" data-depth=');
+      expect(html).toContain('class="recipes-stage__glow recipes-stage__glow--primary" data-depth=');
+      expect(html).toContain('class="recipes-stage__hero" data-depth=');
+      expect(html).not.toMatch(/<aside class="recipes-rail"[^>]*data-depth=/);
+    });
+  });
+
+  describe('recipes/style.css mobile rail safeguards', () => {
+    it('avoids duplicate 428px phone overrides and unreadable tiny rail text', () => {
+      const css = readFileSync(resolve(ROOT, 'recipes/style.css'), 'utf-8');
+      expect((css.match(/@media screen and \(max-width: 428px\)/g) ?? []).length).toBeLessThanOrEqual(1);
+      expect(css).not.toContain('font-size: 0.5rem !important');
+    });
+  });
+
 });

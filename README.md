@@ -7,7 +7,7 @@
 ![Lighthouse Best Practices](https://img.shields.io/badge/best%20practices-100-brightgreen)
 ![Lighthouse SEO](https://img.shields.io/badge/seo-90-brightgreen)
 
-AI-powered culinary web app featuring real-time cooking challenges, a recipe carousel, and a gastronomy assistant — built with vanilla JavaScript and the Google Gemini API.
+AI-powered culinary web app featuring real-time cooking challenges, a recipe carousel, and a gastronomy assistant — built with vanilla JavaScript and the Groq API.
 
 **[Live Demo](https://gastro-ai-pap.vercel.app)**
 
@@ -25,7 +25,7 @@ AI-powered culinary web app featuring real-time cooking challenges, a recipe car
 |-------|-----------|
 | Frontend | HTML5, CSS3, JavaScript (ES6 modules) |
 | Animations | GSAP, Matter.js, Anime.js, Typed.js |
-| AI | Google Gemini API (gemini-2.5-flash) |
+| AI | Groq API (`openai/gpt-oss-120b`) |
 | Backend | Node.js (Vercel Serverless Functions) |
 | Testing | Vitest 4, supertest, jsdom |
 | CI/CD | GitHub Actions |
@@ -45,23 +45,34 @@ graph TD
 
     subgraph Vercel ["Vercel Platform"]
         Static["Static Assets<br/>CDN Edge"]
-        API["api/index.js<br/>Serverless Function"]
+        ChatFn["api/chat.js<br/>Serverless Function"]
+        RecipeFn["api/gemini.js<br/>Serverless Function"]
+        Shared2["api/_shared.js<br/>CORS + Groq helpers"]
     end
 
-    Gemini["Google Gemini API<br/>gemini-2.5-flash"]
+    Groq["Groq API<br/>openai/gpt-oss-120b"]
 
-    Chat --> API
-    Challenges --> API
-    API --> Gemini
+    Chat --> ChatFn
+    Challenges --> RecipeFn
+    ChatFn --> Shared2
+    RecipeFn --> Shared2
+    ChatFn --> Groq
+    RecipeFn --> Groq
     Client --> Static
 ```
+
+> **Backwards-compatible response shape.** The frontend was originally written
+> against the Gemini response envelope (`candidates[0].content.parts[0].text`).
+> The serverless functions now talk OpenAI-format to Groq and translate the
+> response back into that Gemini envelope so the frontend code did not need
+> to change. See [docs/api.md](docs/api.md) for details.
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js >= 16
-- A [Google AI Studio](https://aistudio.google.com/app/apikey) API key
+- Node.js >= 18
+- A [Groq Console](https://console.groq.com/keys) API key
 
 ### Installation
 
@@ -75,10 +86,10 @@ npm install
 
 # Configure environment variables
 cp .env.example .env
-# Edit .env and add your GEMINI_API_KEY
+# Edit .env and add your GROQ_API_KEY
 
-# Start the development server
-npm run dev
+# Start the development server (Vercel dev runs the serverless functions)
+npm run dev:api
 ```
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
@@ -87,7 +98,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 | Variable | Description | Required |
 |----------|-------------|----------|
-| `GEMINI_API_KEY` | Google Gemini API key from [AI Studio](https://aistudio.google.com/app/apikey) | Yes |
+| `GROQ_API_KEY` | Groq API key from the [Groq Console](https://console.groq.com/keys) | Yes |
 | `PRODUCTION_URL` | Production domain for CORS whitelist (e.g., `https://gastro-ai-pap.vercel.app`) | No (only localhost origins allowed if unset) |
 
 See [`.env.example`](.env.example) for reference.
@@ -113,7 +124,7 @@ npm run test:coverage
 
 | Module | Test File | Description |
 |--------|-----------|-------------|
-| API | `tests/integration/api/handler.test.js` | CORS, routing, error codes |
+| API | `tests/integration/api/handler.test.js` | CORS, routing, error codes, Groq translation |
 | Recipes | `tests/unit/recipes/share.test.js` | Web Share API + clipboard fallback |
 | Recipes | `tests/unit/recipes/lazy-loader.test.js` | IntersectionObserver lazy loading |
 | Challenges | `tests/unit/challenges/timer.test.js` | Countdown timer logic |
@@ -129,18 +140,21 @@ npm run test:coverage
 1. Fork or clone this repository to your GitHub account
 2. Import the project on [Vercel](https://vercel.com)
 3. Set environment variables in the Vercel dashboard:
-   - `GEMINI_API_KEY` — your Google AI Studio API key
+   - `GROQ_API_KEY` — your Groq Console API key
    - `PRODUCTION_URL` — your Vercel project URL (e.g., `https://your-project.vercel.app`)
 4. Deploy triggers automatically on every push to `main`
 
 ## API Reference
 
-Two serverless endpoints proxy requests to the Google Gemini API. See [docs/api.md](docs/api.md) for full documentation including request/response examples and error codes.
+Two serverless endpoints proxy requests to the Groq API. See [docs/api.md](docs/api.md) for full documentation including request/response examples, error codes and the migration history.
 
 | Endpoint | Method | Purpose |
 |----------|--------|---------|
 | `/api/chat` | POST | AI chat assistant (conversation with history) |
 | `/api/gemini` | POST | Recipe generation for timed challenges |
+
+> The `/api/gemini` path is kept for backwards compatibility with the recipe
+> client code; the endpoint itself now talks to Groq, not Google.
 
 ## Project Structure
 
@@ -149,7 +163,9 @@ gastro-ai/
 ├── index.html                # Landing page
 ├── style.css                 # Global styles
 ├── api/
-│   └── index.js              # Serverless function (Gemini API proxy)
+│   ├── _shared.js            # CORS, preflight, callGroq, Gemini↔Groq translators
+│   ├── chat.js               # Serverless function — chat assistant
+│   └── gemini.js             # Serverless function — recipe generation
 ├── src/
 │   ├── main.js               # Home page module
 │   ├── chat/                  # AI chat modules
@@ -207,4 +223,4 @@ ISC
 
 ---
 
-*Built with vanilla JavaScript and the Google Gemini API*
+*Built with vanilla JavaScript and the Groq API*

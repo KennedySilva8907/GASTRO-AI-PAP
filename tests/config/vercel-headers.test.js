@@ -25,12 +25,13 @@ describe('vercel.json Cache-Control Headers', () => {
     expect(cacheControl.value).toContain('no-store');
   });
 
-  it('CSS files have immutable cache header', () => {
+  it('CSS files revalidate on every request (no immutable, since paths are not hashed)', () => {
     const cssHeader = vercelConfig.headers.find(h => h.source.includes('.css'));
     expect(cssHeader).toBeDefined();
     const cacheControl = cssHeader.headers.find(h => h.key === 'Cache-Control');
-    expect(cacheControl.value).toContain('immutable');
-    expect(cacheControl.value).toContain('max-age=31536000');
+    expect(cacheControl.value).toContain('must-revalidate');
+    expect(cacheControl.value).toContain('max-age=0');
+    expect(cacheControl.value).not.toContain('immutable');
   });
 
   it('JS files have must-revalidate cache header', () => {

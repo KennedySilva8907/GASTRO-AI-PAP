@@ -1,35 +1,23 @@
 <!DOCTYPE html>
 <html lang="pt-PT">
 <head>
-    <link rel="icon" type="image/png" href="chef.png">
-
+    <link rel="icon" type="image/svg+xml" href="frigideira.svg">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Desafio Culin&#225;rio - Testa os teus conhecimentos com receitas geradas por IA e timer cronometrado.">
+    <meta name="description" content="Desafio Culinário — linha da cozinha em tempo real, um passo de cada vez.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdn.jsdelivr.net">
-    <link rel="dns-prefetch" href="https://unpkg.com">
-    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
-    <!-- Título da página -->
-    <title>Desafio Culinário - GastroAI</title>
-    <!-- Importação de fontes do Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Pacifico&display=swap" rel="stylesheet">
-    <!-- Folha de estilos principal -->
+    <title>Desafio Culinário — GastroAI</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-    <!-- Previne flash ao entrar via transição -->
     <script>if(sessionStorage.getItem('gastro-transition-meta'))document.documentElement.classList.add('page-entering');</script>
-    <!-- Font Awesome para ícones (pausa, relógio, etc.) -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <!-- DOMPurify para proteção contra XSS (defer classic scripts must appear before type="module" scripts) -->
     <script src="https://cdn.jsdelivr.net/npm/dompurify@3.3.3/dist/purify.min.js" defer></script>
-    <!-- DotLottie para animação de parabéns -->
-    <script type="module" src="https://unpkg.com/@dotlottie/player-component@2.7.12/dist/dotlottie-player.mjs"></script>
 </head>
-<body>
-    <!-- SEÇÃO 1: ELEMENTOS DE NAVEGAÇÃO E TRANSIÇÃO -->
-    <!-- Botão de navegação para voltar à página anterior -->
-    <button id="back-button" class="menu-back-button" aria-label="Voltar">
+<body class="challenge-body">
+    <button id="back-button" class="back-button" aria-label="Voltar">
         <div class="back-button-icon">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
                 <path fill="none" d="M0 0h24v24H0z"/>
@@ -39,55 +27,62 @@
         <span class="back-button-text">Voltar</span>
     </button>
 
-    <!-- Elemento para animação de fundo -->
-    <div class="background-animation"></div>
-    
-    <!-- SEÇÃO 2: CONTEÚDO PRINCIPAL -->
-    <!-- Container principal da aplicação -->
-    <div class="culinary-challenge-container" id="main-container">
-        <!-- Cabeçalho com título e imagem do chef -->
-        <div class="challenge-header">
-            <h1 class="gradient-text">Desafio Culinário do Chef</h1>
-            <p class="typing-text">Escolha o seu nível e demonstre as suas habilidades na cozinha!</p>
-            <div id="chef-svg-container">
-                <img src="chef.png" id="chef-image" alt="Chef AI">
-            </div>
-        </div>
-        
-        <!-- SEÇÃO 3: NÍVEIS DE DESAFIO -->
-        <!-- Grid de cartões com os diferentes níveis de desafio -->
-        <div class="challenge-levels">
-            <!-- Nível Principiante -->
-            <div class="challenge-level easy">
-                <h3 class="shadow-pulse">Principiante</h3>
-                <p>Receitas <span class="highlight">simples e rápidas</span> para quem está a começar.</p>
-                <button class="challenge-button easy-button" data-level="principiante">Começar</button>
-            </div>
-            
-            <!-- Nível Intermédio -->
-            <div class="challenge-level medium">
-                <h3 class="shadow-pulse">Intermédio</h3>
-                <p>Técnicas <span class="highlight">mais elaboradas</span> para quem já tem experiência.</p>
-                <button class="challenge-button medium-button" data-level="intermedio">Começar</button>
-            </div>
-            
-            <!-- Nível Avançado -->
-            <div class="challenge-level hard">
-                <h3 class="shadow-pulse">Avançado</h3>
-                <p>Desafios <span class="highlight">complexos</span> para cozinheiros experientes.</p>
-                <button class="challenge-button hard-button" data-level="avancado">Começar</button>
-            </div>
-            
-            <!-- Nível Extremo -->
-            <div class="challenge-level extreme">
-                <h3 class="shadow-pulse">Extremo</h3>
-                <p>Pratos <span class="highlight">sofisticados</span> dignos de um chef profissional.</p>
-                <button class="challenge-button extreme-button" data-level="extremo">Começar</button>
-            </div>
-        </div>
-    </div>
+    <main class="challenge-page" id="challenge-root" role="main" aria-live="polite">
+        <!-- Tela A — Seleção de Nível (fallback pré-JS). -->
+        <section class="pass-stage" data-screen="menu">
+            <header class="pass-header">
+                <div class="pass-header__main">
+                    <h1 class="pass-title">Escolhe o teu <em>nível</em>.</h1>
+                    <p class="pass-sub">
+                        Quatro serviços, uma receita gerada em tempo real. Começa quando quiseres.
+                    </p>
+                </div>
+            </header>
 
-    <!-- Script principal da aplicação -->
+            <div class="pass-grid" id="pass-grid">
+                <article class="pass-card" data-level="principiante" tabindex="0" role="button">
+                    <div class="pass-card__ghost" aria-hidden="true">01</div>
+                    <h2 class="pass-card__name">Principiante</h2>
+                    <p class="pass-card__desc">Passos curtos, ingredientes simples. Para afiar reflexos.</p>
+                    <dl class="pass-card__specs">
+                        <div><dt>Tempo</dt><dd>20 min</dd></div>
+                        <div><dt>Dificuldade</dt><dd class="pass-card__dots"><span class="on"></span><span></span><span></span><span></span></dd></div>
+                    </dl>
+                </article>
+
+                <article class="pass-card" data-level="intermedio" tabindex="0" role="button">
+                    <div class="pass-card__ghost" aria-hidden="true">02</div>
+                    <h2 class="pass-card__name">Intermédio</h2>
+                    <p class="pass-card__desc">Técnicas moderadas, tempos simultâneos.</p>
+                    <dl class="pass-card__specs">
+                        <div><dt>Tempo</dt><dd>45 min</dd></div>
+                        <div><dt>Dificuldade</dt><dd class="pass-card__dots"><span class="on"></span><span class="on"></span><span></span><span></span></dd></div>
+                    </dl>
+                </article>
+
+                <article class="pass-card" data-level="avancado" tabindex="0" role="button">
+                    <div class="pass-card__ghost" aria-hidden="true">03</div>
+                    <h2 class="pass-card__name">Avançado</h2>
+                    <p class="pass-card__desc">Pratos sofisticados, margens apertadas.</p>
+                    <dl class="pass-card__specs">
+                        <div><dt>Tempo</dt><dd>60 min</dd></div>
+                        <div><dt>Dificuldade</dt><dd class="pass-card__dots"><span class="on"></span><span class="on"></span><span class="on"></span><span></span></dd></div>
+                    </dl>
+                </article>
+
+                <article class="pass-card" data-level="extremo" tabindex="0" role="button">
+                    <div class="pass-card__ghost" aria-hidden="true">04</div>
+                    <h2 class="pass-card__name">Extremo</h2>
+                    <p class="pass-card__desc">Alta cozinha, execução cirúrgica.</p>
+                    <dl class="pass-card__specs">
+                        <div><dt>Tempo</dt><dd>90 min</dd></div>
+                        <div><dt>Dificuldade</dt><dd class="pass-card__dots"><span class="on"></span><span class="on"></span><span class="on"></span><span class="on"></span></dd></div>
+                    </dl>
+                </article>
+            </div>
+        </section>
+    </main>
+
     <script type="module" src="script.js"></script>
 </body>
 </html>

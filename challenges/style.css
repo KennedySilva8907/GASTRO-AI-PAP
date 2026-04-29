@@ -1,2128 +1,1450 @@
-/* Reset básico e estilos gerais */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+/* ===================================================================
+   GastroAI · Desafios V2 — Pass de Chef
+   Paleta escura + âmbar, tipografia editorial (Cormorant / Inter / JetBrains Mono).
+   =================================================================== */
+
+:root {
+  --bg-1: #120906;
+  --bg-2: #1c100a;
+  --bg-3: #281810;
+  --surface: #1f130c;
+  --surface-soft: #2a1a11;
+  --line: rgba(255, 250, 243, 0.08);
+  --line-strong: rgba(255, 154, 61, 0.22);
+  --text: #fffaf3;
+  --text-soft: rgba(255, 250, 243, 0.72);
+  --muted: rgba(255, 250, 243, 0.45);
+  --accent: #ff9a3d;
+  --accent-strong: #f16d22;
+  --accent-soft: rgba(255, 154, 61, 0.15);
+  --green: #6faa78;
+  --red: #e06262;
+  --serif: 'Cormorant Garamond', 'Times New Roman', serif;
+  --sans: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mono: 'JetBrains Mono', 'Consolas', monospace;
 }
 
-/* Importação de fontes mais interessantes */
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Pacifico&display=swap');
+*, *::before, *::after { box-sizing: border-box; }
 
-body {
-    background-color: #f9f9f9;
-    color: #333;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    padding: 50px 0;
+html, body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
 }
 
-/* Container principal */
-.container, .culinary-challenge-container {
-    width: 90%;
-    max-width: 1000px;
-    margin: 80px auto;
-    padding: 30px;
-    background-color: rgba(255, 255, 255, 0.8);
-    border-radius: 15px;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
-    position: relative;
-    z-index: 1;
-    text-align: center;
+html.page-entering body { opacity: 0; }
+
+body.challenge-body {
+  font-family: var(--sans);
+  color: var(--text);
+  background:
+    radial-gradient(1200px 700px at 85% -10%, rgba(255, 154, 61, 0.08), transparent 60%),
+    radial-gradient(1000px 800px at -10% 110%, rgba(241, 109, 34, 0.05), transparent 65%),
+    linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 100%);
+  background-attachment: fixed;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
 }
 
-/* Cabeçalho com animação de texto */
-.challenge-header {
-    text-align: center;
-    margin-bottom: 30px;
+body.challenge-body::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 154, 61, 0.35), transparent);
+  pointer-events: none;
+  z-index: 100;
 }
 
-.challenge-header h1, h1 {
-    font-family: 'Pacifico', cursive;
-    font-size: 2.8rem;
-    color: #e65100;
-    margin-bottom: 15px;
-    text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.15);
-    animation: colorCycle 8s infinite alternate;
-    letter-spacing: 1px;
-}
+button { font-family: inherit; cursor: pointer; }
 
-/* Animação de destaque para palavras no parágrafo */
-.challenge-header p, p {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 1.2rem;
-    color: #555;
-    margin-bottom: 1.2em;
-    line-height: 1.6;
-}
-
-/* Destacar palavras importantes com animação */
-.highlight {
-    display: inline-block;
-    color: #e65100;
-    font-weight: 600;
-    position: relative;
-    animation: pulse-text 2s infinite;
-}
-
-/* Container do Chef */
-#chef-svg-container, .svg-container {
-    margin: 50px auto;
-    width: 250px;
-    height: 250px;
-    margin-bottom: 50px;
-    position: relative;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow: visible;
-    animation: pulse 5s infinite ease-in-out;
-    position: relative;
-    padding: 15px;
-}
-
-/* Efeito de brilho ao redor do círculo */
-#chef-svg-container::after {
-    content: '';
-    position: absolute;
-    top: -5px;
-    left: -5px;
-    right: -5px;
-    bottom: -5px;
-    border-radius: 50%;
-    background: linear-gradient(45deg, #e65100, #ff9800, #e65100);
-    z-index: -1;
-    opacity: 0.6;
-    animation: rotate 15s infinite linear reverse;
-}
-
-/* Imagem do Chef */
-#chef-image {
-    width: 90%;
-    height: 90%;
-    object-fit: cover;
-    border-radius: 50%;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    animation: rotate 10s infinite linear;
-}
-
-/* Níveis de desafio */
-.challenge-levels, .buttons {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-    flex-wrap: wrap;
-    margin-top: 30px;
-}
-
-.challenge-level {
-    background: rgba(255, 255, 255, 0.8);
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-    padding: 25px;
-    width: 200px;
-    text-align: center;
-    transition: all 0.3s ease;
-    cursor: pointer;
-    position: relative;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    height: auto;
-}
-
-.challenge-level:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-}
-
-/* Títulos dos níveis com animação */
-.challenge-level h3 {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 1.3rem;
-    margin-bottom: 12px;
-    position: relative;
-    z-index: 2;
-    font-weight: 700;
-    transition: all 0.3s ease;
-    letter-spacing: 0.5px;
-}
-
-.challenge-level:hover h3 {
-    transform: scale(1.1);
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-}
-
-.challenge-level p {
-    font-family: 'Montserrat', sans-serif;
-    color: #666;
-    margin-bottom: 15px;
-    position: relative;
-    z-index: 2;
-    line-height: 1.5;
-}
-
-/* Cores para níveis de dificuldade com animação de brilho */
-.easy h3 { color: #4caf50; animation: glow-green 3s infinite alternate; }
-.medium h3 { color: #ff9800; animation: glow-orange 3s infinite alternate; }
-.hard h3 { color: #f44336; animation: glow-red 3s infinite alternate; }
-.extreme h3 { color: #9c27b0; animation: glow-purple 3s infinite alternate; }
-
-.challenge-level::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 8px;
-    z-index: 1;
-    transition: height 0.3s ease;
-}
-
-.challenge-level:hover::before {
-    height: 12px;
-}
-
-.easy::before { background-color: #4caf50; }
-.medium::before { background-color: #ff9800; }
-.hard::before { background-color: #f44336; }
-.extreme::before { background-color: #9c27b0; }
-
-/* Botões com animação de texto */
-.challenge-button, .level-btn, .back-button, .finish-challenge-button, .new-recipe-button {
-    background-color: #e65100;
-    color: white;
-    border: none;
-    padding: 12px 25px;
-    border-radius: 50px;
-    font-weight: 600;
-    font-size: 1.1rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    z-index: 2;
-    position: relative;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    font-family: 'Montserrat', sans-serif;
-    letter-spacing: 0.5px;
-    overflow: hidden;
-}
-
-/* Estilo específico para o botão "Terminei Desafio" */
-.finish-challenge-button {
-    background-color: #4caf50; /* Verde para indicar conclusão */
-    margin-right: 10px;
-    font-weight: bold;
-}
-
-.finish-challenge-button:hover {
-    background-color: #388e3c;
-    transform: translateY(-5px);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
-}
-
-/* Botão de voltar que fica junto com os outros botões de ação */
+/* =========================================================
+   Back button (shared V2 — alinhado com receitas/chat)
+   ========================================================= */
 .back-button {
-    margin-top: 30px;
-    background-color: #555;
-}
-
-.challenge-button::after, .level-btn::after, .back-button::after, .finish-challenge-button::after, .new-recipe-button::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: rgba(255, 255, 255, 0.2);
-    transition: all 0.5s ease;
-    z-index: -1;
-}
-
-.challenge-button:hover::after, .level-btn:hover::after, .back-button:hover::after, .finish-challenge-button:hover::after, .new-recipe-button:hover::after {
-    left: 100%;
-}
-
-.challenge-button:hover, .level-btn:hover, .back-button:hover, .new-recipe-button:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
-}
-
-/* Cores específicas para botões de nível */
-.easy-button {
-    background-color: #4caf50;
-}
-
-.medium-button {
-    background-color: #ff9800;
-}
-
-.hard-button {
-    background-color: #f44336;
-}
-
-.extreme-button {
-    background-color: #9c27b0;
-}
-
-/* Animação de fundo */
-.background-animation {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: -1;
-    overflow: hidden;
-    pointer-events: none;
-}
-
-.food-item {
-    position: absolute;
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: contain;
-    z-index: -1;
-    opacity: 0.7;
-}
-
-/* Countdown Container */
-.countdown-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 50px 20px;
-    transition: opacity 0.5s ease;
-    height: 400px;
-}
-
-.countdown-container.fade-out {
-    opacity: 0;
-}
-
-.countdown-text {
-    font-size: 2.5rem;
-    margin-bottom: 30px;
-}
-
-.countdown-number {
-    font-size: 8rem;
-    font-weight: bold;
-    color: #e65100;
-    margin-bottom: 30px;
-    animation: pulse 1s infinite;
-}
-
-.preparing-text {
-    font-size: 2rem;
-    color: #555;
-    font-family: 'Montserrat', sans-serif;
-    animation: bounce 1.5s infinite;
-}
-
-/* NOVO: Estilos para a barra de progresso */
-.recipe-progress-section {
-    margin: 30px auto;
-    padding: 15px;
-    background-color: #f9f9f9;
-    border-radius: 10px;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.05);
-    text-align: center;
-    max-width: 600px;
-}
-
-.progress-label {
-    font-size: 1.2rem;
-    color: #555;
-    margin-bottom: 10px;
-    font-weight: 500;
-}
-
-.progress-container {
-    width: 100%;
-    height: 20px;
-    background-color: #e0e0e0;
-    border-radius: 10px;
-    overflow: hidden;
-    margin-bottom: 10px;
-    position: relative;
-}
-
-.progress-bar {
-    height: 100%;
-    background-color: #4caf50;
-    width: 100%;
-    border-radius: 10px;
-    transition: width 1s linear, background-color 1s;
-}
-
-.pulse-animation {
-    animation: pulse-bar 1s infinite;
-}
-
-.progress-time {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: #333;
-    margin-top: 5px;
-}
-
-@keyframes pulse-bar {
-    0% { opacity: 1; }
-    50% { opacity: 0.7; }
-    100% { opacity: 1; }
-}
-
-/* Recipe Container */
-.recipe-container {
-    opacity: 0;
-    animation: fadeIn 1s forwards;
-    max-width: 800px;
-    margin: 0 auto;
-    text-align: left;
-}
-
-.recipe-header {
-    text-align: center;
-    margin-bottom: 40px;
-    position: relative;
-    padding-bottom: 20px;
-    border-bottom: 2px solid #eee;
-}
-
-.recipe-title {
-    font-size: 2.5rem;
-    margin-bottom: 10px;
-    font-family: 'Pacifico', cursive;
-}
-
-.recipe-level {
-    display: inline-block;
-    padding: 5px 15px;
-    border-radius: 20px;
-    color: white;
-    font-weight: bold;
-    margin-bottom: 15px;
-    font-size: 0.9rem;
-    text-transform: uppercase;
-}
-
-.recipe-level.principiante { background-color: #4caf50; }
-.recipe-level.intermedio { background-color: #ff9800; }
-.recipe-level.avancado { background-color: #f44336; }
-.recipe-level.extremo { background-color: #9c27b0; }
-
-.recipe-description {
-    font-style: italic;
-    color: #666;
-    line-height: 1.6;
-}
-
-.recipe-section {
-    margin-bottom: 30px;
-}
-
-.section-title {
-    font-size: 1.5rem;
-    margin-bottom: 15px;
-    color: #e65100;
-    font-family: 'Montserrat', sans-serif;
-    font-weight: 600;
-    border-left: 4px solid #e65100;
-    padding-left: 10px;
-}
-
-.ingredients-list, .instructions-list {
-    margin-left: 20px;
-    line-height: 1.8;
-}
-
-.ingredients-list li, .instructions-list li {
-    margin-bottom: 10px;
-}
-
-.tips-section {
-    background-color: #fff8e1;
-    padding: 20px;
-    border-radius: 10px;
-    border-left: 4px solid #e65100;
-}
-
-.tips-text {
-    font-style: italic;
-    color: #555;
-}
-
-/* Botões da receita */
-.recipe-buttons {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 15px;
-    margin-top: 30px;
-    margin-bottom: 20px;
-}
-
-/* NOVO: Estilos para a tela de parabéns */
-.congrats-container {
-    text-align: center;
-    padding: 40px 20px;
-    max-width: 800px;
-    margin: 0 auto;
-    opacity: 0;
-    transition: opacity 1s ease;
-}
-
-.congrats-container.active {
-    opacity: 1;
-}
-
-.congrats-title {
-    font-size: 3rem;
-    margin-bottom: 30px;
-    font-family: 'Pacifico', cursive;
-    color: #4caf50;
-}
-
-.timeout-title {
-    font-size: 3rem;
-    margin-bottom: 30px;
-    font-family: 'Pacifico', cursive;
-    color: #f44336;
-}
-
-.congrats-message {
-    font-size: 1.3rem;
-    line-height: 1.7;
-    margin-bottom: 40px;
-    color: #555;
-}
-
-.congrats-buttons {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-    margin-top: 40px;
-}
-
-/* Animações */
-@keyframes fallAnimation {
-    from { transform: translateY(0) rotate(0deg); }
-    to { transform: translateY(100vh) rotate(360deg); }
-}
-
-@keyframes rotateAnimation {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-@keyframes fadeAnimation {
-    from { opacity: 0.7; }
-    to { opacity: 0; }
-}
-
-@keyframes fall {
-    0% {
-        transform: translateY(-100vh) rotate(0deg);
-    }
-    100% {
-        transform: translateY(100vh) rotate(720deg);
-    }
-}
-
-/* Animação de rotação para a imagem do chef */
-@keyframes rotate {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-/* Efeito de pulsação para a imagem do chef */
-@keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-    100% { transform: scale(1); }
-}
-
-/* Animação de mudança de cor para o título */
-@keyframes colorCycle {
-    0% { color: #e65100; }
-    25% { color: #ff9800; }
-    50% { color: #f44336; }
-    75% { color: #9c27b0; }
-    100% { color: #e65100; }
-}
-
-/* Animação de brilho para textos */
-@keyframes pulse-text {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-    100% { transform: scale(1); }
-}
-
-/* Animações de brilho para os títulos dos níveis */
-@keyframes glow-green {
-    0% { text-shadow: 0 0 5px rgba(76, 175, 80, 0.3); }
-    100% { text-shadow: 0 0 15px rgba(76, 175, 80, 0.7); }
-}
-
-@keyframes glow-orange {
-    0% { text-shadow: 0 0 5px rgba(255, 152, 0, 0.3); }
-    100% { text-shadow: 0 0 15px rgba(255, 152, 0, 0.7); }
-}
-
-@keyframes glow-red {
-    0% { text-shadow: 0 0 5px rgba(244, 67, 54, 0.3); }
-    100% { text-shadow: 0 0 15px rgba(244, 67, 54, 0.7); }
-}
-
-@keyframes glow-purple {
-    0% { text-shadow: 0 0 5px rgba(156, 39, 176, 0.3); }
-    100% { text-shadow: 0 0 15px rgba(156, 39, 176, 0.7); }
-}
-
-/* Animação para letras individuais */
-.animated-letter {
-    display: inline-block;
-    animation: bounce 2s infinite;
-    animation-delay: calc(0.1s * var(--i));
-}
-
-@keyframes bounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
-}
-
-/* Animação para o fade in da receita */
-@keyframes fadeIn {
-    0% { opacity: 0; transform: translateY(20px); }
-    100% { opacity: 1; transform: translateY(0); }
-}
-
-/* Responsividade */
-@media (max-width: 768px) {
-    .challenge-levels, .buttons, .recipe-buttons {
-        flex-direction: column;
-        align-items: center;
-    }
-    
-    .challenge-level {
-        height: 280px;
-        width: 80%;
-        max-width: 280px;
-    }
-
-    .challenge-button, .level-btn {
-        margin-top: auto;
-        align-self: center;
-    }
-
-    .challenge-header h1, h1 {
-        font-size: 2rem;
-    }
-
-    .container, .culinary-challenge-container {
-        padding: 20px;
-        margin: 60px auto;
-    }
-
-    .level-btn, .challenge-button, .finish-challenge-button {
-        padding: 10px 20px;
-        font-size: 0.9rem;
-        width: 100%;
-        margin-bottom: 10px;
-    }
-
-    #chef-svg-container, .svg-container {
-        width: 220px;
-        height: 220px;
-        padding: 10px;
-        margin-bottom: 15px;
-    }
-    
-    #chef-svg-container::after {
-        top: -10px;
-        left: -10px;
-        right: -10px;
-        bottom: -10px;
-    }
-    
-    .countdown-text {
-        font-size: 1.8rem;
-    }
-    
-    .countdown-number {
-        font-size: 5rem;
-    }
-    
-    .preparing-text {
-        font-size: 1.5rem;
-    }
-    
-    .recipe-title {
-        font-size: 1.8rem;
-    }
-    
-    .section-title {
-        font-size: 1.3rem;
-    }
-    
-    .ingredients-list, .instructions-list {
-        margin-left: 10px;
-    }
-    
-    .recipe-buttons {
-        flex-direction: column;
-    }
-    
-    .finish-challenge-button, .new-recipe-button, .back-button {
-        width: 100%;
-        margin-bottom: 10px;
-        margin-right: 0;
-    }
-}
-
-/* Efeito de texto com gradiente animado */
-.gradient-text {
-    background: linear-gradient(45deg, #e65100, #ff9800, #f44336, #9c27b0, #e65100);
-    background-size: 400% 400%;
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    animation: gradient 8s ease infinite;
-}
-
-@keyframes gradient {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-}
-
-/* Efeito de texto com escala */
-.scale-text {
-    display: inline-block;
-    animation: scale 3s infinite alternate;
-}
-
-@keyframes scale {
-    0% { transform: scale(1); }
-    100% { transform: scale(1.1); }
-}
-
-/* Efeito de texto com brilho */
-.glow-text {
-    animation: glow 2s ease-in-out infinite alternate;
-}
-
-@keyframes glow {
-    from {
-        text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #e65100, 0 0 20px #e65100;
-    }
-    to {
-        text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #e65100, 0 0 40px #e65100;
-    }
-}
-
-/* Estilos adicionais para a experiência móvel */
-@media (max-width: 480px) {
-    .countdown-number {
-        font-size: 4rem;
-    }
-    
-    .recipe-container {
-        padding: 20px 15px;
-    }
-    
-    .recipe-title {
-        font-size: 1.5rem;
-    }
-    
-    .buttons {
-        flex-direction: column;
-        gap: 10px;
-    }
-    
-    .back-button {
-        width: 100%;
-        margin-left: 0;
-        margin-top: 10px;
-    }
-    
-    .recipe-progress-section {
-        padding: 10px;
-    }
-    
-    .progress-time {
-        font-size: 1.3rem;
-    }
-    
-    .congrats-title, .timeout-title {
-        font-size: 2rem;
-    }
-    
-    .congrats-message {
-        font-size: 1.1rem;
-    }
-}
-
-/* Keyframes para animação de typing */
-@keyframes typing {
-    from { width: 0 }
-    to { width: 100% }
-}
-
-@keyframes blink-caret {
-    from, to { border-color: transparent }
-    50% { border-color: #e65100; }
-}
-
-/* Efeito de revelação de texto */
-.reveal-text {
-    position: relative;
-    color: transparent;
-    animation: reveal 1.5s ease forwards;
-}
-
-@keyframes reveal {
-    0% {
-        color: transparent;
-        text-shadow: none;
-    }
-    100% {
-        color: inherit;
-        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-    }
-}
-
-/* Efeito de texto flutuante */
-.floating-text {
-    display: inline-block;
-    animation: float 3s ease-in-out infinite;
-}
-
-@keyframes float {
-    0% { transform: translateY(0px); }
-    50% { transform: translateY(-8px); }
-    100% { transform: translateY(0px); }
-}
-
-/* Efeito de texto com sombra pulsante */
-.shadow-pulse {
-    animation: shadowPulse 3s infinite alternate;
-}
-
-@keyframes shadowPulse {
-    0% { text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1); }
-    100% { text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.3); }
-}
-
-/* Efeito de texto com rotação suave */
-.rotate-text {
-    display: inline-block;
-    animation: rotate-gentle 5s infinite alternate;
-}
-
-@keyframes rotate-gentle {
-    0% { transform: rotate(-3deg); }
-    100% { transform: rotate(3deg); }
-}
-
-/* Efeito de texto com vibração */
-.vibrate-text {
-    animation: vibrate 0.3s linear infinite both;
-}
-
-@keyframes vibrate {
-    0% { transform: translate(0); }
-    20% { transform: translate(-2px, 2px); }
-    40% { transform: translate(-2px, -2px); }
-    60% { transform: translate(2px, 2px); }
-    80% { transform: translate(2px, -2px); }
-    100% { transform: translate(0); }
-}
-
-/* Efeito de texto com destaque */
-.highlight-text {
-    position: relative;
-}
-
-.highlight-text::before {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 0;
-    height: 3px;
-    background-color: #e65100;
-    transition: width 0.3s ease;
-}
-
-.highlight-text:hover::before {
-    width: 100%;
-}
-
-/* Efeito de texto com fade in */
-.fade-in-text {
-    opacity: 0;
-    animation: fadeIn 1.5s forwards;
-}
-
-/* Efeito de texto com foco */
-.focus-text {
-    filter: blur(4px);
-    animation: focus 2s forwards;
-}
-
-@keyframes focus {
-    0% { filter: blur(4px); }
-    100% { filter: blur(0); }
-}
-
-/* Efeito de texto com revelação de caracteres */
-.reveal-chars span {
-    opacity: 0;
-    display: inline-block;
-    animation: revealChar 0.5s forwards;
-    animation-delay: calc(0.05s * var(--i));
-}
-
-@keyframes revealChar {
-    0% { opacity: 0; transform: translateY(20px); }
-    100% { opacity: 1; transform: translateY(0); }
-}
-
-/* Efeito de texto com mudança de cor */
-.color-shift {
-    animation: colorShift 5s infinite alternate;
-}
-
-@keyframes colorShift {
-    0% { color: #e65100; }
-    25% { color: #ff9800; }
-    50% { color: #f44336; }
-    75% { color: #9c27b0; }
-    100% { color: #e65100; }
-}
-
-/* Efeito de texto com sombra colorida */
-.rainbow-shadow {
-    animation: rainbowShadow 5s infinite alternate;
-}
-
-@keyframes rainbowShadow {
-    0% { text-shadow: 2px 2px 0 rgba(230, 81, 0, 0.7); }
-    25% { text-shadow: 2px 2px 0 rgba(255, 152, 0, 0.7); }
-    50% { text-shadow: 2px 2px 0 rgba(244, 67, 54, 0.7); }
-    75% { text-shadow: 2px 2px 0 rgba(156, 39, 176, 0.7); }
-    100% { text-shadow: 2px 2px 0 rgba(230, 81, 0, 0.7); }
-}
-
-/* Efeito de texto com borda animada */
-.border-animation {
-    position: relative;
-    padding: 10px;
-}
-
-.border-animation::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 0;
-    height: 0;
-    background: transparent;
-    border: 2px solid transparent;
-    animation: borderAnimate 2s linear forwards;
-}
-
-@keyframes borderAnimate {
-    0% {
-        width: 0;
-        height: 0;
-        border-top-color: #e65100;
-        border-right-color: transparent;
-        border-bottom-color: transparent;
-        border-left-color: transparent;
-    }
-    50% {
-        width: 100%;
-        height: 0;
-        border-top-color: #e65100;
-        border-right-color: #e65100;
-        border-bottom-color: transparent;
-        border-left-color: transparent;
-    }
-    100% {
-        width: 100%;
-        height: 100%;
-        border-top-color: #e65100;
-        border-right-color: #e65100;
-        border-bottom-color: #e65100;
-        border-left-color: #e65100;
-    }
-}
-
-/* Animação para o efeito de digitação */
-.typing-text {
-    overflow: hidden;
-    border-right: 3px solid #e65100;
-    white-space: nowrap;
-    margin: 0 auto;
-    letter-spacing: 0.15em;
-    animation: typing 3.5s steps(40, end), blink-caret 0.75s step-end infinite;
-}
-
-/* Estilos para a animação de itens alimentares no fundo */
-.food-item {
-    position: absolute;
-    width: 40px;
-    height: 40px;
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
-    opacity: 0.5;
-    z-index: -1;
-    animation: fall linear;
-}
-
-/* Sombras e transições universais */
-.challenge-level, .challenge-button, .back-button, .finish-challenge-button {
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-}
-
-.challenge-level:hover, .challenge-button:hover, .back-button:hover, .finish-challenge-button:hover {
-    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-}
-
-/* Efeito de clique para botões */
-.challenge-button:active, .back-button:active, .finish-challenge-button:active, .new-recipe-button:active {
-    transform: translateY(2px);
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-}
-
-/* Estilos para contagem regressiva */
-.countdown-container {
-    height: 400px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-}
-
-.countdown-container.fade-out {
-    opacity: 0;
-    transition: opacity 0.5s ease;
-}
-
-/* Estilos para erro de API */
-.api-error {
-    background-color: #ffebee;
-    color: #c62828;
-    padding: 15px;
-    border-radius: 8px;
-    margin-top: 20px;
-    border-left: 4px solid #c62828;
-    text-align: left;
-}
-
-.api-error h3 {
-    margin-bottom: 10px;
-}
-
-.api-error p {
-    color: #555;
-}
-
-/* Ajustes adicionais para versatilidade */
-.mb-20 {
-    margin-bottom: 20px;
-}
-
-.text-center {
-    text-align: center;
-}
-
-/* Personalização para as características específicas dos níveis */
-.recipe-level.principiante { background-color: #4caf50; }
-.recipe-level.intermedio { background-color: #ff9800; }
-.recipe-level.avancado { background-color: #f44336; }
-.recipe-level.extremo { background-color: #9c27b0; }
-
-/* Ajustes para proporção em diferentes dispositivos */
-@media (max-width: 480px) {
-    .food-item {
-        width: 30px;
-        height: 30px;
-    }
-    
-    .recipe-container {
-        padding: 15px 12px;
-    }
-    
-    .typing-text {
-        font-size: 1rem;
-        white-space: normal;
-    }
-    
-    #chef-svg-container {
-        width: 180px;
-        height: 180px;
-    }
-    
-    .countdown-number {
-        font-size: 3.5rem;
-    }
-    
-    .countdown-text {
-        font-size: 1.5rem;
-    }
-    
-    .preparing-text {
-        font-size: 1.2rem;
-    }
-}
-
-/* Estilização para tablets */
-@media (min-width: 481px) and (max-width: 768px) {
-    .challenge-level {
-        width: 70%;
-        max-width: 250px;
-    }
-    
-    .countdown-number {
-        font-size: 4.5rem;
-    }
-    
-    .recipe-buttons {
-        flex-wrap: wrap;
-    }
-    
-    .finish-challenge-button, .new-recipe-button, .back-button {
-        width: calc(50% - 15px);
-        margin-bottom: 15px;
-    }
-    
-    .progress-container {
-        height: 15px;
-    }
-}
-
-/* Estilização para telas maiores */
-@media (min-width: 1200px) {
-    .culinary-challenge-container {
-        max-width: 1100px;
-    }
-    
-    .challenge-level {
-        width: 230px;
-    }
-    
-    .countdown-number {
-        font-size: 8rem;
-    }
-    
-    #chef-svg-container {
-        width: 280px;
-        height: 280px;
-    }
-    
-    .recipe-progress-section {
-        max-width: 800px;
-    }
-}
-
-/* Melhorias de acessibilidade */
-button:focus, a:focus {
-    outline: 3px solid rgba(230, 81, 0, 0.5);
-    outline-offset: 2px;
-}
-
-button:focus:not(:focus-visible), a:focus:not(:focus-visible) {
-    outline: none;
-}
-
-/* Transições universais de ação */
-button, .challenge-level, a {
-    transition: transform 0.2s ease, box-shadow 0.3s ease, background-color 0.3s ease;
-}
-
-/* Melhorando contraste de texto para acessibilidade */
-.recipe-description, .tips-text {
-    color: #444;
-}
-
-/* Melhorias para impressão */
-@media print {
-    .background-animation,
-    .challenge-button,
-    .back-button,
-    .finish-challenge-button,
-    .recipe-progress-section,
-    .confetti-canvas {
-        display: none !important;
-    }
-    
-    .recipe-container {
-        box-shadow: none;
-        margin: 0;
-        padding: 0;
-    }
-    
-    body {
-        background-color: white;
-    }
-    
-    .recipe-title {
-        color: black !important;
-    }
-    
-    .section-title {
-        color: black !important;
-        border-left: 2px solid black;
-    }
-}
-
-/* Estilo adicional para o estado ativo do nível */
-.challenge-level.active {
-    transform: scale(1.05);
-    border: 2px solid;
-}
-
-.easy.active { border-color: #4caf50; }
-.medium.active { border-color: #ff9800; }
-.hard.active { border-color: #f44336; }
-.extreme.active { border-color: #9c27b0; }
-
-/* Estilização para a versão completa do CSS */
-.color-change-pulse {
-    animation: color-change-pulse 0.5s ease;
-}
-
-@keyframes color-change-pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.1); }
-    100% { transform: scale(1); }
-}
-
-/* Estilos para o indicador de carregamento */
-.loading-indicator {
-    margin-top: 20px;
-    font-size: 1.2rem;
-    color: #ff9800;
-    text-align: center;
-}
-
-/* Estilo para a animação de entrada da receita */
-.recipe-container {
-    opacity: 0;
-    transform: translateY(20px);
-    transition: opacity 0.5s ease, transform 0.5s ease;
-}
-
-.recipe-container.active {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-/* Estilo para o botão de nova receita */
-.new-recipe-button {
-    background-color: #ff9800;
-    color: white;
-    border: none;
-    border-radius: 50px;
-    padding: 10px 20px;
-    margin-right: 10px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: background-color 0.3s, transform 0.2s;
-}
-
-.new-recipe-button:hover {
-    background-color: #f57c00;
-    transform: scale(1.05);
-}
-
-/* Melhorias na exibição da receita */
-.recipe-section {
-    margin-bottom: 30px;
-    background-color: rgba(255, 255, 255, 0.9);
-    border-radius: 8px;
-    padding: 20px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.ingredients-list li, .instructions-list li {
-    margin-bottom: 10px;
-    line-height: 1.5;
-}
-
-.instructions-list li {
-    padding-left: 10px;
-}
-
-/* Estilos para a seção de dicas do chef */
-.tips-section {
-    background-color: rgba(255, 152, 0, 0.1);
-    border-left: 4px solid #ff9800;
-    padding: 15px 20px;
-    margin-top: 25px;
-    border-radius: 8px;
-}
-
-.section-title {
-    color: #e65100;
-    font-weight: 600;
-    margin-bottom: 15px;
-    font-size: 1.3rem;
-}
-
-.tips-list {
-    list-style-type: none;
-    padding-left: 0;
-}
-
-.tip-item {
-    position: relative;
-    padding-left: 24px;
-    margin-bottom: 12px;
-    line-height: 1.6;
-}
-
-.tip-item:before {
-    content: "👨‍🍳";
-    position: absolute;
-    left: 0;
-    top: 2px;
-}
-
-.tip-item:last-child {
-    margin-bottom: 0;
-}
-
-/* Estilos específicos para o nível extremo */
-.recipe-level.extremo {
-    background-color: #9c27b0;
-    color: white;
-    font-weight: bold;
-    padding: 5px 10px;
-    border-radius: 4px;
-    display: inline-block;
-    margin-bottom: 10px;
-}
-
-/* Melhorias na animação de fade-out */
-.fade-out {
-    animation: fadeOut 1s forwards;
-}
-
-@keyframes fadeOut {
-    from { opacity: 1; transform: translateY(0); }
-    to { opacity: 0; transform: translateY(-20px); }
-}
-
-/* Melhorias na animação de fade-in */
-.fade-in {
-    animation: fadeIn 1s forwards;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-/* Adicionar efeito de pulsação para os títulos de seção */
-.shadow-pulse {
-    animation: shadowPulse 2s infinite;
-}
-
-@keyframes shadowPulse {
-    0% { text-shadow: 0 0 0 rgba(230, 81, 0, 0); }
-    50% { text-shadow: 0 0 10px rgba(230, 81, 0, 0.5); }
-    100% { text-shadow: 0 0 0 rgba(230, 81, 0, 0); }
-}
-
-/* Estilos para os níveis de desafio */
-.recipe-level {
-    font-weight: bold;
-    padding: 5px 10px;
-    border-radius: 4px;
-    display: inline-block;
-    margin: 15px 0 20px 0; /* Aumentar espaçamento entre título e indicador de nível */
-    color: white;
-}
-
-/* Melhorias na apresentação da receita */
-.recipe-header {
-    margin-bottom: 25px;
-    text-align: center;
-    padding: 20px 15px; 
-}
-
-.recipe-title {
-    margin-bottom: 15px;
-    font-size: 2.4rem; 
-    line-height: 2;
-    padding: 0 15px; 
-    word-wrap: break-word; 
-    max-height: none; /* Remover limite de altura */
-    overflow: visible; /* Permitir que o conteúdo seja visível */
-}
-
-.recipe-description {
-    font-style: italic;
-    color: #555;
-    margin-top: 15px;
-    line-height: 1.6;
-    font-size: 1.1rem;
-}
-
-/* Melhorias na legibilidade dos ingredientes */
-.ingredients-list {
-    padding-left: 20px;
-}
-
-.ingredients-list li {
-    position: relative;
-    padding-left: 5px;
-    margin-bottom: 12px;
-    line-height: 1.6;
-    list-style-type: disc; /* Usar discos como marcadores */
-}
-
-/* Melhorar a formatação das instruções */
-.instructions-list {
-    padding-left: 25px;
-}
-
-.instructions-list li {
-    position: relative;
-    padding-left: 5px;
-    margin-bottom: 15px;
-    line-height: 1.6;
-}
-
-/* Estilo para mensagens de erro */
-.error-message {
-    text-align: center;
-    padding: 20px;
-    background-color: rgba(255, 255, 255, 0.9);
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    margin: 20px auto;
-    max-width: 500px;
-}
-
-.error-message h3 {
-    color: #f44336;
-    margin-bottom: 10px;
-}
-
-.error-message p {
-    margin-bottom: 20px;
-}
-
-/* NOVO: Estilos para tela de parabéns */
-.congrats-container {
-    background-color: rgba(255, 255, 255, 0.9);
-    border-radius: 15px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    padding: 40px;
-    max-width: 700px;
-    margin: 0 auto;
-    text-align: center;
-}
-
-/* Estilos para o confetti */
-#confetti-canvas {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 1000;
-    pointer-events: none;
-}
-
-/* NOVOS ESTILOS: Padronização de botões e nova animação de conclusão */
-
-/* Padronização dos botões */
-.standardized-button {
-    display: inline-block;
-    width: 180px;
-    padding: 12px 0;
-    margin: 10px;
-    border-radius: 50px;
-    font-size: 1.1rem;
-    font-weight: 600;
-    text-align: center;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    border: none;
-    cursor: pointer;
-    font-family: 'Montserrat', sans-serif;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-.finish-challenge-button.standardized-button {
-    background-color: #4caf50;
-    color: white;
-}
-
-.new-recipe-button.standardized-button {
-    background-color: #ff9800;
-    color: white;
-}
-
-.back-button.standardized-button {
-    background-color: #555;
-    color: white;
-}
-
-.standardized-button:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
-}
-
-.standardized-button:active {
-    transform: translateY(1px);
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-/* Ajuste para os botões na área de receitas */
-.recipe-buttons {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 15px;
-    margin-top: 40px;
-    margin-bottom: 30px;
-    padding: 0 20px;
-}
-
-/* Nova animação de troféu/conquista */
-.achievement-container {
-    position: relative;
-    width: 200px;
-    height: 200px;
-    margin: 20px auto 40px auto;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.trophy-icon {
-    font-size: 80px;
-    color: gold;
-    text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
-    animation: trophy-glow 2s infinite alternate;
-    position: relative;
-    z-index: 2;
-}
-
-@keyframes trophy-glow {
-    0% { transform: scale(1); text-shadow: 0 0 20px rgba(255, 215, 0, 0.8); }
-    100% { transform: scale(1.1); text-shadow: 0 0 30px rgba(255, 215, 0, 1); }
-}
-
-.celebration-star {
-    position: absolute;
-    font-size: 30px;
-    color: #FFD700;
-    animation: star-animation 2s infinite;
-    animation-delay: var(--delay);
-    opacity: 0;
-}
-
-.celebration-star:nth-child(1) {
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-}
-
-.celebration-star:nth-child(2) {
-    top: 25%;
-    right: 0;
-}
-
-.celebration-star:nth-child(3) {
-    bottom: 25%;
-    right: 0;
-}
-
-.celebration-star:nth-child(4) {
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-}
-
-.celebration-star:nth-child(5) {
-    top: 25%;
-    left: 0;
-}
-
-@keyframes star-animation {
-    0% { transform: scale(0) rotate(0deg); opacity: 0; }
-    20% { opacity: 1; }
-    50% { transform: scale(1.2) rotate(45deg); opacity: 1; }
-    100% { transform: scale(1) rotate(90deg); opacity: 0; }
-}
-
-/* Estilo para o ícone de relógio na tela de tempo esgotado */
-.timeout-container {
-    width: 150px;
-    height: 150px;
-    margin: 20px auto 40px auto;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.clock-icon {
-    font-size: 80px;
-    color: #f44336;
-    animation: clock-pulse 1.5s infinite alternate;
-}
-
-@keyframes clock-pulse {
-    0% { transform: scale(1); opacity: 0.8; }
-    100% { transform: scale(1.1); opacity: 1; }
-}
-
-/* Estilos responsivos para os botões padronizados */
-@media (max-width: 768px) {
-    .standardized-button {
-        width: 100%;
-        max-width: 250px;
-        margin: 8px auto;
-    }
-    
-    .recipe-buttons {
-        flex-direction: column;
-        align-items: center;
-    }
-    
-    .achievement-container, .timeout-container {
-        transform: scale(0.9);
-        margin: 10px auto 30px auto;
-    }
-}
-
-@media (max-width: 480px) {
-    .standardized-button {
-        font-size: 0.9rem;
-        padding: 10px 0;
-    }
-    
-    .achievement-container, .timeout-container {
-        transform: scale(0.8);
-    }
-    
-    .trophy-icon, .clock-icon {
-        font-size: 60px;
-    }
-}
-
-.paused-progress {
-    border: 2px solid rgba(0, 0, 0, 0.2) !important;
-    background-color: #f8f9fa !important;
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1) !important;
-    transition: all 0.3s ease;
-}
-
-.paused-bar {
-    opacity: 0.7;
-    background-image: none !important;
-    position: relative;
-    overflow: hidden;
-}
-
-.paused-bar::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(90deg, 
-                transparent, 
-                rgba(255, 255, 255, 0.4), 
-                transparent);
-    animation: pause-shimmer 2s infinite;
-}
-
-@keyframes pause-shimmer {
-    0% { transform: translateX(-100%); }
-    100% { transform: translateX(100%); }
-}
-
-/* NOVO: Botão de voltar para o menu principal (posicionado no canto superior) */
-.menu-back-button {
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    background-color: #ff9800;
-    border: none;
-    border-radius: 30px;
-    padding: 10px 20px;
-    cursor: pointer;
-    box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3);
-    transition: all 0.3s ease;
-    z-index: 1000;
-    display: flex;
-    align-items: center;
-    overflow: hidden; 
-    width: auto;
-    animation: pulse 2s infinite;
-
-}
-
-.menu-back-button:hover {
-    background-color: #f57c00;
-    transform: translateY(-3px);
-    box-shadow: 0 6px 20px rgba(255, 152, 0, 0.4);
-}
-
-.menu-back-button:active {
-    transform: translateY(-1px);
-    box-shadow: 0 3px 10px rgba(255, 152, 0, 0.3);
+  position: fixed;
+  top: 22px;
+  left: 22px;
+  z-index: 50;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 18px 12px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(18, 10, 7, 0.52);
+  color: white;
+  box-shadow: 0 18px 36px rgba(0, 0, 0, 0.18);
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  animation: back-button-halo-pulse 2.6s infinite;
+  transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease;
+}
+
+.back-button:hover,
+.back-button:focus-visible {
+  transform: translateY(-2px);
+  background: rgba(18, 10, 7, 0.68);
+  box-shadow: 0 22px 42px rgba(0, 0, 0, 0.22);
+  outline: none;
 }
 
 .back-button-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 30px;
-    height: 30px;
-    background-color: white;
-    border-radius: 50%;
-    margin-right: 10px;
-    transition: all 0.3s ease;
-}
-
-.menu-back-button:hover .back-button-icon {
-    transform: rotate(-360deg);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+  box-shadow: 0 10px 20px rgba(241, 109, 34, 0.26);
 }
 
 .back-button-icon svg {
-    width: 20px;
-    height: 20px;
-    fill: #ff9800;
+  width: 20px;
+  height: 20px;
+  fill: white;
 }
 
 .back-button-text {
-    color: white;
-    font-weight: bold;
-    font-size: 16px;
-    letter-spacing: 0.5px;
-    transition: all 0.3s ease;
-    font-family: 'Poppins', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
-.menu-back-button:hover .back-button-text {
-    transform: scale(1.05);
-}
-@keyframes pulse {
-    0% {
-        box-shadow: 0 0 0 0 rgba(255, 152, 0, 0.7);
-    }
-    70% {
-        box-shadow: 0 0 0 10px rgba(255, 152, 0, 0);
-    }
-    100% {
-        box-shadow: 0 0 0 0 rgba(255, 152, 0, 0);
-    }
-}
-/* Animações */
-@keyframes pulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.1); }
+@keyframes back-button-halo-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(255, 154, 61, 0.5); }
+  70% { box-shadow: 0 0 0 14px rgba(255, 154, 61, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 154, 61, 0); }
 }
 
-/* Aplicação das animações */
-.pulse { animation: pulse 0.5s; }
-
-/* Adicionar regras para dispositivos móveis */
-@media (max-width: 480px) {
-    .menu-back-button {
-        padding: 8px 15px;
-    }
-    
-    .back-button-icon {
-        width: 25px;
-        height: 25px;
-    }
-    
-    .back-button-text {
-        font-size: 14px;
-    }
+/* =========================================================
+   Utility: .pass-kicker (label mono caps com traço à esquerda)
+   ========================================================= */
+.pass-kicker {
+  position: relative;
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--accent);
+  padding-left: 22px;
+  margin-bottom: 14px;
 }
 
-/* Para telas muito pequenas */
-@media (max-width: 360px) {
-    .menu-back-button {
-        padding: 8px 12px;
-    }
+.pass-kicker::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 14px;
+  height: 1px;
+  background: var(--accent);
 }
 
-/* Sobreposição de transição */
-html.page-entering {
-    background: linear-gradient(135deg, #ff9800 0%, #f57c00 45%, #e65100 100%);
-}
-html.page-entering body {
-    opacity: 0;
-}
-
-body {
-    will-change: clip-path, transform, filter, opacity;
+/* =========================================================
+   Layout
+   ========================================================= */
+.challenge-page {
+  min-height: 100vh;
+  padding: 72px 64px 96px;
+  max-width: 1320px;
+  margin: 0 auto;
 }
 
-@media (prefers-reduced-motion: reduce) {
-    html.page-entering body {
-        opacity: 1;
-    }
+.pass-stage {
+  position: relative;
+  animation: fade-up 0.6s ease;
 }
 
-/* Ajustes específicos para dispositivos muito pequenos (iPhone 12 Pro e menores) */
-@media (max-width: 390px) {
-    /* Reduzir o tamanho dos botões */
-    .standardized-button {
-        width: 140px;
-        padding: 10px 0;
-        font-size: 0.85rem;
-        margin: 5px;
-    }
-    
-    /* Aumentar a largura do container para acomodar os botões */
-    .recipe-buttons {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 10px;
-        padding: 0 10px;
-        max-width: 100%;
-    }
-    
-    /* Fazer os botões ocuparem toda a largura disponível */
-    .finish-challenge-button,
-    .new-recipe-button,
-    .back-button.standardized-button {
-        width: 100%;
-        max-width: 200px;
-    }
-    
-    /* Ajustar o container da receita para ter mais espaço lateral */
-    .recipe-container {
-        padding: 15px 10px;
-        margin: 0 5px;
-    }
-    
-    /* Reduzir margens e paddings internos */
-    .recipe-section {
-        padding: 15px;
-        margin-bottom: 20px;
-    }
-    
-    /* Ajustar tamanho do texto para caber melhor */
-    .recipe-title {
-        font-size: 1.8rem;
-        line-height: 1.4;
-        padding: 0 5px;
-    }
-    
-    .section-title {
-        font-size: 1.1rem;
-    }
-    
-    /* Reduzir o espaçamento entre elementos */
-    .recipe-header {
-        margin-bottom: 15px;
-        padding: 15px 10px;
-    }
-    
-    /* Ajustar o botão de voltar no canto superior */
-    .menu-back-button {
-        top: 10px;
-        left: 10px;
-        padding: 6px 12px;
-    }
-    
-    .back-button-icon {
-        width: 22px;
-        height: 22px;
-        margin-right: 6px;
-    }
-    
-    .back-button-text {
-        font-size: 12px;
-    }
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-/* Para dispositivos extremamente pequenos */
-@media (max-width: 320px) {
-    .standardized-button {
-        width: 120px;
-        font-size: 0.8rem;
-        padding: 8px 0;
-    }
-    
-    .recipe-title {
-        font-size: 1.6rem;
-    }
-    
-    .menu-back-button {
-        padding: 5px 10px;
-    }
-    
-    .back-button-icon {
-        width: 20px;
-        height: 20px;
-        margin-right: 5px;
-    }
-    
-    .back-button-text {
-        font-size: 11px;
-    }
-    
-    /* Reduzir ainda mais o padding para maximizar o espaço disponível */
-    .recipe-container {
-        padding: 10px 8px;
-    }
-    
-    .recipe-section {
-        padding: 12px;
-    }
+/* =========================================================
+   Header
+   ========================================================= */
+.pass-header {
+  padding-bottom: 36px;
+  margin-bottom: 44px;
+  border-bottom: 1px solid var(--line-strong);
 }
 
-/* Ajustes para os botões "MENU DE RECEITAS" e "NOVO DESAFIO" */
-.recipe-buttons {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 15px;
-    width: 100%;
-    padding: 0 10px;
-    margin: 15px 0;
+.pass-header__main { max-width: 720px; }
+
+.pass-title {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(48px, 6vw, 72px);
+  line-height: 1.02;
+  margin: 0 0 16px;
+  letter-spacing: -0.02em;
+  color: var(--text);
 }
 
-.standardized-button {
-    border: none;
-    border-radius: 25px;
-    padding: 12px 20px;
-    font-weight: 600;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    text-transform: uppercase;
-    min-width: 120px;
-    max-width: 180px;
-    width: 100%;
-    
-    /* Centralização do texto */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    line-height: 1.2;
+.pass-title em {
+  font-style: italic;
+  color: var(--accent);
+  font-weight: 400;
 }
 
-/* Ajustes específicos para dispositivos pequenos */
-@media (max-width: 390px) {
-    .recipe-buttons {
-        flex-direction: column;
-        align-items: center;
-        gap: 10px;
-    }
-    
-    .standardized-button {
-        font-size: 0.9rem;
-        padding: 10px 15px;
-        width: 100%;
-        max-width: 160px;
-        height: auto;
-        min-height: 44px; /* Garantir altura mínima para toque */
-    }
+.pass-sub {
+  font-family: var(--serif);
+  font-size: 18px;
+  line-height: 1.55;
+  color: var(--text-soft);
+  font-style: italic;
+  margin: 0;
+  max-width: 560px;
 }
 
-/* Para dispositivos muito pequenos */
-@media (max-width: 320px) {
-    .standardized-button {
-        font-size: 0.8rem;
-        padding: 8px 12px;
-        max-width: 140px;
-    }
-    
-    .recipe-buttons {
-        padding: 0 5px;
-    }
+/* =========================================================
+   Grid de bilhetes (Tela A)
+   ========================================================= */
+.pass-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 22px;
+  margin-bottom: 56px;
 }
 
-/* === Notification Toast (from shared error handling) === */
-.notification {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    padding: 12px 24px;
-    border-radius: 8px;
-    color: white;
-    font-family: 'Poppins', sans-serif;
-    font-size: 14px;
-    z-index: 10000;
-    opacity: 1;
-    transition: opacity 0.3s ease;
+.pass-card {
+  position: relative;
+  padding: 28px 26px 26px;
+  background: linear-gradient(170deg, var(--surface) 0%, var(--bg-2) 100%);
+  border: 1px solid var(--line);
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.25s ease, border-color 0.25s ease;
+  text-align: left;
+  color: inherit;
 }
 
-.notification--error {
-    background: #e74c3c;
+.pass-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent), transparent);
+  opacity: 0.5;
+  transition: opacity 0.25s ease;
 }
 
-.notification--success {
-    background: #2ecc71;
+.pass-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(500px 300px at 50% -30%, rgba(255, 154, 61, 0.14), transparent 60%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
 }
 
-.notification--info {
-    background: #3498db;
+.pass-card:hover,
+.pass-card:focus-visible {
+  transform: translateY(-4px);
+  border-color: var(--accent);
+  outline: none;
 }
 
-.notification--fade-out {
-    opacity: 0;
+.pass-card:hover::before,
+.pass-card:focus-visible::before { opacity: 1; }
+
+.pass-card:hover::after,
+.pass-card:focus-visible::after { opacity: 1; }
+
+.pass-card__ghost {
+  position: absolute;
+  bottom: -18px;
+  right: 14px;
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 100px;
+  line-height: 0.85;
+  color: rgba(255, 154, 61, 0.06);
+  letter-spacing: -0.04em;
+  pointer-events: none;
+  user-select: none;
 }
 
-/* === State-based CSS classes (converted from inline styles) === */
-.loading-overlay--active {
-    opacity: 1;
-    pointer-events: auto;
+.pass-card__name {
+  position: relative;
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: 28px;
+  line-height: 1.1;
+  margin: 8px 0 10px;
+  color: var(--text);
+  letter-spacing: -0.01em;
+  z-index: 1;
 }
 
-.result-overlay--visible {
-    display: flex;
-    opacity: 1;
+.pass-card__desc {
+  position: relative;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--text-soft);
+  margin: 0 0 22px;
+  z-index: 1;
 }
 
-.timer--warning {
-    color: #ff4444;
+.pass-card__specs {
+  position: relative;
+  display: flex;
+  gap: 24px;
+  margin: 0;
+  padding: 14px 0 0;
+  border-top: 1px solid var(--line);
+  z-index: 1;
 }
 
-.timer--danger {
-    color: #ff0000;
-    animation: timer-pulse 0.5s infinite;
+.pass-card__specs > div { flex: 1; }
+
+.pass-card__specs dt {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 4px;
 }
 
-@keyframes timer-pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.6; }
+.pass-card__specs dd {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--text);
+  letter-spacing: 0.01em;
 }
 
-.pause-button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 44px;
-    height: 44px;
-    border: none;
-    border-radius: 50%;
-    background-color: #f39c12;
-    color: #fff;
-    font-size: 1.1rem;
-    cursor: pointer;
-    transition: transform 0.15s, box-shadow 0.15s;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+.pass-card__dots {
+  display: inline-flex !important;
+  gap: 4px;
+  padding-top: 4px;
 }
 
-.pause-button:hover {
-    transform: scale(1.1);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+.pass-card__dots span {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--line-strong);
 }
 
-.pause-button--paused {
-    background-color: #4caf50 !important;
+.pass-card__dots span.on { background: var(--accent); }
+
+/* =========================================================
+   Countdown
+   ========================================================= */
+.pass-countdown {
+  min-height: 72vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 24px;
+  animation: fade-up 0.4s ease;
 }
 
-/* === Confirm Dialog === */
+.pass-countdown__kicker {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.pass-countdown__number {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: clamp(140px, 22vw, 240px);
+  line-height: 1;
+  color: var(--text);
+  letter-spacing: -0.04em;
+  text-shadow: 0 0 80px rgba(255, 154, 61, 0.35);
+  transition: opacity 0.25s ease;
+}
+
+.pass-countdown__number.pulse { animation: count-pulse 0.9s ease; }
+
+@keyframes count-pulse {
+  0% { transform: scale(1.1); opacity: 0; }
+  40% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.pass-countdown__sub {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 20px;
+  color: var(--text-soft);
+  margin: 0;
+}
+
+.pass-countdown__loading {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 18px;
+  margin-top: 18px;
+  border: 1px solid var(--line-strong);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.pass-countdown__loading .dots {
+  display: inline-block;
+  min-width: 20px;
+  text-align: left;
+  color: var(--accent);
+}
+
+/* =========================================================
+   Tela B — Serviço em curso
+   ========================================================= */
+.pass-service__header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 32px;
+  padding-bottom: 28px;
+  margin-bottom: 32px;
+  border-bottom: 1px solid var(--line-strong);
+}
+
+.pass-service__title {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(40px, 5vw, 56px);
+  line-height: 1.05;
+  margin: 10px 0 8px;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+
+.pass-service__title em {
+  font-style: italic;
+  color: var(--accent);
+  font-weight: 400;
+}
+
+.pass-service__desc {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 16px;
+  color: var(--text-soft);
+  margin: 0;
+  max-width: 540px;
+}
+
+.pass-service__meta {
+  display: flex;
+  gap: 22px;
+  margin-top: 14px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--muted);
+  flex-wrap: wrap;
+}
+
+.pass-service__meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pass-service__meta span::before {
+  content: '';
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.pass-service__grid {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 32px;
+  align-items: start;
+}
+
+/* ---- HUD ------------------------------------------------ */
+.service-hud {
+  position: sticky;
+  top: 24px;
+  padding: 28px 24px 26px;
+  background: linear-gradient(180deg, var(--bg-2), var(--surface));
+  border: 1px solid var(--line-strong);
+}
+
+.service-hud::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+}
+
+.service-hud__meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding-bottom: 14px;
+  margin-bottom: 18px;
+  border-bottom: 1px solid var(--line);
+}
+
+.service-hud__meta strong {
+  color: var(--text);
+  letter-spacing: 0.3em;
+}
+
+.timer-display { text-align: center; margin-bottom: 18px; }
+
+.timer-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.timer-digits {
+  font-family: var(--mono);
+  font-weight: 500;
+  font-size: 68px;
+  line-height: 1;
+  color: var(--text);
+  letter-spacing: -0.02em;
+}
+
+.timer-digits.warning { color: var(--accent); }
+.timer-digits.danger { color: var(--red); animation: pulse-dot 1s ease-in-out infinite; }
+
+.timer-digits .sep {
+  color: var(--accent);
+  margin: 0 4px;
+  opacity: 0.7;
+  animation: sep-blink 1s steps(2, end) infinite;
+}
+
+@keyframes sep-blink {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 0.2; }
+}
+
+.timer-progress {
+  height: 2px;
+  background: var(--line);
+  border-radius: 2px;
+  overflow: hidden;
+  margin: 16px 0 20px;
+}
+
+.timer-progress__bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent-strong));
+  transition: width 0.9s linear, background 0.4s ease;
+}
+
+.timer-progress__bar.warning {
+  background: linear-gradient(90deg, var(--accent), var(--red));
+}
+
+.timer-progress__bar.danger { background: var(--red); }
+
+.timer-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.timer-stat {
+  padding: 10px 12px;
+  background: rgba(255, 250, 243, 0.02);
+  border: 1px solid var(--line);
+  text-align: center;
+}
+
+.timer-stat__label {
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+.timer-stat__value {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: 20px;
+  color: var(--text);
+  letter-spacing: 0.02em;
+}
+
+.timer-stat__value em {
+  font-style: normal;
+  color: var(--accent);
+}
+
+.timer-pause {
+  width: 100%;
+  padding: 12px;
+  background: transparent;
+  border: 1px solid var(--line-strong);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  transition: all 0.2s ease;
+}
+
+.timer-pause:hover {
+  background: rgba(255, 154, 61, 0.08);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.timer-pause.paused {
+  background: rgba(111, 170, 120, 0.1);
+  border-color: var(--green);
+  color: var(--green);
+}
+
+/* ---- Receita ------------------------------------------- */
+.service-recipe { min-width: 0; }
+
+.service-recipe__head {
+  padding-bottom: 22px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 20px;
+}
+
+.service-recipe__tag {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 10px;
+}
+
+.service-recipe__name {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(28px, 3vw, 38px);
+  line-height: 1.1;
+  margin: 0 0 12px;
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+
+.service-recipe__name em {
+  font-style: italic;
+  color: var(--accent);
+  font-weight: 400;
+}
+
+.service-recipe__sub {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 16px;
+  color: var(--text-soft);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* ---- Painéis colapsáveis (mise en place + dicas) ------- */
+.service-panel {
+  border: 1px solid var(--line);
+  margin-bottom: 14px;
+}
+
+.service-panel__toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 18px;
+  background: rgba(255, 250, 243, 0.02);
+  border: 0;
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  text-align: left;
+}
+
+.service-panel__toggle:hover { background: rgba(255, 154, 61, 0.06); }
+
+.service-panel__toggle-count {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 0.2em;
+}
+
+.service-panel__toggle-icon {
+  font-size: 16px;
+  color: var(--accent);
+  transition: transform 0.25s ease;
+  margin-left: 8px;
+}
+
+.service-panel[data-open="true"] .service-panel__toggle-icon {
+  transform: rotate(45deg);
+}
+
+.service-panel__body {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.3s ease;
+}
+
+.service-panel[data-open="true"] .service-panel__body {
+  grid-template-rows: 1fr;
+}
+
+.service-panel__body-inner {
+  overflow: hidden;
+  padding: 0 18px;
+}
+
+.service-panel[data-open="true"] .service-panel__body-inner {
+  padding: 4px 18px 18px;
+}
+
+.ingredients-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px 24px;
+}
+
+.ingredients-grid li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px dashed var(--line);
+  font-size: 13px;
+  color: var(--text-soft);
+}
+
+.ingredients-grid li.category {
+  grid-column: 1 / -1;
+  border-bottom: 0;
+  padding: 14px 0 4px;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.ingredients-grid li span {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.tips-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.tips-list li {
+  padding: 10px 0 10px 28px;
+  position: relative;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--text-soft);
+  border-bottom: 1px solid var(--line);
+}
+
+.tips-list li:last-child { border-bottom: 0; }
+
+.tips-list li::before {
+  content: '“';
+  position: absolute;
+  left: 0;
+  top: 6px;
+  font-family: var(--serif);
+  font-size: 30px;
+  color: var(--accent);
+  line-height: 1;
+}
+
+/* ---- Step stage ---------------------------------------- */
+.step-stage {
+  margin-top: 28px;
+  padding-top: 28px;
+  border-top: 1px solid var(--line);
+}
+
+.step-tracker {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 18px;
+}
+
+.step-tracker__label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.step-tracker__progress {
+  flex: 1;
+  display: flex;
+  gap: 6px;
+}
+
+.step-tracker__progress span {
+  flex: 1;
+  height: 3px;
+  background: var(--line);
+  border-radius: 2px;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+.step-tracker__progress span.done { background: var(--accent); }
+.step-tracker__progress span.current {
+  background: var(--accent);
+  box-shadow: 0 0 12px var(--accent);
+}
+
+.step-tracker__count {
+  font-family: var(--serif);
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--text);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.step-tracker__count em {
+  color: var(--muted);
+  font-style: normal;
+  font-size: 18px;
+}
+
+.step-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 22px;
+  min-height: 28px;
+}
+
+.step-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: rgba(255, 154, 61, 0.04);
+  border: 1px solid var(--line-strong);
+  color: var(--text-soft);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.step-chip::before {
+  content: '✓';
+  color: var(--green);
+  font-size: 11px;
+}
+
+.step-chip:hover {
+  background: rgba(255, 154, 61, 0.1);
+  color: var(--text);
+}
+
+.step-chip.is-reviewing {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.step-current {
+  position: relative;
+  padding: 30px 34px 32px;
+  background: linear-gradient(160deg, rgba(255, 154, 61, 0.08), rgba(241, 109, 34, 0.02));
+  border: 1px solid rgba(255, 154, 61, 0.28);
+  margin-bottom: 18px;
+  overflow: hidden;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.step-current::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 3px;
+  height: 100%;
+  background: var(--accent);
+  box-shadow: 0 0 20px var(--accent);
+}
+
+.step-current.is-review::before { background: var(--muted); box-shadow: none; }
+
+.step-current[data-fading="true"] { opacity: 0; transform: translateY(6px); }
+
+.step-current__tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 12px;
+}
+
+.step-current.is-review .step-current__tag { color: var(--muted); }
+
+.step-current__tag::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 8px var(--accent);
+  animation: pulse-dot 1.6s ease-in-out infinite;
+}
+
+.step-current.is-review .step-current__tag::before {
+  background: var(--muted);
+  box-shadow: none;
+  animation: none;
+}
+
+.step-current__number {
+  font-family: var(--serif);
+  font-size: 80px;
+  font-weight: 300;
+  line-height: 0.9;
+  color: var(--text);
+  margin-bottom: 14px;
+  letter-spacing: -0.02em;
+}
+
+.step-current__number sup {
+  font-size: 22px;
+  color: var(--muted);
+  font-weight: 400;
+  margin-left: 8px;
+  vertical-align: top;
+  letter-spacing: 0;
+}
+
+.step-current__body {
+  font-family: var(--serif);
+  font-size: 22px;
+  line-height: 1.5;
+  color: var(--text);
+  font-weight: 400;
+  letter-spacing: 0.005em;
+  max-width: 600px;
+}
+
+.step-current__time {
+  display: inline-block;
+  margin-top: 14px;
+  padding: 4px 10px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: var(--accent);
+  border: 1px solid var(--line-strong);
+}
+
+.step-next {
+  padding: 16px 22px;
+  border: 1px dashed var(--line-strong);
+  opacity: 0.55;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-bottom: 24px;
+}
+
+.step-next__label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
+.step-next__number {
+  font-family: var(--serif);
+  font-size: 26px;
+  color: var(--text-soft);
+  flex-shrink: 0;
+}
+
+.step-next__body {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-soft);
+}
+
+.step-next.is-last {
+  justify-content: center;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--accent);
+  text-align: center;
+}
+
+.step-actions {
+  display: flex;
+  gap: 12px;
+  padding-top: 22px;
+  border-top: 1px solid var(--line);
+}
+
+.step-action {
+  flex: 1;
+  padding: 14px 16px;
+  background: transparent;
+  border: 1px solid var(--line-strong);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  transition: all 0.2s ease;
+}
+
+.step-action:hover:not(:disabled) {
+  background: rgba(255, 154, 61, 0.08);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.step-action:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.step-action.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg-1);
+  flex: 1.6;
+}
+
+.step-action.primary:hover:not(:disabled) {
+  background: var(--accent-strong);
+  border-color: var(--accent-strong);
+  color: var(--bg-1);
+}
+
+.step-action.finish {
+  border-color: var(--green);
+  color: var(--green);
+}
+
+.step-action.finish:hover:not(:disabled) {
+  background: rgba(111, 170, 120, 0.1);
+  border-color: var(--green);
+  color: var(--green);
+}
+
+/* =========================================================
+   Tela C / D — Serviço Concluído / Tempo Esgotado
+   ========================================================= */
+.service-end {
+  position: relative;
+  padding: 80px 56px;
+  text-align: center;
+  background:
+    radial-gradient(800px 500px at 50% 50%, rgba(255, 154, 61, 0.14), transparent 70%),
+    linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 100%);
+  border: 1px solid rgba(255, 154, 61, 0.18);
+  min-height: 600px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  animation: fade-up 0.5s ease;
+}
+
+.service-end::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 520px;
+  height: 520px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 154, 61, 0.14) 0%, transparent 60%);
+  pointer-events: none;
+  animation: breathe 4s ease-in-out infinite;
+}
+
+@keyframes breathe {
+  0%, 100% { opacity: 0.8; transform: translate(-50%, -50%) scale(1); }
+  50% { opacity: 1; transform: translate(-50%, -50%) scale(1.05); }
+}
+
+.service-end__kicker {
+  position: relative;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 22px;
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.service-end__kicker::before,
+.service-end__kicker::after {
+  content: '';
+  width: 40px;
+  height: 1px;
+  background: var(--accent);
+}
+
+.service-end__stamp {
+  position: relative;
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: clamp(72px, 10vw, 120px);
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  margin: 0 0 14px;
+}
+
+.service-end__stamp em {
+  color: var(--accent);
+  font-style: italic;
+  font-weight: 400;
+}
+
+.service-end__sub {
+  position: relative;
+  font-family: var(--serif);
+  font-size: 20px;
+  font-style: italic;
+  color: var(--text-soft);
+  max-width: 540px;
+  margin: 0 auto 40px;
+  line-height: 1.5;
+}
+
+.service-end__stats {
+  position: relative;
+  display: flex;
+  gap: 0;
+  align-items: stretch;
+  border-top: 1px solid var(--line-strong);
+  border-bottom: 1px solid var(--line-strong);
+  padding: 22px 0;
+  margin-bottom: 36px;
+  min-width: 720px;
+  max-width: 100%;
+  flex-wrap: wrap;
+}
+
+.service-end__stat {
+  flex: 1 1 160px;
+  min-width: 160px;
+  padding: 0 32px;
+  border-right: 1px solid var(--line);
+  text-align: center;
+}
+
+.service-end__stat:last-child { border-right: 0; }
+
+.service-end__stat .label {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.service-end__stat .value {
+  font-family: var(--serif);
+  font-size: 26px;
+  font-weight: 400;
+  color: var(--text);
+  letter-spacing: 0.01em;
+  line-height: 1.15;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+.service-end__stat .value em {
+  color: var(--accent);
+  font-style: normal;
+}
+
+.service-end__actions {
+  position: relative;
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.service-end__action {
+  padding: 16px 28px;
+  background: var(--accent);
+  border: 1px solid var(--accent);
+  color: var(--bg-1);
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  transition: all 0.2s ease;
+}
+
+.service-end__action.outline {
+  background: transparent;
+  color: var(--text);
+  border-color: var(--line-strong);
+}
+
+.service-end__action:hover {
+  background: var(--accent-strong);
+  border-color: var(--accent-strong);
+  color: var(--bg-1);
+}
+
+.service-end__action.outline:hover {
+  background: rgba(255, 154, 61, 0.08);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.service-end.timeout::before {
+  background: radial-gradient(circle, rgba(224, 98, 98, 0.14) 0%, transparent 60%);
+}
+
+.service-end.timeout .service-end__kicker { color: var(--red); }
+
+.service-end.timeout .service-end__kicker::before,
+.service-end.timeout .service-end__kicker::after {
+  background: var(--red);
+}
+
+.service-end.timeout .service-end__stamp em { color: var(--red); }
+
+/* =========================================================
+   Confirm dialog
+   ========================================================= */
 .confirm-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.6);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 9000;
-    backdrop-filter: blur(4px);
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 6, 3, 0.72);
+  backdrop-filter: blur(6px);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  animation: fade 0.2s ease;
+}
+
+@keyframes fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .confirm-dialog {
-    background: #fff;
-    border-radius: 16px;
-    padding: 32px;
-    max-width: 420px;
-    width: 90%;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    text-align: center;
-    animation: dialog-appear 0.25s ease-out;
+  max-width: 440px;
+  width: 100%;
+  padding: 32px 32px 24px;
+  background: linear-gradient(180deg, var(--surface), var(--bg-2));
+  border: 1px solid var(--line-strong);
+  position: relative;
+  animation: dialog-in 0.25s ease;
 }
 
-@keyframes dialog-appear {
-    from { opacity: 0; transform: scale(0.85); }
-    to   { opacity: 1; transform: scale(1); }
+@keyframes dialog-in {
+  from { opacity: 0; transform: translateY(8px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-.confirm-dialog h3 {
-    font-family: 'Pacifico', cursive;
-    font-size: 1.4rem;
-    color: #ff6d00;
-    margin: 0 0 12px;
+.confirm-dialog::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
 }
 
-.confirm-dialog p {
-    color: #555;
-    font-size: 0.95rem;
-    margin: 0 0 24px;
-    line-height: 1.5;
+.confirm-dialog__kicker {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 10px;
 }
 
-.confirm-buttons {
-    display: flex;
-    gap: 12px;
-    justify-content: center;
+.confirm-dialog__title {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: 28px;
+  line-height: 1.15;
+  margin: 0 0 12px;
+  letter-spacing: -0.01em;
+  color: var(--text);
 }
 
-.confirm-button {
-    background: linear-gradient(135deg, #ff6d00, #ff9800);
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    padding: 10px 24px;
-    font-size: 0.9rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: transform 0.15s, box-shadow 0.15s;
+.confirm-dialog__message {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-soft);
+  margin: 0 0 24px;
 }
 
-.confirm-button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(255, 109, 0, 0.4);
+.confirm-dialog__buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
 }
 
-.cancel-button {
-    background: #f0f0f0;
-    color: #555;
-    border: none;
-    border-radius: 8px;
-    padding: 10px 24px;
-    font-size: 0.9rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: transform 0.15s, background 0.15s;
+.confirm-dialog__button {
+  padding: 12px 22px;
+  background: transparent;
+  border: 1px solid var(--line-strong);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  transition: all 0.2s ease;
 }
 
-.cancel-button:hover {
-    background: #e0e0e0;
-    transform: translateY(-2px);
+.confirm-dialog__button:hover {
+  background: rgba(255, 154, 61, 0.08);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.confirm-dialog__button.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg-1);
+}
+
+.confirm-dialog__button.primary:hover {
+  background: var(--accent-strong);
+  border-color: var(--accent-strong);
+}
+
+/* =========================================================
+   Responsive
+   ========================================================= */
+@media (max-width: 1100px) {
+  .pass-grid { grid-template-columns: repeat(2, 1fr); }
+  .pass-service__grid { grid-template-columns: 1fr; }
+  .service-hud { position: relative; top: auto; }
+  .timer-digits { font-size: 60px; }
+}
+
+@media (max-width: 720px) {
+  .challenge-page { padding: 90px 20px 60px; }
+  .back-button { top: 14px; left: 14px; padding: 10px 14px 10px 10px; }
+  .back-button-icon { width: 34px; height: 34px; }
+  .back-button-text { font-size: 0.82rem; }
+  .pass-grid { grid-template-columns: 1fr; gap: 14px; }
+  .pass-card { padding: 22px 20px; }
+  .pass-card__ghost { font-size: 80px; bottom: -14px; right: 10px; }
+  .pass-service__header { flex-direction: column; align-items: flex-start; gap: 18px; }
+  .ingredients-grid { grid-template-columns: 1fr; }
+  .timer-digits { font-size: 52px; }
+  .step-current { padding: 22px 22px 24px; }
+  .step-current__number { font-size: 60px; }
+  .step-current__body { font-size: 18px; }
+  .step-actions { flex-direction: column; }
+  .step-action { flex: none; }
+  .service-end { padding: 56px 24px; }
+  .service-end__stats {
+    min-width: 0;
+    flex-direction: column;
+    border: 0;
+    padding: 0;
+  }
+  .service-end__stat {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+    padding: 14px 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* Page transition entering state */
+html.page-entering body {
+  animation: page-reveal 0.35s ease forwards;
+}
+
+@keyframes page-reveal {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
 }

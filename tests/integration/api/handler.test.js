@@ -3,17 +3,18 @@ import request from 'supertest';
 import express from 'express';
 
 /**
- * Creates a test Express app wrapping the Vercel serverless handler.
+ * Creates a test Express app wrapping the Vercel serverless handlers.
  * IMPORTANT: We use dynamic import so each test suite gets a fresh module.
- * The handler reads process.env.GEMINI_API_KEY inside the handler function
+ * The handlers read process.env.GROQ_API_KEY inside the handler function
  * (not at module level), so env changes between tests work correctly.
  */
 async function createTestApp() {
-  const module = await import('../../../api/index.js');
-  const handler = module.default;
+  const chatModule = await import('../../../api/chat.js');
+  const geminiModule = await import('../../../api/gemini.js');
   const app = express();
   app.use(express.json());
-  app.all('/api/*', (req, res) => handler(req, res));
+  app.all('/api/chat', (req, res) => chatModule.default(req, res));
+  app.all('/api/gemini', (req, res) => geminiModule.default(req, res));
   return app;
 }
 
@@ -23,16 +24,21 @@ describe('API Handler Integration Tests', () => {
 
   beforeEach(async () => {
     // Save and set a dummy API key so config check passes by default
-    savedApiKey = process.env.GEMINI_API_KEY;
-    process.env.GEMINI_API_KEY = 'test-key-12345';
+    savedApiKey = process.env.GROQ_API_KEY;
+    process.env.GROQ_API_KEY = 'test-key-12345';
 
     app = await createTestApp();
 
-    // Mock global fetch to simulate Gemini API responses
+    // Mock global fetch to simulate Groq API responses (OpenAI chat-completions shape)
     globalThis.fetch = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({
-        candidates: [{ content: { parts: [{ text: 'Test response from Gemini' }] } }],
+        choices: [
+          {
+            message: { role: 'assistant', content: 'Test response from Groq' },
+            finish_reason: 'stop',
+          },
+        ],
       }),
     });
 
@@ -44,9 +50,9 @@ describe('API Handler Integration Tests', () => {
   afterEach(() => {
     // Restore env
     if (savedApiKey !== undefined) {
-      process.env.GEMINI_API_KEY = savedApiKey;
+      process.env.GROQ_API_KEY = savedApiKey;
     } else {
-      delete process.env.GEMINI_API_KEY;
+      delete process.env.GROQ_API_KEY;
     }
     vi.restoreAllMocks();
   });
@@ -114,16 +120,6 @@ describe('API Handler Integration Tests', () => {
   });
 
   describe('routing', () => {
-    it('returns 404 with ERR_NOTFOUND_001 for unknown endpoints', async () => {
-      const res = await request(app)
-        .post('/api/unknown')
-        .set('Origin', 'http://localhost:3000')
-        .send({});
-
-      expect(res.status).toBe(404);
-      expect(res.body.code).toBe('ERR_NOTFOUND_001');
-    });
-
     it('returns 405 with ERR_METHOD_001 for GET on /api/chat', async () => {
       const res = await request(app)
         .get('/api/chat')
@@ -134,9 +130,9 @@ describe('API Handler Integration Tests', () => {
     });
   });
 
-  describe('GEMINI_API_KEY validation', () => {
+  describe('GROQ_API_KEY validation', () => {
     it('returns 500 with ERR_CONFIG_001 when API key is missing', async () => {
-      delete process.env.GEMINI_API_KEY;
+      delete process.env.GROQ_API_KEY;
 
       const res = await request(app)
         .post('/api/chat')
@@ -148,8 +144,8 @@ describe('API Handler Integration Tests', () => {
     });
   });
 
-  describe('Gemini API proxy', () => {
-    it('proxies successful Gemini response with 200', async () => {
+  describe('Groq API proxy', () => {
+    it('proxies successful Groq response with 200 wrapped as Gemini envelope', async () => {
       const res = await request(app)
         .post('/api/chat')
         .set('Origin', 'http://localhost:3000')
@@ -157,10 +153,10 @@ describe('API Handler Integration Tests', () => {
 
       expect(res.status).toBe(200);
       expect(res.body.candidates).toBeDefined();
-      expect(res.body.candidates[0].content.parts[0].text).toBe('Test response from Gemini');
+      expect(res.body.candidates[0].content.parts[0].text).toBe('Test response from Groq');
     });
 
-    it('builds the Gemini chat payload on the server with header auth', async () => {
+    it('builds the Groq chat payload on the server with bearer auth', async () => {
       await request(app)
         .post('/api/chat')
         .set('Origin', 'http://localhost:3000')
@@ -169,23 +165,44 @@ describe('API Handler Integration Tests', () => {
       expect(globalThis.fetch).toHaveBeenCalledTimes(1);
 
       const [url, options] = globalThis.fetch.mock.calls[0];
-      expect(url).toBe(
-        'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent'
-      );
-      expect(options.headers['x-goog-api-key']).toBe('test-key-12345');
-      expect(options.headers['User-Agent']).toBe('GastroAI-Chat/1.0');
+      expect(url).toBe('https://api.groq.com/openai/v1/chat/completions');
+      expect(options.headers['Authorization']).toBe('Bearer test-key-12345');
+      expect(options.headers['Content-Type']).toBe('application/json');
 
       const body = JSON.parse(options.body);
-      expect(body.systemInstruction.parts[0].text).toContain('português de Portugal');
-      expect(body.contents).toEqual([
-        { role: 'user', parts: [{ text: 'Olá' }] },
-        { role: 'user', parts: [{ text: 'Como fazer risoto?' }] },
-      ]);
-      expect(body.generationConfig.maxOutputTokens).toBe(900);
-      expect(body.safetySettings[0].category).toBe('HARM_CATEGORY_DANGEROUS_CONTENT');
+      expect(body.model).toBe('openai/gpt-oss-120b');
+      expect(body.messages[0]).toEqual({
+        role: 'system',
+        content: expect.stringContaining('português de Portugal'),
+      });
+      expect(body.messages[1]).toEqual({ role: 'user', content: 'Olá' });
+      expect(body.messages[2]).toEqual({ role: 'user', content: 'Como fazer risoto?' });
+      expect(body.max_tokens).toBe(3072);
+      expect(body.temperature).toBe(0.7);
     });
 
-    it('returns error code ERR_GEMINI_001 when upstream returns non-ok', async () => {
+    it('maps history role "model" to "assistant" when forwarding to Groq', async () => {
+      await request(app)
+        .post('/api/chat')
+        .set('Origin', 'http://localhost:3000')
+        .send({
+          message: 'continua',
+          history: [
+            { role: 'user', text: 'Olá' },
+            { role: 'model', text: 'Olá! Como posso ajudar?' },
+          ],
+        });
+
+      const body = JSON.parse(globalThis.fetch.mock.calls[0][1].body);
+      expect(body.messages.map((m) => m.role)).toEqual([
+        'system',
+        'user',
+        'assistant',
+        'user',
+      ]);
+    });
+
+    it('returns error code ERR_GROQ_001 when upstream returns non-ok', async () => {
       globalThis.fetch = vi.fn().mockResolvedValue({
         ok: false,
         status: 500,
@@ -197,11 +214,11 @@ describe('API Handler Integration Tests', () => {
         .send({ message: 'hello' });
 
       expect(res.status).toBe(500);
-      expect(res.body.code).toBe('ERR_GEMINI_001');
+      expect(res.body.code).toBe('ERR_GROQ_001');
     });
 
     it('does not expose stack traces in error responses', async () => {
-      globalThis.fetch = vi.fn().mockRejectedValue(new Error('Connection refused to googleapis.com'));
+      globalThis.fetch = vi.fn().mockRejectedValue(new Error('Connection refused to api.groq.com'));
 
       const res = await request(app)
         .post('/api/chat')
@@ -216,7 +233,7 @@ describe('API Handler Integration Tests', () => {
       expect(bodyStr).not.toContain('.js:');
     });
 
-    it('returns generic error message for Gemini failures', async () => {
+    it('returns generic error message for Groq failures', async () => {
       globalThis.fetch = vi.fn().mockRejectedValue(new Error('ECONNREFUSED'));
 
       const res = await request(app)
@@ -230,14 +247,27 @@ describe('API Handler Integration Tests', () => {
   });
 
   describe('/api/gemini endpoint', () => {
-    it('proxies successful Gemini response via /api/gemini', async () => {
+    it('converts Gemini-format request body to Groq and wraps the response', async () => {
       const res = await request(app)
         .post('/api/gemini')
         .set('Origin', 'http://localhost:3000')
-        .send({ contents: [{ role: 'user', parts: [{ text: 'recipe' }] }] });
+        .send({
+          systemInstruction: { parts: [{ text: 'És um chef.' }] },
+          contents: [{ role: 'user', parts: [{ text: 'Dá-me uma receita.' }] }],
+          generationConfig: { temperature: 0.9, maxOutputTokens: 1024 },
+        });
 
       expect(res.status).toBe(200);
-      expect(res.body.candidates).toBeDefined();
+      expect(res.body.candidates[0].content.parts[0].text).toBe('Test response from Groq');
+
+      const body = JSON.parse(globalThis.fetch.mock.calls[0][1].body);
+      expect(body.model).toBe('openai/gpt-oss-120b');
+      expect(body.messages).toEqual([
+        { role: 'system', content: 'És um chef.' },
+        { role: 'user', content: 'Dá-me uma receita.' },
+      ]);
+      expect(body.temperature).toBe(0.9);
+      expect(body.max_tokens).toBe(1024);
     });
 
     it('returns 405 for GET on /api/gemini', async () => {
@@ -247,6 +277,16 @@ describe('API Handler Integration Tests', () => {
 
       expect(res.status).toBe(405);
       expect(res.body.code).toBe('ERR_METHOD_001');
+    });
+
+    it('returns 400 ERR_INPUT_001 when Gemini-format body is empty', async () => {
+      const res = await request(app)
+        .post('/api/gemini')
+        .set('Origin', 'http://localhost:3000')
+        .send({});
+
+      expect(res.status).toBe(400);
+      expect(res.body.code).toBe('ERR_INPUT_001');
     });
   });
 });

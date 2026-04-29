@@ -3,10 +3,8 @@
   "version": "1.0.0",
   "type": "module",
   "description": "AI-powered culinary web app with recipe carousel, timed challenges, and gastronomy assistant",
-  "main": "api/index.js",
   "scripts": {
-    "start": "node api/index.js",
-    "dev": "nodemon api/index.js",
+    "dev:api": "npx vercel dev",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",

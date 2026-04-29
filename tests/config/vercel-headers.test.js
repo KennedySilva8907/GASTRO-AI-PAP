@@ -66,11 +66,10 @@ describe('vercel.json Cache-Control Headers', () => {
     expect(apiIndex).toBeLessThan(jsIndex);
   });
 
-  it('preserves existing builds and routes', () => {
-    expect(vercelConfig).toHaveProperty('builds');
-    expect(vercelConfig).toHaveProperty('routes');
-    expect(vercelConfig.builds.length).toBe(2);
-    expect(vercelConfig.routes.length).toBe(5);
+  it('declares rewrites for page routes', () => {
+    expect(vercelConfig).toHaveProperty('rewrites');
+    expect(Array.isArray(vercelConfig.rewrites)).toBe(true);
+    expect(vercelConfig.rewrites.length).toBeGreaterThanOrEqual(4);
   });
 
 });

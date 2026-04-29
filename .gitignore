@@ -37,3 +37,4 @@ build/
 # Test coverage output
 coverage/
 lighthouse-report.json
+.env*.local

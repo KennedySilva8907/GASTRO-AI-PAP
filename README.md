@@ -117,7 +117,7 @@ npm run test:watch
 npm run test:coverage
 ```
 
-**Test suite:** 189 tests across 19 test files
+**Test suite:** 204 tests across 19 test files
 **Coverage:** V8 provider — thresholds: 60% lines/functions/statements, 55% branches
 **CI/CD:** Tests and lint run automatically on every push to `main`/`develop` and on pull requests
 

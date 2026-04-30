@@ -16,6 +16,7 @@ AI-powered culinary web app featuring real-time cooking challenges, a recipe car
 - **Cooking Challenges** — AI-generated recipes with countdown timer and 4 difficulty levels (Beginner, Intermediate, Advanced, Extreme)
 - **AI Chat Assistant** — Specialized gastronomy chatbot with conversation history, chat export, and typing animation
 - **Recipe Gallery** — Vertical carousel with 10 international recipes, YouTube video links, and detail modals with Web Share API support
+- **Button-anchored Page Transitions** — Pages collapse into the clicked button on exit and expand from the destination button on entry, with an inline head script that bridges the load gap to prevent flashes (`src/shared/transitions.js`)
 - **Interactive Animations** — Physics-based food animations using Matter.js and GSAP
 - **Responsive Design** — Fully responsive across mobile and desktop
 
@@ -47,7 +48,7 @@ graph TD
         Static["Static Assets<br/>CDN Edge"]
         ChatFn["api/chat.js<br/>Serverless Function"]
         RecipeFn["api/gemini.js<br/>Serverless Function"]
-        Shared2["api/_shared.js<br/>CORS + Groq helpers"]
+        Shared2["api/_shared.js<br/>CORS + Groq + Gemini↔Groq translators"]
     end
 
     Groq["Groq API<br/>openai/gpt-oss-120b"]
@@ -116,8 +117,8 @@ npm run test:watch
 npm run test:coverage
 ```
 
-**Test suite:** 112 tests across 11 test files
-**Coverage:** 86% (V8 provider, thresholds: 60% lines/functions/statements, 55% branches)
+**Test suite:** 189 tests across 19 test files
+**Coverage:** V8 provider — thresholds: 60% lines/functions/statements, 55% branches
 **CI/CD:** Tests and lint run automatically on every push to `main`/`develop` and on pull requests
 
 ### Test Structure
@@ -125,15 +126,24 @@ npm run test:coverage
 | Module | Test File | Description |
 |--------|-----------|-------------|
 | API | `tests/integration/api/handler.test.js` | CORS, routing, error codes, Groq translation |
+| Chat | `tests/unit/chat/chat-api.test.js` | Client-side chat API helpers and history pairing |
 | Recipes | `tests/unit/recipes/share.test.js` | Web Share API + clipboard fallback |
 | Recipes | `tests/unit/recipes/lazy-loader.test.js` | IntersectionObserver lazy loading |
+| Recipes | `tests/unit/recipes/catalog.test.js` | Recipe catalog data integrity |
+| Recipes | `tests/unit/recipes/carousel-scroll-lock.test.js` | Carousel scroll-lock behavior |
+| Recipes | `tests/unit/recipes/panel-controller.test.js` | Recipe detail panel open/close lifecycle |
+| Recipes | `tests/unit/recipes/stage-controller.test.js` | Stage/featured recipe controller |
+| Recipes | `tests/unit/recipes/experience.test.js` | Top-level recipes experience wiring |
 | Challenges | `tests/unit/challenges/timer.test.js` | Countdown timer logic |
 | Challenges | `tests/unit/challenges/recipe-api.test.js` | Recipe generation API calls |
 | Shared | `tests/unit/shared/sanitizer.test.js` | DOMPurify XSS sanitization |
 | Shared | `tests/unit/shared/errors.test.js` | Error handling utilities |
 | Shared | `tests/unit/shared/constants.test.js` | Shared constants validation |
+| Shared | `tests/unit/shared/transitions.test.js` | Button-anchored page transitions, sessionStorage handoff |
+| Smoke | `tests/unit/smoke.test.js` | Top-level smoke check |
 | Config | `tests/config/html-hints.test.js` | HTML performance hints |
 | Config | `tests/config/vercel-headers.test.js` | Vercel caching headers |
+| Config | `tests/config/recipes-design-contract.test.js` | Recipes page design contract |
 
 ## Deployment (Vercel)
 
@@ -143,6 +153,15 @@ npm run test:coverage
    - `GROQ_API_KEY` — your Groq Console API key
    - `PRODUCTION_URL` — your Vercel project URL (e.g., `https://your-project.vercel.app`)
 4. Deploy triggers automatically on every push to `main`
+
+### Cache policy (`vercel.json`)
+
+`Cache-Control: immutable` is **only** applied to fingerprinted assets. The
+HTML, CSS and JS files at this project use stable paths (no content hash in
+the URL), so they are served with `max-age=0, must-revalidate`. Otherwise a
+deploy would ship new HTML pointing at a CSS file the browser/CDN already
+cached as immutable, breaking the page until the cache expired. Static
+fonts/images that *are* fingerprinted by upstream CDNs keep long caches.
 
 ## API Reference
 
@@ -171,12 +190,16 @@ gastro-ai/
 │   ├── chat/                  # AI chat modules
 │   │   ├── index.js
 │   │   ├── handlers.js
+│   │   ├── chat-api.js
 │   │   └── matter-setup.js
 │   ├── recipes/               # Recipe gallery modules
 │   │   ├── index.js
 │   │   ├── carousel.js
+│   │   ├── catalog.js
 │   │   ├── lazy-loader.js
+│   │   ├── panel-controller.js
 │   │   ├── preloader.js
+│   │   ├── stage-controller.js
 │   │   └── share.js
 │   ├── challenges/            # Cooking challenge modules
 │   │   ├── index.js
@@ -184,10 +207,11 @@ gastro-ai/
 │   │   ├── recipe-api.js
 │   │   └── ui.js
 │   └── shared/                # Shared utilities
+│       ├── animations.js
 │       ├── constants.js
-│       ├── sanitizer.js
 │       ├── errors.js
-│       └── animations.js
+│       ├── sanitizer.js
+│       └── transitions.js     # Button-anchored page transitions
 ├── chat/                      # Chat HTML page
 ├── recipes/                   # Recipes HTML page
 ├── challenges/                # Challenges HTML page

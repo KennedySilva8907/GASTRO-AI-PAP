@@ -116,7 +116,7 @@ describe('navigateTo', () => {
     vi.useRealTimers();
   });
 
-  it('stores the destination anchor and animates toward the clicked button', () => {
+  it('stores the destination anchor and zooms the page into a button portal', () => {
     const navigate = vi.fn();
     const button = document.getElementById('chat-button');
 
@@ -126,16 +126,50 @@ describe('navigateTo', () => {
       entryAnchor: '#back-button',
       origin: { x: 465, y: 841 },
     });
-    expect(document.documentElement.style.background).toContain('linear-gradient');
+    expect(document.documentElement.style.background).toContain('rgb(11, 9, 7)');
     expect(document.body.style.pointerEvents).toBe('none');
-    expect(document.body.style.transition).toContain('clip-path 880ms');
-    expect(document.body.style.clipPath).toBe('circle(0px at 465px 841px)');
-    expect(document.body.style.transform).toBe('scale(0.965)');
-    expect(document.body.style.filter).toBe('blur(8px)');
-    expect(document.body.style.opacity).toBe('0.84');
+    expect(document.body.style.willChange).toBe('transform, opacity');
+    expect(document.body.style.transformOrigin).toBe('465px 841px');
+    expect(document.body.style.transition).toContain('transform 560ms');
+    expect(document.body.style.transition).toContain('opacity 560ms');
+    expect(document.body.style.clipPath).toBe('');
+    expect(document.body.style.transform).toBe('translate3d(16px, -155px, 0) scale(1.28)');
+    expect(document.body.style.opacity).toBe('0.38');
+    expect(document.body.style.filter).toBe('');
+    const portal = document.querySelector('[data-gastro-transition-portal="true"]');
+    expect(portal).not.toBeNull();
+    expect(portal.style.left).toBe('465px');
+    expect(portal.style.top).toBe('841px');
+    expect(portal.style.transform).toContain('scale(');
+    expect(portal.style.opacity).toBe('1');
 
-    vi.advanceTimersByTime(880);
+    vi.advanceTimersByTime(560);
     expect(navigate).toHaveBeenCalledWith('/chat/chatbot.html');
+  });
+
+  it('does not pull top-left back buttons downward and expose an empty strip', () => {
+    const navigate = vi.fn();
+    const backButton = document.createElement('button');
+    backButton.id = 'back-button';
+    backButton.textContent = 'Voltar';
+    backButton.getBoundingClientRect = () => ({
+      left: 22,
+      top: 22,
+      width: 120,
+      height: 54,
+      right: 142,
+      bottom: 76,
+      x: 22,
+      y: 22,
+      toJSON() {},
+    });
+    document.body.appendChild(backButton);
+
+    navigateTo('../index.html', { currentTarget: backButton }, { entryAnchor: '#recipes-button', navigate });
+
+    expect(document.body.style.transformOrigin).toBe('82px 49px');
+    expect(document.body.style.transform).toBe('scale(1.28)');
+    expect(document.body.style.transform).not.toContain('translate3d');
   });
 
   it('cleans up stale exit styles if navigation does not unload the page', () => {
@@ -148,6 +182,7 @@ describe('navigateTo', () => {
     expect(document.body.style.pointerEvents).toBe('');
     expect(document.body.style.clipPath).toBe('');
     expect(document.body.style.transition).toBe('');
+    expect(document.querySelector('[data-gastro-transition-portal="true"]')).toBeNull();
     expect(document.documentElement.style.background).toBe('');
   });
 
@@ -196,7 +231,7 @@ describe('revealPage', () => {
     vi.useRealTimers();
   });
 
-  it('reveals from the stored destination anchor instead of the viewport center', () => {
+  it('reveals by shrinking the portal back into the destination anchor', () => {
     writeTransitionState({
       entryAnchor: '#back-button',
       origin: { x: 465, y: 841 },
@@ -206,11 +241,20 @@ describe('revealPage', () => {
 
     expect(readTransitionState()).toBeNull();
     expect(document.documentElement.classList.contains('page-entering')).toBe(false);
-    expect(document.body.style.transition).toContain('clip-path 780ms');
-    expect(document.body.style.clipPath).toContain('at 86px 45px');
+    expect(document.body.style.willChange).toBe('transform, opacity');
+    expect(document.body.style.transformOrigin).toBe('86px 45px');
+    expect(document.body.style.transition).toContain('transform 620ms');
+    expect(document.body.style.transition).toContain('opacity 620ms');
+    expect(document.body.style.clipPath).toBe('');
     expect(document.body.style.transform).toBe('scale(1)');
-    expect(document.body.style.filter).toBe('blur(0px)');
     expect(document.body.style.opacity).toBe('1');
+    expect(document.body.style.filter).toBe('');
+    const portal = document.querySelector('[data-gastro-transition-portal="true"]');
+    expect(portal).not.toBeNull();
+    expect(portal.style.left).toBe('86px');
+    expect(portal.style.top).toBe('45px');
+    expect(portal.style.transform).toBe('translate(-50%, -50%) scale(0.18)');
+    expect(portal.style.opacity).toBe('0');
   });
 
   it('cleans up inline styles after the reveal finishes', () => {
@@ -220,14 +264,16 @@ describe('revealPage', () => {
     });
 
     revealPage();
-    vi.advanceTimersByTime(840);
+    vi.advanceTimersByTime(670);
 
     expect(document.body.style.pointerEvents).toBe('');
     expect(document.body.style.clipPath).toBe('');
     expect(document.body.style.transition).toBe('');
     expect(document.body.style.transform).toBe('');
-    expect(document.body.style.filter).toBe('');
+    expect(document.body.style.transformOrigin).toBe('');
+    expect(document.body.style.willChange).toBe('');
     expect(document.body.style.opacity).toBe('');
+    expect(document.querySelector('[data-gastro-transition-portal="true"]')).toBeNull();
     expect(document.documentElement.style.background).toBe('');
   });
 

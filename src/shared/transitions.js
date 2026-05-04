@@ -1,6 +1,6 @@
 /**
  * GastroAI page transition system.
- * The page collapses into the clicked button and expands from the destination button.
+ * The page zooms into the clicked button and reopens from the destination button.
  */
 
 export const TRANSITION_SESSION_KEY = 'gastro-transition-meta';
@@ -52,11 +52,22 @@ export function maxRadius(x, y, win = window) {
   ) + 40;
 }
 
-const EXIT_MS = 880;
-const ENTER_MS = 780;
+const EXIT_MS = 560;
+const ENTER_MS = 620;
 const EASING_IN = 'cubic-bezier(0.32, 0, 0.15, 1)';
 const EASING_OUT = 'cubic-bezier(0.16, 1, 0.3, 1)';
-const BG = 'linear-gradient(135deg, #ff9800 0%, #f57c00 45%, #e65100 100%)';
+const BG = [
+  'radial-gradient(circle at 24% 18%, rgba(255, 152, 0, 0.24), transparent 34rem)',
+  'radial-gradient(circle at 78% 8%, rgba(255, 208, 138, 0.14), transparent 24rem)',
+  'linear-gradient(135deg, #0b0907 0%, #130d08 56%, #080706 100%)',
+].join(', ');
+const EXIT_SCALE = 1.28;
+const ENTER_SCALE = 1.08;
+const EXIT_PULL = 0.34;
+const ENTER_PULL = 0.18;
+const PORTAL_SIZE = 96;
+const PORTAL_REST_SCALE = 0.18;
+const PORTAL_SELECTOR = '[data-gastro-transition-portal="true"]';
 
 function defaultNavigate(url) {
   window.location.href = url;
@@ -67,9 +78,11 @@ function resetTransitionStyles(doc = document) {
   doc.body.style.clipPath = '';
   doc.body.style.transition = '';
   doc.body.style.transform = '';
-  doc.body.style.filter = '';
+  doc.body.style.transformOrigin = '';
   doc.body.style.opacity = '';
+  doc.body.style.willChange = '';
   doc.documentElement.style.background = '';
+  doc.querySelector(PORTAL_SELECTOR)?.remove();
 }
 
 function getEventCenter(event, win = window) {
@@ -87,8 +100,60 @@ function getEventCenter(event, win = window) {
   };
 }
 
+function getPortalScale(center, win = window) {
+  return Number(((maxRadius(center.x, center.y, win) * 2) / PORTAL_SIZE).toFixed(3));
+}
+
+function getZoomTransform(center, scale, pull, win = window) {
+  if (center.y < win.innerHeight * 0.25) {
+    return `scale(${scale})`;
+  }
+
+  const dx = Math.round((win.innerWidth / 2 - center.x) * pull);
+  const dy = Math.round((win.innerHeight / 2 - center.y) * pull);
+  return `translate3d(${dx}px, ${dy}px, 0) scale(${scale})`;
+}
+
+function createTransitionPortal(center, doc = document) {
+  doc.querySelector(PORTAL_SELECTOR)?.remove();
+
+  const portal = doc.createElement('div');
+  portal.dataset.gastroTransitionPortal = 'true';
+  Object.assign(portal.style, {
+    position: 'fixed',
+    left: `${center.x}px`,
+    top: `${center.y}px`,
+    width: `${PORTAL_SIZE}px`,
+    height: `${PORTAL_SIZE}px`,
+    zIndex: '2147483647',
+    pointerEvents: 'none',
+    opacity: '0',
+    borderRadius: '36% 44% 42% 38%',
+    background: [
+      'radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.28), transparent 0.85rem)',
+      'radial-gradient(circle at 50% 50%, rgba(255, 208, 138, 0.95), rgba(255, 152, 0, 0.96) 34%, rgba(91, 39, 8, 0.98) 72%)',
+      'linear-gradient(135deg, #ffb13b, #e65100)',
+    ].join(', '),
+    boxShadow: [
+      '0 0 0 1px rgba(255, 230, 190, 0.35) inset',
+      '0 22px 70px rgba(255, 112, 0, 0.34)',
+      '0 0 120px rgba(255, 152, 0, 0.22)',
+    ].join(', '),
+    transform: `translate(-50%, -50%) scale(${PORTAL_REST_SCALE})`,
+    transformOrigin: 'center',
+    transition: [
+      `transform ${EXIT_MS}ms ${EASING_OUT}`,
+      `opacity ${EXIT_MS}ms ${EASING_OUT}`,
+      `border-radius ${EXIT_MS}ms ${EASING_OUT}`,
+    ].join(', '),
+    willChange: 'transform, opacity, border-radius',
+  });
+  doc.body.appendChild(portal);
+  return portal;
+}
+
 /**
- * Navigate with a "collapse into button" effect.
+ * Navigate by zooming into the clicked button.
  * @param {string} url - destination URL
  * @param {Event} [event] - click event for origin position
  * @param {Object} [options] - transition options
@@ -105,7 +170,6 @@ export function navigateTo(url, event, options = {}) {
 
   const navigate = options.navigate ?? defaultNavigate;
   const origin = getEventCenter(event);
-  const radius = maxRadius(origin.x, origin.y);
 
   writeTransitionState({
     entryAnchor: options.entryAnchor ?? null,
@@ -114,23 +178,23 @@ export function navigateTo(url, event, options = {}) {
 
   document.body.style.pointerEvents = 'none';
   document.documentElement.style.background = BG;
+  document.body.style.willChange = 'transform, opacity';
+  document.body.style.transformOrigin = `${origin.x}px ${origin.y}px`;
   document.body.style.transition = 'none';
-  document.body.style.clipPath = `circle(${radius}px at ${origin.x}px ${origin.y}px)`;
   document.body.style.transform = 'scale(1)';
-  document.body.style.filter = 'blur(0px)';
   document.body.style.opacity = '1';
+  const portal = createTransitionPortal(origin);
   void document.body.offsetHeight;
 
+  portal.style.opacity = '1';
+  portal.style.borderRadius = '50%';
+  portal.style.transform = `translate(-50%, -50%) scale(${getPortalScale(origin)})`;
   document.body.style.transition = [
-    `clip-path ${EXIT_MS}ms ${EASING_IN}`,
     `transform ${EXIT_MS}ms ${EASING_IN}`,
-    `filter ${EXIT_MS}ms ${EASING_IN}`,
     `opacity ${EXIT_MS}ms ${EASING_IN}`,
   ].join(', ');
-  document.body.style.clipPath = `circle(0px at ${origin.x}px ${origin.y}px)`;
-  document.body.style.transform = 'scale(0.965)';
-  document.body.style.filter = 'blur(8px)';
-  document.body.style.opacity = '0.84';
+  document.body.style.transform = getZoomTransform(origin, EXIT_SCALE, EXIT_PULL);
+  document.body.style.opacity = '0.38';
 
   const navTimeout = setTimeout(() => {
     navigate(url);
@@ -143,7 +207,7 @@ export function navigateTo(url, event, options = {}) {
 }
 
 /**
- * Reveal the page by expanding outward from the destination button.
+ * Reveal the page by shrinking the portal back into the destination button.
  */
 export function revealPage() {
   const hadPreloadClass = document.documentElement.classList.contains('page-entering');
@@ -165,26 +229,28 @@ export function revealPage() {
   }
 
   const anchor = getAnchorCenter(state.entryAnchor);
-  const radius = maxRadius(anchor.x, anchor.y);
 
   document.documentElement.style.background = BG;
   document.body.style.pointerEvents = 'none';
+  document.body.style.willChange = 'transform, opacity';
+  document.body.style.transformOrigin = `${anchor.x}px ${anchor.y}px`;
   document.body.style.transition = 'none';
-  document.body.style.clipPath = `circle(0px at ${anchor.x}px ${anchor.y}px)`;
-  document.body.style.transform = 'scale(0.965)';
-  document.body.style.filter = 'blur(8px)';
-  document.body.style.opacity = '0.84';
+  document.body.style.transform = getZoomTransform(anchor, ENTER_SCALE, ENTER_PULL);
+  document.body.style.opacity = '0';
+  const portal = createTransitionPortal(anchor);
+  portal.style.opacity = '1';
+  portal.style.borderRadius = '50%';
+  portal.style.transform = `translate(-50%, -50%) scale(${getPortalScale(anchor)})`;
   void document.body.offsetHeight;
 
+  portal.style.opacity = '0';
+  portal.style.borderRadius = '36% 44% 42% 38%';
+  portal.style.transform = `translate(-50%, -50%) scale(${PORTAL_REST_SCALE})`;
   document.body.style.transition = [
-    `clip-path ${ENTER_MS}ms ${EASING_OUT}`,
     `transform ${ENTER_MS}ms ${EASING_OUT}`,
-    `filter ${ENTER_MS}ms ${EASING_OUT}`,
     `opacity ${ENTER_MS}ms ${EASING_OUT}`,
   ].join(', ');
-  document.body.style.clipPath = `circle(${radius}px at ${anchor.x}px ${anchor.y}px)`;
   document.body.style.transform = 'scale(1)';
-  document.body.style.filter = 'blur(0px)';
   document.body.style.opacity = '1';
 
   setTimeout(() => {

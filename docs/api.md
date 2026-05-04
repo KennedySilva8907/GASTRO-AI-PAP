@@ -1,12 +1,17 @@
 # API Reference
 
-GastroAI exposes two Vercel serverless functions that proxy requests to the [Groq API](https://console.groq.com/docs). All endpoints require POST method and accept JSON bodies.
+GastroAI exposes Vercel serverless functions for auth/session state, Stripe billing, and Groq-backed AI features. Protected endpoints require a Supabase access token in `Authorization: Bearer <token>`.
 
-| File | Endpoint | Purpose |
-|------|----------|---------|
-| `api/chat.js` | `/api/chat` | Chat assistant — accepts `{ message, history }` and builds the prompt server-side |
-| `api/gemini.js` | `/api/gemini` | Recipe generation — accepts the legacy Gemini-shaped body the challenge client already sends |
-| `api/_shared.js` | _(internal, not an endpoint)_ | CORS, preflight, `callGroq`, and the Gemini ↔ Groq translation helpers |
+| File                      | Endpoint                      | Purpose                                                                                      |
+| ------------------------- | ----------------------------- | -------------------------------------------------------------------------------------------- |
+| `api/chat.js`             | `/api/chat`                   | Chat assistant — accepts `{ message, history }` and builds the prompt server-side            |
+| `api/gemini.js`           | `/api/gemini`                 | Recipe generation — accepts the legacy Gemini-shaped body the challenge client already sends |
+| `api/auth/config.js`      | `/api/auth/config`            | Public Supabase URL and anon key for the browser client                                      |
+| `api/auth/session.js`     | `/api/auth/session`           | Authenticated user, plan, and usage summary                                                  |
+| `api/billing/checkout.js` | `/api/billing/checkout`       | Stripe Checkout session for Pro                                                              |
+| `api/billing/portal.js`   | `/api/billing/portal`         | Stripe Customer Portal session                                                               |
+| `api/webhooks/stripe.js`  | `/api/webhooks/stripe`        | Stripe subscription webhook                                                                  |
+| `api/_shared.js`          | _(internal, not an endpoint)_ | CORS, preflight, `callGroq`, and the Gemini ↔ Groq translation helpers                       |
 
 ## Migration from Gemini (April 2026)
 
@@ -39,7 +44,9 @@ The recipe client at `src/challenges/recipe-api.js` builds Gemini-shaped request
 
 ## Authentication
 
-No client-side authentication. The serverless function injects `GROQ_API_KEY` server-side via the `Authorization: Bearer …` header. Clients never see the API key.
+V3 uses Supabase Auth. The browser signs in with Supabase and sends the access token to protected API routes using `Authorization: Bearer <token>`.
+
+The server verifies the Supabase JWT before checking usage limits or calling Groq. Clients never see `GROQ_API_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, or Stripe secret keys.
 
 ## CORS Policy
 
@@ -50,11 +57,28 @@ Origin validation uses a three-tier check:
 3. **Whitelist** (`localhost:5173`, `localhost:3000`, `PRODUCTION_URL` env var) — allowed
 4. **Everything else** — rejected with `ERR_CORS_001`
 
+Preflight responses allow `Authorization` so Supabase Bearer tokens can be sent to protected endpoints.
+
 ## Endpoints
+
+### GET /api/auth/config
+
+Returns public Supabase browser configuration:
+
+```json
+{
+  "supabaseUrl": "https://project.supabase.co",
+  "supabaseAnonKey": "..."
+}
+```
+
+### POST /api/auth/session
+
+Requires `Authorization: Bearer <supabase_access_token>`. Returns the current user, plan, and daily usage summary.
 
 ### POST /api/chat
 
-Builds the chat request server-side from a chef-persona system prompt + sanitized history + the latest user message, then forwards to Groq. The response is re-wrapped in the legacy Gemini envelope before being returned.
+Requires a valid Supabase token. Builds the chat request server-side from a chef-persona system prompt + sanitized history + the latest user message, checks the daily `chat` quota, then forwards to Groq. The response is re-wrapped in the legacy Gemini envelope before being returned.
 
 **Request:**
 
@@ -62,7 +86,7 @@ Builds the chat request server-side from a chef-persona system prompt + sanitize
 {
   "message": "What spices go well with salmon?",
   "history": [
-    { "role": "user",  "text": "I have salmon for dinner." },
+    { "role": "user", "text": "I have salmon for dinner." },
     { "role": "model", "text": "Great choice. Lighter or richer profile?" }
   ]
 }
@@ -90,10 +114,10 @@ Builds the chat request server-side from a chef-persona system prompt + sanitize
 {
   "model": "openai/gpt-oss-120b",
   "messages": [
-    { "role": "system",    "content": "És o GastroAI, um chef português..." },
-    { "role": "user",      "content": "I have salmon for dinner." },
+    { "role": "system", "content": "És o GastroAI, um chef português..." },
+    { "role": "user", "content": "I have salmon for dinner." },
     { "role": "assistant", "content": "Great choice. Lighter or richer profile?" },
-    { "role": "user",      "content": "What spices go well with salmon?" }
+    { "role": "user", "content": "What spices go well with salmon?" }
   ],
   "temperature": 0.7,
   "max_tokens": 3072
@@ -102,7 +126,19 @@ Builds the chat request server-side from a chef-persona system prompt + sanitize
 
 ### POST /api/gemini
 
-Accepts the Gemini-shaped body the recipe client already builds, translates it to Groq's OpenAI-format request server-side, and re-wraps the response in the Gemini envelope.
+Requires a valid Supabase token. Accepts the Gemini-shaped body the recipe client already builds, checks the daily `challenge_recipe` quota, translates it to Groq's OpenAI-format request server-side, and re-wraps the response in the Gemini envelope.
+
+### POST /api/billing/checkout
+
+Requires a valid Supabase token. Creates a Stripe Checkout subscription session for the Pro monthly plan.
+
+### POST /api/billing/portal
+
+Requires a valid Supabase token. Creates a Stripe Customer Portal session for the current customer.
+
+### POST /api/webhooks/stripe
+
+Receives Stripe subscription events and updates Supabase subscription state. The webhook verifies the Stripe signature before processing events.
 
 **Request:** Whatever `src/challenges/recipe-api.js` already sends — `{ contents: [...], systemInstruction?, generationConfig?, safetySettings? }`. `safetySettings` are silently dropped (no Groq equivalent).
 
@@ -119,33 +155,38 @@ All error responses follow the format:
 }
 ```
 
-| Code | HTTP Status | Meaning | Cause |
-|------|-------------|---------|-------|
-| `ERR_CORS_001` | 403 | Origin not allowed | Request origin not in CORS whitelist |
-| `ERR_METHOD_001` | 405 | Method not allowed | Used GET, PUT, DELETE, etc. instead of POST |
-| `ERR_PAYLOAD_001` | 413 | Payload too large | Request body exceeds 50 KB limit |
-| `ERR_INPUT_001` | 400 | Invalid input | Malformed request body |
-| `ERR_CONFIG_001` | 500 | Service unavailable | `GROQ_API_KEY` not set in environment |
-| `ERR_GROQ_001` | varies | Upstream API error | Groq returned non-2xx status |
-| `ERR_INTERNAL_001` | 500 | Internal error | Unhandled exception in the handler |
+| Code                 | HTTP Status | Meaning                   | Cause                                       |
+| -------------------- | ----------- | ------------------------- | ------------------------------------------- |
+| `ERR_CORS_001`       | 403         | Origin not allowed        | Request origin not in CORS whitelist        |
+| `ERR_METHOD_001`     | 405         | Method not allowed        | Used GET, PUT, DELETE, etc. instead of POST |
+| `ERR_PAYLOAD_001`    | 413         | Payload too large         | Request body exceeds 50 KB limit            |
+| `ERR_INPUT_001`      | 400         | Invalid input             | Malformed request body                      |
+| `ERR_CONFIG_001`     | 500         | Service unavailable       | `GROQ_API_KEY` not set in environment       |
+| `ERR_AUTH_001`       | 401         | Authentication required   | Missing or invalid Supabase access token    |
+| `ERR_RATE_LIMIT_001` | 429         | Daily usage limit reached | Free/Pro quota exhausted for the feature    |
+| `ERR_GROQ_001`       | varies      | Upstream API error        | Groq returned non-2xx status                |
+| `ERR_INTERNAL_001`   | 500         | Internal error            | Unhandled exception in the handler          |
 
 > `ERR_NOTFOUND_001` is no longer emitted by the application code. Unknown paths under `/api/*` are now handled by the Vercel platform itself (404), since each endpoint is its own file rather than a manual router.
 
 ## Limits
 
-| Limit | Value | Configurable |
-|-------|-------|-------------|
-| Max request body | 50 KB | `MAX_BODY_SIZE` in `api/_shared.js` |
-| Max chat response tokens | 3072 | `CHAT_MAX_OUTPUT_TOKENS` in `api/chat.js` |
-| Max chat user message length | 500 chars | `CHAT_MESSAGE_MAX_LENGTH` in `api/chat.js` |
-| Max chat history entries (server) | 10 | `CHAT_HISTORY_MAX_ENTRIES` in `api/chat.js` |
-| Conversation history (client) | 5 message pairs | `MAX_HISTORY_PAIRS` in `src/chat/chat-api.js` |
-| Rate limiting | Not implemented | See [RATE-LIMITING.md](RATE-LIMITING.md) |
+| Limit                             | Value           | Configurable                                           |
+| --------------------------------- | --------------- | ------------------------------------------------------ |
+| Max request body                  | 50 KB           | `MAX_BODY_SIZE` in `api/_shared.js`                    |
+| Max chat response tokens          | 3072            | `CHAT_MAX_OUTPUT_TOKENS` in `api/chat.js`              |
+| Max chat user message length      | 500 chars       | `CHAT_MESSAGE_MAX_LENGTH` in `api/chat.js`             |
+| Max chat history entries (server) | 10              | `CHAT_HISTORY_MAX_ENTRIES` in `api/chat.js`            |
+| Conversation history (client)     | 5 message pairs | `MAX_HISTORY_PAIRS` in `src/chat/chat-api.js`          |
+| Free chat quota                   | 10/day          | `PLAN_LIMITS.free.chat` in `api/_usage.js`             |
+| Free challenge recipe quota       | 3/day           | `PLAN_LIMITS.free.challenge_recipe` in `api/_usage.js` |
+| Pro chat quota                    | 100/day         | `PLAN_LIMITS.pro.chat` in `api/_usage.js`              |
+| Pro challenge recipe quota        | 30/day          | `PLAN_LIMITS.pro.challenge_recipe` in `api/_usage.js`  |
 
 ## Model
 
 Both endpoints use `openai/gpt-oss-120b` via Groq's OpenAI-compatible chat-completions endpoint:
 
-```
+```text
 https://api.groq.com/openai/v1/chat/completions
 ```

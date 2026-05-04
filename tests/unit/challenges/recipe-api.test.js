@@ -1,4 +1,10 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+
+vi.mock('../../../src/auth/session.js', () => ({
+  getCurrentSession: vi.fn(async () => ({ access_token: 'test-access-token' })),
+  promptForLogin: vi.fn(),
+}));
+
 import { getRecipe } from '../../../src/challenges/recipe-api.js';
 
 // Helper: create a mock Gemini API response with given recipe text
@@ -93,6 +99,7 @@ describe('getRecipe', () => {
       expect(url).toBe('/api/gemini');
       expect(options.method).toBe('POST');
       expect(options.headers['Content-Type']).toBe('application/json');
+      expect(options.headers.Authorization).toBe('Bearer test-access-token');
     });
 
     it('sends request body with contents array and generationConfig', async () => {
@@ -172,7 +179,8 @@ Sirva quente.`;
     });
 
     it('handles non-ok HTTP response by falling back to retry then fallback recipe', async () => {
-      globalThis.fetch = vi.fn()
+      globalThis.fetch = vi
+        .fn()
         // First call: non-ok response
         .mockResolvedValueOnce({ ok: false, status: 500 })
         // Retry call: also fails

@@ -2,6 +2,11 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import request from 'supertest';
 import express from 'express';
 
+const AUTH_HEADER = 'Bearer valid-token';
+const TEST_USER = { id: 'user-1', email: 'chef@example.com' };
+
+let mockUsageResult;
+
 /**
  * Creates a test Express app wrapping the Vercel serverless handlers.
  * IMPORTANT: We use dynamic import so each test suite gets a fresh module.
@@ -9,6 +14,30 @@ import express from 'express';
  * (not at module level), so env changes between tests work correctly.
  */
 async function createTestApp() {
+  vi.resetModules();
+  vi.doMock('../../../api/_auth.js', () => ({
+    authenticateRequest: vi.fn(async (req) => {
+      if (req.headers.authorization === AUTH_HEADER) {
+        return { ok: true, user: TEST_USER };
+      }
+      return {
+        ok: false,
+        status: 401,
+        body: { error: 'Authentication required', code: 'ERR_AUTH_001' },
+      };
+    }),
+  }));
+  vi.doMock('../../../api/_usage.js', () => ({
+    checkAndIncrementUsage: vi.fn(
+      async ({ feature }) =>
+        mockUsageResult ?? {
+          allowed: true,
+          plan: 'free',
+          usage: { feature, used: 1, limit: 10, remaining: 9 },
+        }
+    ),
+  }));
+
   const chatModule = await import('../../../api/chat.js');
   const geminiModule = await import('../../../api/gemini.js');
   const app = express();
@@ -26,6 +55,7 @@ describe('API Handler Integration Tests', () => {
     // Save and set a dummy API key so config check passes by default
     savedApiKey = process.env.GROQ_API_KEY;
     process.env.GROQ_API_KEY = 'test-key-12345';
+    mockUsageResult = null;
 
     app = await createTestApp();
 
@@ -72,6 +102,7 @@ describe('API Handler Integration Tests', () => {
       const res = await request(app)
         .post('/api/chat')
         .set('Origin', 'http://localhost:3000')
+        .set('Authorization', AUTH_HEADER)
         .send({ message: 'hello' });
 
       expect(res.status).not.toBe(403);
@@ -87,9 +118,7 @@ describe('API Handler Integration Tests', () => {
     });
 
     it('returns 200 for OPTIONS preflight', async () => {
-      const res = await request(app)
-        .options('/api/chat')
-        .set('Origin', 'http://localhost:3000');
+      const res = await request(app).options('/api/chat').set('Origin', 'http://localhost:3000');
 
       expect(res.status).toBe(200);
     });
@@ -112,6 +141,7 @@ describe('API Handler Integration Tests', () => {
       const res = await request(app)
         .post('/api/chat')
         .set('Origin', 'http://localhost:3000')
+        .set('Authorization', AUTH_HEADER)
         .send({ contents: [{ role: 'user', parts: [{ text: 'hello' }] }] });
 
       expect(res.status).toBe(400);
@@ -119,11 +149,40 @@ describe('API Handler Integration Tests', () => {
     });
   });
 
+  describe('V3 authentication and usage gates', () => {
+    it('requires a Supabase access token before proxying chat requests', async () => {
+      const res = await request(app)
+        .post('/api/chat')
+        .set('Origin', 'http://localhost:3000')
+        .send({ message: 'hello' });
+
+      expect(res.status).toBe(401);
+      expect(res.body.code).toBe('ERR_AUTH_001');
+      expect(globalThis.fetch).not.toHaveBeenCalled();
+    });
+
+    it('returns 429 when the user has exhausted the daily chat quota', async () => {
+      mockUsageResult = {
+        allowed: false,
+        status: 429,
+        body: { error: 'Daily usage limit reached', code: 'ERR_RATE_LIMIT_001' },
+      };
+
+      const res = await request(app)
+        .post('/api/chat')
+        .set('Origin', 'http://localhost:3000')
+        .set('Authorization', AUTH_HEADER)
+        .send({ message: 'hello' });
+
+      expect(res.status).toBe(429);
+      expect(res.body.code).toBe('ERR_RATE_LIMIT_001');
+      expect(globalThis.fetch).not.toHaveBeenCalled();
+    });
+  });
+
   describe('routing', () => {
     it('returns 405 with ERR_METHOD_001 for GET on /api/chat', async () => {
-      const res = await request(app)
-        .get('/api/chat')
-        .set('Origin', 'http://localhost:3000');
+      const res = await request(app).get('/api/chat').set('Origin', 'http://localhost:3000');
 
       expect(res.status).toBe(405);
       expect(res.body.code).toBe('ERR_METHOD_001');
@@ -137,6 +196,7 @@ describe('API Handler Integration Tests', () => {
       const res = await request(app)
         .post('/api/chat')
         .set('Origin', 'http://localhost:3000')
+        .set('Authorization', AUTH_HEADER)
         .send({ message: 'hello' });
 
       expect(res.status).toBe(500);
@@ -149,6 +209,7 @@ describe('API Handler Integration Tests', () => {
       const res = await request(app)
         .post('/api/chat')
         .set('Origin', 'http://localhost:3000')
+        .set('Authorization', AUTH_HEADER)
         .send({ message: 'hello', history: [{ role: 'user', text: 'previous turn' }] });
 
       expect(res.status).toBe(200);
@@ -160,6 +221,7 @@ describe('API Handler Integration Tests', () => {
       await request(app)
         .post('/api/chat')
         .set('Origin', 'http://localhost:3000')
+        .set('Authorization', AUTH_HEADER)
         .send({ message: 'Como fazer risoto?', history: [{ role: 'user', text: 'Olá' }] });
 
       expect(globalThis.fetch).toHaveBeenCalledTimes(1);
@@ -185,6 +247,7 @@ describe('API Handler Integration Tests', () => {
       await request(app)
         .post('/api/chat')
         .set('Origin', 'http://localhost:3000')
+        .set('Authorization', AUTH_HEADER)
         .send({
           message: 'continua',
           history: [
@@ -194,12 +257,7 @@ describe('API Handler Integration Tests', () => {
         });
 
       const body = JSON.parse(globalThis.fetch.mock.calls[0][1].body);
-      expect(body.messages.map((m) => m.role)).toEqual([
-        'system',
-        'user',
-        'assistant',
-        'user',
-      ]);
+      expect(body.messages.map((m) => m.role)).toEqual(['system', 'user', 'assistant', 'user']);
     });
 
     it('returns error code ERR_GROQ_001 when upstream returns non-ok', async () => {
@@ -211,6 +269,7 @@ describe('API Handler Integration Tests', () => {
       const res = await request(app)
         .post('/api/chat')
         .set('Origin', 'http://localhost:3000')
+        .set('Authorization', AUTH_HEADER)
         .send({ message: 'hello' });
 
       expect(res.status).toBe(500);
@@ -223,6 +282,7 @@ describe('API Handler Integration Tests', () => {
       const res = await request(app)
         .post('/api/chat')
         .set('Origin', 'http://localhost:3000')
+        .set('Authorization', AUTH_HEADER)
         .send({ message: 'hello' });
 
       expect(res.status).toBe(500);
@@ -239,6 +299,7 @@ describe('API Handler Integration Tests', () => {
       const res = await request(app)
         .post('/api/chat')
         .set('Origin', 'http://localhost:3000')
+        .set('Authorization', AUTH_HEADER)
         .send({ message: 'hello' });
 
       expect(res.body.error).toBe('An error occurred processing your request');
@@ -251,6 +312,7 @@ describe('API Handler Integration Tests', () => {
       const res = await request(app)
         .post('/api/gemini')
         .set('Origin', 'http://localhost:3000')
+        .set('Authorization', AUTH_HEADER)
         .send({
           systemInstruction: { parts: [{ text: 'És um chef.' }] },
           contents: [{ role: 'user', parts: [{ text: 'Dá-me uma receita.' }] }],
@@ -271,9 +333,7 @@ describe('API Handler Integration Tests', () => {
     });
 
     it('returns 405 for GET on /api/gemini', async () => {
-      const res = await request(app)
-        .get('/api/gemini')
-        .set('Origin', 'http://localhost:3000');
+      const res = await request(app).get('/api/gemini').set('Origin', 'http://localhost:3000');
 
       expect(res.status).toBe(405);
       expect(res.body.code).toBe('ERR_METHOD_001');
@@ -283,6 +343,7 @@ describe('API Handler Integration Tests', () => {
       const res = await request(app)
         .post('/api/gemini')
         .set('Origin', 'http://localhost:3000')
+        .set('Authorization', AUTH_HEADER)
         .send({});
 
       expect(res.status).toBe(400);

@@ -1,11 +1,11 @@
 @charset "UTF-8";
 
 /* ==================== IMPORTAÇÕES E FONTES ==================== */
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap');
 
 @font-face {
-  font-family: "Geist";
-  src: url("https://pham.codes/d/GeistVF.woff2") format("woff2");
+  font-family: 'Geist';
+  src: url('https://pham.codes/d/GeistVF.woff2') format('woff2');
 }
 
 /* ==================== RESET E CONFIGURAÇÕES BÁSICAS ==================== */
@@ -25,7 +25,7 @@
 }
 
 body {
-  background-color: #0f0f0f !important; 
+  background-color: #0f0f0f !important;
   color: var(--fg);
   display: flex;
   font: 1em/1.5 sans-serif;
@@ -33,6 +33,127 @@ body {
   perspective: 1000px;
   overflow: hidden;
   position: relative;
+}
+
+.account-bar {
+  position: fixed;
+  top: 1rem;
+  left: 50%;
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  max-width: min(92vw, 44rem);
+  padding: 0.45rem 0.55rem 0.45rem 0.85rem;
+  color: #fff;
+  background: rgba(16, 10, 7, 0.68);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.22);
+  transform: translateX(-50%);
+  backdrop-filter: blur(18px);
+}
+
+.account-bar__status {
+  max-width: 16rem;
+  overflow: hidden;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.account-bar__button {
+  border: 0;
+  padding: 0.5rem 0.75rem;
+  color: #fff;
+  font: inherit;
+  font-size: 0.76rem;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.account-bar__button--pro {
+  color: #1f1208;
+  background: linear-gradient(135deg, #ffd28a, #ff9800);
+}
+
+.account-dialog[hidden] {
+  display: none;
+}
+
+.account-dialog {
+  position: fixed;
+  inset: 0;
+  z-index: 1300;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgba(5, 4, 3, 0.62);
+  backdrop-filter: blur(16px);
+}
+
+.account-dialog__panel {
+  position: relative;
+  width: min(92vw, 25rem);
+  padding: 1.5rem;
+  color: #fff;
+  background:
+    radial-gradient(circle at 20% 0%, rgba(255, 152, 0, 0.24), transparent 15rem),
+    rgba(18, 10, 7, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 1.4rem;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.38);
+}
+
+.account-dialog__close {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  width: 2rem;
+  height: 2rem;
+  border: 0;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.account-dialog__kicker {
+  margin: 0 0 0.35rem;
+  color: #ffb74d;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.account-dialog h2 {
+  margin: 0 0 0.5rem;
+}
+
+.account-dialog form {
+  display: grid;
+  gap: 0.65rem;
+  margin-top: 1rem;
+}
+
+.account-dialog input,
+.account-dialog form button {
+  border: 0;
+  padding: 0.85rem 1rem;
+  border-radius: 0.9rem;
+  font: inherit;
+}
+
+.account-dialog form button {
+  color: #1f1208;
+  font-weight: 800;
+  background: linear-gradient(135deg, #ffd28a, #ff9800);
+  cursor: pointer;
 }
 
 /* ==================== CONTAINER PRINCIPAL ==================== */
@@ -43,13 +164,13 @@ body {
   gap: 2rem;
   margin: auto;
   transform-style: preserve-3d;
-  z-index: 1; 
+  z-index: 1;
 }
 
 /* ==================== LOGO E ANIMAÇÃO DE LETRAS ==================== */
 .logo {
-  font-family: "Geist";
-  font-size: 96px; 
+  font-family: 'Geist';
+  font-size: 96px;
   margin: 0;
   color: transparent;
   background-image: linear-gradient(0deg, #f29e0d 70%, white);
@@ -57,7 +178,7 @@ body {
   -webkit-text-fill-color: transparent;
   -moz-background-clip: text;
   -moz-text-fill-color: transparent;
-  filter: drop-shadow(0 0 5px rgba(255, 165, 0, 0.8)); 
+  filter: drop-shadow(0 0 5px rgba(255, 165, 0, 0.8));
   --wght-min: 32;
   --wght-max: 240;
   transform: translateZ(100px);
@@ -80,12 +201,12 @@ body {
 
 @keyframes breath {
   0% {
-    font-variation-settings: "wght" var(--wght-min);
+    font-variation-settings: 'wght' var(--wght-min);
     text-shadow: 0 0 0 rgba(0, 0, 0, 0);
   }
   100% {
-    font-variation-settings: "wght" var(--wght-max);
-    text-shadow: 0 0 0px rgba(255, 165, 0, 0.8); 
+    font-variation-settings: 'wght' var(--wght-max);
+    text-shadow: 0 0 0px rgba(255, 165, 0, 0.8);
   }
 }
 
@@ -99,9 +220,13 @@ body {
 }
 
 .pl {
-  color: #ffffff !important; 
+  color: #ffffff !important;
 }
-.pl__drop, .pl__drop-inner, .pl__pan, .pl__ring, .pl__shadow {
+.pl__drop,
+.pl__drop-inner,
+.pl__pan,
+.pl__ring,
+.pl__shadow {
   animation: pan 2s cubic-bezier(0.65, 0, 0.35, 1) infinite;
 }
 
@@ -167,15 +292,15 @@ body {
 
 .pl__shadow {
   animation-name: pan-shadow;
-  transform-origin: 36px 124.5px; 
+  transform-origin: 36px 124.5px;
 }
 
 /* ==================== EFEITOS DE COMIDA E PARTÍCULAS ==================== */
 .food-spark {
   position: fixed;
   pointer-events: none;
-  width: 25px; 
-  height: 25px; 
+  width: 25px;
+  height: 25px;
   background-size: cover;
   opacity: 0;
   animation: foodSparkAnimation 1s forwards;
@@ -261,7 +386,7 @@ body {
   background: rgba(255, 255, 255, 0.08);
   backdrop-filter: blur(20px) saturate(150%);
   -webkit-backdrop-filter: blur(20px) saturate(150%);
-  font-family: "Poppins", sans-serif;
+  font-family: 'Poppins', sans-serif;
   font-size: 14px;
   font-weight: 600;
   color: rgba(255, 255, 255, 0.75);
@@ -277,7 +402,7 @@ body {
 .chat-button::after,
 .desafio-button::after,
 .recipes-button::after {
-  content: "";
+  content: '';
   position: absolute;
   bottom: 4px;
   left: 14px;
@@ -389,12 +514,12 @@ body {
   display: none;
   opacity: 0;
   transform: translateY(-12px) scale(0.97);
-  background: #FFFBEB;
-  border: 1px solid #F2E6E2;
+  background: #fffbeb;
+  border: 1px solid #f2e6e2;
   border-radius: 20px;
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
   padding: 0;
-  font-family: "Poppins", sans-serif;
+  font-family: 'Poppins', sans-serif;
   color: #1e293b;
 }
 
@@ -404,8 +529,14 @@ body {
 }
 
 @keyframes aiInfoFadeIn {
-  from { opacity: 0; transform: translateY(-12px) scale(0.97); }
-  to   { opacity: 1; transform: translateY(0) scale(1); }
+  from {
+    opacity: 0;
+    transform: translateY(-12px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 /* --- Header with gradient accent --- */
@@ -432,15 +563,34 @@ body {
   animation: pan 2s cubic-bezier(0.65, 0, 0.35, 1) infinite;
 }
 
-.ai-info-logo .pl__drop { transform-origin: 13px 60px; }
-.ai-info-logo .pl__drop--1 { animation-name: drop-1; }
-.ai-info-logo .pl__drop--2 { animation-name: drop-2; }
-.ai-info-logo .pl__drop--3 { animation-name: drop-3; }
-.ai-info-logo .pl__drop--4 { animation-name: drop-4; }
-.ai-info-logo .pl__drop--5 { animation-name: drop-5; }
-.ai-info-logo .pl__pan { transform-origin: 36px 74px; }
-.ai-info-logo .pl__ring { animation-name: flip-ring; }
-.ai-info-logo .pl__shadow { animation-name: pan-shadow; transform-origin: 36px 124.5px; }
+.ai-info-logo .pl__drop {
+  transform-origin: 13px 60px;
+}
+.ai-info-logo .pl__drop--1 {
+  animation-name: drop-1;
+}
+.ai-info-logo .pl__drop--2 {
+  animation-name: drop-2;
+}
+.ai-info-logo .pl__drop--3 {
+  animation-name: drop-3;
+}
+.ai-info-logo .pl__drop--4 {
+  animation-name: drop-4;
+}
+.ai-info-logo .pl__drop--5 {
+  animation-name: drop-5;
+}
+.ai-info-logo .pl__pan {
+  transform-origin: 36px 74px;
+}
+.ai-info-logo .pl__ring {
+  animation-name: flip-ring;
+}
+.ai-info-logo .pl__shadow {
+  animation-name: pan-shadow;
+  transform-origin: 36px 124.5px;
+}
 
 .ai-info-title {
   margin: 0;
@@ -485,7 +635,9 @@ body {
   line-height: 1.4;
   color: #5c4033;
   border-radius: 10px;
-  transition: background 0.2s ease, color 0.2s ease;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
   cursor: default;
 }
 
@@ -497,7 +649,7 @@ body {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #C2410C;
+  background: #c2410c;
   flex-shrink: 0;
 }
 
@@ -520,7 +672,7 @@ body {
 
 .ai-info-version {
   font-weight: 600;
-  color: #9A3412;
+  color: #9a3412;
   font-size: 10.5px;
   letter-spacing: 0.8px;
   text-transform: uppercase;
@@ -576,7 +728,7 @@ body {
     max-height: 70vh;
     border-radius: 24px 24px 0 0;
     border: none;
-    border-top: 1px solid #F2E6E2;
+    border-top: 1px solid #f2e6e2;
     transform: translateY(100%);
     box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.15);
     overflow-y: auto;
@@ -588,8 +740,14 @@ body {
   }
 
   @keyframes aiInfoSlideUp {
-    from { opacity: 0; transform: translateY(100%); }
-    to   { opacity: 1; transform: translateY(0); }
+    from {
+      opacity: 0;
+      transform: translateY(100%);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
   .ai-info-header {
@@ -629,7 +787,7 @@ body {
 }
 
 .scroll-indicator::after {
-  content: "";
+  content: '';
   width: 4px;
   height: 4px;
   border-right: 2px solid rgba(255, 152, 0, 0.8);
@@ -638,16 +796,17 @@ body {
 }
 
 @keyframes pulseIndicator {
-  0%, 100% { opacity: 0.3; }
-  50% { opacity: 0.7; }
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.7;
+  }
 }
 
 /* ==================== RESPONSIVIDADE ==================== */
 /* Legacy ai-info media queries removed — responsive handled in panel section above */
-
-
-
-
 
 /* ==================== BUTTON CONTAINERS (positions) ==================== */
 .chat-button-container {
@@ -725,17 +884,20 @@ body {
     transform: translate(0, 0);
     visibility: visible;
   }
-  50%, to {
+  50%,
+  to {
     transform: translate(-6px, 0);
   }
 }
 
 @keyframes drop-1-inner {
-  from, 30% {
+  from,
+  30% {
     fill: #abafba;
     transform: translate(0, 0);
   }
-  50%, to {
+  50%,
+  to {
     fill: rgba(171, 175, 186, 0);
     transform: translate(0, -27px);
   }
@@ -752,17 +914,20 @@ body {
     transform: translate(0, 0);
     visibility: visible;
   }
-  50%, to {
+  50%,
+  to {
     transform: translate(-8px, 0);
   }
 }
 
 @keyframes drop-2-inner {
-  from, 30% {
+  from,
+  30% {
     fill: #abafba;
     transform: translate(0, 0);
   }
-  50%, to {
+  50%,
+  to {
     fill: rgba(171, 175, 186, 0);
     transform: translate(0, -9px);
   }
@@ -779,17 +944,20 @@ body {
     transform: translate(0, 0);
     visibility: visible;
   }
-  98%, to {
+  98%,
+  to {
     transform: translate(-24px, 0);
   }
 }
 
 @keyframes drop-3-inner {
-  from, 78% {
+  from,
+  78% {
     fill: #abafba;
     transform: translate(0, 0);
   }
-  98%, to {
+  98%,
+  to {
     fill: rgba(171, 175, 186, 0);
     transform: translate(0, -28px);
   }
@@ -806,17 +974,20 @@ body {
     transform: translate(0, 0);
     visibility: visible;
   }
-  98%, to {
+  98%,
+  to {
     transform: translate(-8px, 0);
   }
 }
 
 @keyframes drop-4-inner {
-  from, 78% {
+  from,
+  78% {
     fill: #abafba;
     transform: translate(0, 0);
   }
-  98%, to {
+  98%,
+  to {
     fill: rgba(171, 175, 186, 0);
     transform: translate(0, -36px);
   }
@@ -833,24 +1004,28 @@ body {
     transform: translate(0, 0);
     visibility: visible;
   }
-  98%, to {
+  98%,
+  to {
     transform: translate(8px, 0);
   }
 }
 
 @keyframes drop-5-inner {
-  from, 78% {
+  from,
+  78% {
     fill: #abafba;
     transform: translate(0, 0);
   }
-  98%, to {
+  98%,
+  to {
     fill: rgba(171, 175, 186, 0);
     transform: translate(0, -32px);
   }
 }
 
 @keyframes flip-ring {
-  from, 27% {
+  from,
+  27% {
     animation-timing-function: cubic-bezier(0.33, 0.84, 0.67, 0.84);
     stroke-dashoffset: 20;
     stroke-width: 4px;
@@ -860,14 +1035,17 @@ body {
     stroke-dashoffset: -100;
     stroke-width: 10px;
   }
-  80%, to {
+  80%,
+  to {
     stroke-dashoffset: -220;
     stroke-width: 4px;
   }
 }
 
 @keyframes pan {
-  from, 88%, to {
+  from,
+  88%,
+  to {
     transform: translate(0, 0) rotate(0);
   }
   20% {
@@ -878,7 +1056,8 @@ body {
     animation-timing-function: cubic-bezier(0.33, 0.84, 0.67, 0.84);
     transform: translate(0, 0) rotate(20deg);
   }
-  60%, 78% {
+  60%,
+  78% {
     animation-timing-function: linear;
     transform: translate(0, 0) rotate(0);
   }
@@ -893,7 +1072,9 @@ body {
 }
 
 @keyframes pan-shadow {
-  from, 88%, to {
+  from,
+  88%,
+  to {
     fill: rgba(115, 122, 140, 0.2);
     transform: scaleX(1) translateX(0);
   }
@@ -907,7 +1088,8 @@ body {
     fill: rgba(115, 122, 140, 0.2);
     transform: scaleX(1) translateX(0);
   }
-  60%, 78% {
+  60%,
+  78% {
     animation-timing-function: linear;
     fill: rgba(115, 122, 140, 0.2);
     transform: scaleX(1) translateX(0);
@@ -930,38 +1112,38 @@ body {
   :root {
     font-size: calc(12px + (18 - 12) * (100vw - 280px) / (480 - 280));
   }
-  
+
   .container {
     flex-direction: column;
     gap: 1rem;
   }
-  
+
   .logo {
     font-size: 48px;
     margin-bottom: 0.5rem;
   }
-  
+
   .pl {
     width: 8em;
     height: 8em;
   }
-  
+
   .ai-button {
     top: 10px;
     right: 10px;
     padding: 8px 12px;
   }
-  
+
   .ai-button-icon {
     width: 24px;
     height: 24px;
     margin-right: 6px;
   }
-  
+
   .ai-button-text {
     font-size: 14px;
   }
-  
+
   /* Botões empilhados verticalmente */
   .chat-button-container,
   .recipes-button-container,
@@ -972,19 +1154,19 @@ body {
     width: 80%; /* Largura fixa para todos os botões */
     max-width: 280px; /* Largura máxima */
   }
-  
+
   .chat-button-container {
     bottom: calc(190px + env(safe-area-inset-bottom));
   }
-  
+
   .recipes-button-container {
-    bottom: calc(130px + env(safe-area-inset-bottom)); 
+    bottom: calc(130px + env(safe-area-inset-bottom));
   }
-  
+
   .desafio-button-container {
-    bottom: calc(70px + env(safe-area-inset-bottom)); 
+    bottom: calc(70px + env(safe-area-inset-bottom));
   }
-  
+
   .chat-button,
   .recipes-button,
   .desafio-button {
@@ -993,7 +1175,7 @@ body {
     text-align: center;
     justify-content: center;
   }
-  
+
   .chat-button-text,
   .recipes-button-text,
   .desafio-button-text {
@@ -1001,45 +1183,43 @@ body {
   }
 }
 
-
-
 /* Mobile pequeno (até 480px) */
-@media screen and (min-width: 400px) and (max-width: 480px)  {
+@media screen and (min-width: 400px) and (max-width: 480px) {
   :root {
     font-size: calc(12px + (18 - 12) * (100vw - 280px) / (480 - 280));
   }
-  
+
   .container {
     flex-direction: column;
     gap: 1rem;
   }
-  
+
   .logo {
     font-size: 48px;
     margin-bottom: 0.5rem;
   }
-  
+
   .pl {
     width: 8em;
     height: 8em;
   }
-  
+
   .ai-button {
     top: 10px;
     right: 10px;
     padding: 8px 12px;
   }
-  
+
   .ai-button-icon {
     width: 24px;
     height: 24px;
     margin-right: 6px;
   }
-  
+
   .ai-button-text {
     font-size: 14px;
   }
-  
+
   /* Botões empilhados verticalmente */
   .chat-button-container,
   .recipes-button-container,
@@ -1050,19 +1230,19 @@ body {
     width: 80%; /* Largura fixa para todos os botões */
     max-width: 280px; /* Largura máxima */
   }
-  
+
   .chat-button-container {
     bottom: calc(160px + env(safe-area-inset-bottom));
   }
-  
+
   .recipes-button-container {
-    bottom: calc(100px + env(safe-area-inset-bottom)); 
+    bottom: calc(100px + env(safe-area-inset-bottom));
   }
-  
+
   .desafio-button-container {
-    bottom: calc(40px + env(safe-area-inset-bottom)); 
+    bottom: calc(40px + env(safe-area-inset-bottom));
   }
-  
+
   .chat-button,
   .recipes-button,
   .desafio-button {
@@ -1071,45 +1251,39 @@ body {
     text-align: center;
     justify-content: center;
   }
-  
+
   .chat-button-text,
   .recipes-button-text,
   .desafio-button-text {
     font-size: 14px;
   }
 }
-
-
-
-
-
-
 
 /* Mobile (481px - 767px) */
 @media screen and (min-width: 481px) and (max-width: 767px) {
   :root {
     font-size: calc(14px + (20 - 14) * (100vw - 481px) / (767 - 481));
   }
-  
+
   .container {
     flex-direction: column;
     gap: 1.5rem;
   }
-  
+
   .logo {
     font-size: 60px;
   }
-  
+
   .pl {
     width: 10em;
     height: 10em;
   }
-  
+
   .ai-button {
     top: 15px;
     right: 15px;
   }
-  
+
   /* Botões empilhados verticalmente */
   .chat-button-container,
   .recipes-button-container,
@@ -1120,19 +1294,19 @@ body {
     width: 80%; /* Largura fixa para todos os botões */
     max-width: 320px; /* Largura máxima */
   }
-  
+
   .chat-button-container {
     bottom: 160px;
   }
-  
+
   .recipes-button-container {
     bottom: 100px;
   }
-  
+
   .desafio-button-container {
     bottom: 40px;
   }
-  
+
   .chat-button,
   .recipes-button,
   .desafio-button {
@@ -1147,32 +1321,32 @@ body {
   :root {
     font-size: calc(16px + (22 - 16) * (100vw - 768px) / (1023 - 768));
   }
-  
+
   .logo {
     font-size: 72px;
   }
-  
+
   .pl {
     width: 10em;
     height: 10em;
   }
-  
+
   .container {
     gap: 1.8rem;
   }
-  
+
   .chat-button-container {
     bottom: 50px;
     left: 50%;
     transform: translateX(-50%);
   }
-  
+
   .recipes-button-container {
     bottom: 50px;
     left: 100px;
     transform: none;
   }
-  
+
   .desafio-button-container {
     bottom: 50px;
     right: 100px;
@@ -1185,27 +1359,27 @@ body {
   :root {
     font-size: calc(18px + (24 - 18) * (100vw - 1024px) / (1279 - 1024));
   }
-  
+
   .logo {
     font-size: 84px;
   }
-  
+
   .container {
     gap: 2rem;
   }
-  
+
   .chat-button-container {
     bottom: 60px;
     left: 50%;
     transform: translateX(-50%);
   }
-  
+
   .recipes-button-container {
     bottom: 60px;
     left: 200px;
     transform: none;
   }
-  
+
   .desafio-button-container {
     bottom: 60px;
     right: 200px;
@@ -1218,27 +1392,27 @@ body {
   :root {
     font-size: calc(20px + (26 - 20) * (100vw - 1280px) / (1599 - 1280));
   }
-  
+
   .logo {
     font-size: 90px;
   }
-  
+
   .container {
     gap: 2.2rem;
   }
-  
+
   .chat-button-container {
     bottom: 70px;
     left: 50%;
     transform: translateX(-50%);
   }
-  
+
   .recipes-button-container {
     bottom: 70px;
     left: 280px;
     transform: none;
   }
-  
+
   .desafio-button-container {
     bottom: 70px;
     right: 280px;
@@ -1251,32 +1425,32 @@ body {
   :root {
     font-size: calc(22px + (30 - 22) * (100vw - 1600px) / (2240 - 1600));
   }
-  
+
   .logo {
     font-size: 96px;
   }
-  
+
   .container {
     gap: 2.5rem;
   }
-  
+
   .pl {
     width: 12em;
     height: 12em;
   }
-  
+
   .chat-button-container {
     bottom: 80px;
     left: 50%;
     transform: translateX(-50%);
   }
-  
+
   .recipes-button-container {
     bottom: 80px;
     left: 380px;
     transform: none;
   }
-  
+
   .desafio-button-container {
     bottom: 80px;
     right: 390px;
@@ -1291,16 +1465,16 @@ body {
     flex-direction: row;
     gap: 1.5rem;
   }
-  
+
   .logo {
     font-size: 42px;
   }
-  
+
   .pl {
     width: 6em;
     height: 6em;
   }
-  
+
   /* Para altura reduzida, manter botões na horizontal */
   .chat-button-container,
   .recipes-button-container,
@@ -1308,29 +1482,29 @@ body {
     width: auto; /* Redefinir a largura fixa */
     bottom: 20px;
   }
-  
+
   .chat-button-container {
     left: 50%;
     transform: translateX(-50%);
   }
-  
+
   .recipes-button-container {
     left: 20px;
     transform: none;
   }
-  
+
   .desafio-button-container {
     right: 20px;
     transform: none;
   }
-  
+
   .chat-button,
   .recipes-button,
   .desafio-button {
     padding: 6px 12px;
     width: auto; /* Redefinir largura para adaptação ao conteúdo */
   }
-  
+
   .chat-button-text,
   .recipes-button-text,
   .desafio-button-text {
@@ -1344,16 +1518,16 @@ body {
     flex-direction: row;
     gap: 1rem;
   }
-  
+
   .logo {
     font-size: 36px;
   }
-  
+
   .pl {
     width: 6em;
     height: 6em;
   }
-  
+
   /* Para orientação paisagem, manter botões na horizontal */
   .chat-button-container,
   .recipes-button-container,
@@ -1362,35 +1536,35 @@ body {
     bottom: 20px;
     position: fixed;
   }
-  
+
   .chat-button-container {
     left: 50%;
     transform: translateX(-50%);
   }
-  
+
   .recipes-button-container {
     left: 20px;
     transform: none;
   }
-  
+
   .desafio-button-container {
     right: 20px;
     transform: none;
   }
-  
+
   .chat-button,
   .recipes-button,
   .desafio-button {
     padding: 6px 12px;
     width: auto; /* Redefinir largura para adaptação ao conteúdo */
   }
-  
+
   .chat-button-text,
   .recipes-button-text,
   .desafio-button-text {
     font-size: 13px;
   }
-  
+
   .chat-button-icon,
   .recipes-button-icon,
   .desafio-button-icon {
@@ -1407,4 +1581,3 @@ body {
     image-rendering: crisp-edges;
   }
 }
-

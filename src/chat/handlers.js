@@ -4,6 +4,7 @@
  */
 
 import { handleAsyncError } from '../shared/errors.js';
+import { fetchWithAuth } from '../shared/api-client.js';
 import {
   buildChatRequestPayload,
   extractChatResponseText,
@@ -200,7 +201,7 @@ async function getChatbotResponse(message) {
   currentRequest = controller;
 
   try {
-    const response = await fetch('/api/chat', {
+    const response = await fetchWithAuth('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(buildChatRequestPayload(message, conversationHistory)),
@@ -265,13 +266,7 @@ async function handleChatSubmit(event, elements, sanitizeHtml) {
       );
       if (error.message !== 'Solicitação cancelada') {
         removeTypingIndicator(elements.chatMessages);
-        await addMessage(
-          'bot',
-          userMessage,
-          elements.chatMessages,
-          sanitizeHtml,
-          elements
-        );
+        await addMessage('bot', userMessage, elements.chatMessages, sanitizeHtml, elements);
       }
     } finally {
       isProcessing = false;

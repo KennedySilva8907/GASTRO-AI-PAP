@@ -5,6 +5,7 @@
 
 import { RecipesExperience } from './carousel.js';
 import { navigateTo, revealPage } from '../shared/transitions.js';
+import { initAccountBar } from '../auth/session.js';
 
 // Play entry reveal if arriving from home page
 revealPage();
@@ -14,6 +15,8 @@ revealPage();
  * ES6 modules are deferred by default, so DOM is ready when this runs.
  */
 try {
+  initAccountBar();
+
   new RecipesExperience(document).init();
 
   // Initialize mobile optimizations

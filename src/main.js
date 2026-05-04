@@ -5,6 +5,7 @@
 import { foodImages } from './shared/constants.js';
 import { createFoodElement, createFoodParticles } from './shared/animations.js';
 import { navigateTo, revealPage } from './shared/transitions.js';
+import { initAccountBar } from './auth/session.js';
 
 // Play entry reveal if arriving from a sub-page
 revealPage();
@@ -30,7 +31,9 @@ function initFoodTrail() {
       setTimeout(() => foodSpark.remove(), 1000);
 
       canCreateSpark = false;
-      setTimeout(() => { canCreateSpark = true; }, 200);
+      setTimeout(() => {
+        canCreateSpark = true;
+      }, 200);
     }
   });
 }
@@ -65,6 +68,8 @@ initSparkTrail();
 
 // DOMContentLoaded — set up navigation and AI info modal
 document.addEventListener('DOMContentLoaded', () => {
+  initAccountBar();
+
   // AI info button and panel
   const aiButton = document.getElementById('ai-button');
   const aiInfo = document.getElementById('ai-info');

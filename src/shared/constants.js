@@ -21,4 +21,8 @@ export const foodImages = [
 export const API_ENDPOINTS = {
   chat: '/api/chat',
   gemini: '/api/gemini',
+  authConfig: '/api/auth/config',
+  authSession: '/api/auth/session',
+  billingCheckout: '/api/billing/checkout',
+  billingPortal: '/api/billing/portal',
 };

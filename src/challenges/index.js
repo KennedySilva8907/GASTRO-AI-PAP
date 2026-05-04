@@ -5,6 +5,7 @@
 
 import { handleAsyncError } from '../shared/errors.js';
 import { navigateTo, revealPage } from '../shared/transitions.js';
+import { initAccountBar } from '../auth/session.js';
 
 import { createTimer, formatTime } from './timer.js';
 import { getRecipe } from './recipe-api.js';
@@ -50,6 +51,8 @@ const state = {
 let root = null;
 
 function init() {
+  initAccountBar();
+
   root = document.getElementById('challenge-root');
   if (!root) return;
 
@@ -484,7 +487,10 @@ function buildEndStats(kind) {
     { label: 'Tempo usado', value: formatTime(elapsed), emphasis: kind === 'completed' },
     kind === 'completed'
       ? { label: 'Restante', value: formatTime(remaining) }
-      : { label: 'Ficou em', value: `Etapa ${String(state.currentStepIndex + 1).padStart(2, '0')}` },
+      : {
+          label: 'Ficou em',
+          value: `Etapa ${String(state.currentStepIndex + 1).padStart(2, '0')}`,
+        },
     {
       label: 'Etapas',
       value: `${completedSteps} / ${state.totalSteps}`,

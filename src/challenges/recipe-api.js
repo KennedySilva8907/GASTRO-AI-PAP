@@ -4,6 +4,7 @@
  */
 
 import { API_ENDPOINTS } from '../shared/constants.js';
+import { fetchWithAuth } from '../shared/api-client.js';
 import { UserFacingError, handleAsyncError } from '../shared/errors.js';
 
 // Preparation times per difficulty level (minutes)
@@ -22,7 +23,7 @@ const PREPARATION_TIMES = {
 export async function getRecipe(level) {
   try {
     const requestBody = buildRequestBody(level);
-    const response = await fetch(API_ENDPOINTS.gemini, {
+    const response = await fetchWithAuth(API_ENDPOINTS.gemini, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(requestBody),
@@ -196,7 +197,7 @@ function extractResponseText(data) {
 async function retryGetRecipe(level) {
   const prepTime = PREPARATION_TIMES[level] || 30;
   try {
-    const response = await fetch(API_ENDPOINTS.gemini, {
+    const response = await fetchWithAuth(API_ENDPOINTS.gemini, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

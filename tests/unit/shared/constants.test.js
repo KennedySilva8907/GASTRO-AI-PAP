@@ -28,7 +28,14 @@ describe('API_ENDPOINTS', () => {
     expect(API_ENDPOINTS.gemini).toBe('/api/gemini');
   });
 
-  it('has exactly 2 endpoint keys', () => {
-    expect(Object.keys(API_ENDPOINTS)).toHaveLength(2);
+  it('has V3 auth and billing endpoints', () => {
+    expect(API_ENDPOINTS.authConfig).toBe('/api/auth/config');
+    expect(API_ENDPOINTS.authSession).toBe('/api/auth/session');
+    expect(API_ENDPOINTS.billingCheckout).toBe('/api/billing/checkout');
+    expect(API_ENDPOINTS.billingPortal).toBe('/api/billing/portal');
+  });
+
+  it('has exactly 6 endpoint keys', () => {
+    expect(Object.keys(API_ENDPOINTS)).toHaveLength(6);
   });
 });

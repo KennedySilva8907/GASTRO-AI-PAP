@@ -4,38 +4,30 @@
     { "source": "/", "destination": "/index.html" },
     { "source": "/chat", "destination": "/chat/chatbot.html" },
     { "source": "/challenges", "destination": "/challenges/desafio.html" },
-    { "source": "/recipes", "destination": "/recipes/receitas.html" }
+    { "source": "/recipes", "destination": "/recipes/receitas.html" },
+    { "source": "/auth", "destination": "/index.html" },
+    { "source": "/billing", "destination": "/index.html" }
   ],
   "headers": [
     {
       "source": "/api/(.*)",
-      "headers": [
-        { "key": "Cache-Control", "value": "no-store" }
-      ]
+      "headers": [{ "key": "Cache-Control", "value": "no-store" }]
     },
     {
       "source": "/(.*\\.css)",
-      "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }
-      ]
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }]
     },
     {
       "source": "/(.*\\.js)",
-      "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }
-      ]
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }]
     },
     {
       "source": "/(.*\\.svg|.*\\.png|.*\\.jpg|.*\\.webp)",
-      "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
-      ]
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
     },
     {
       "source": "/(.*\\.html)",
-      "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }
-      ]
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }]
     }
   ]
 }

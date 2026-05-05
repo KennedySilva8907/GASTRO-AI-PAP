@@ -5,6 +5,7 @@ const REDIRECT_KEY = 'gastro-auth-redirect';
 
 let accountBar = null;
 let cachedSession = null;
+let cachedPlan = null;
 
 function createButton(className, text) {
   const button = document.createElement('button');
@@ -34,6 +35,25 @@ export function promptForLogin() {
   window.location.href = `/auth/login?redirect=${encodeURIComponent(redirect)}`;
 }
 
+async function fetchPlan(session) {
+  if (!session) return null;
+  try {
+    const res = await fetch(API_ENDPOINTS.authSession, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${session.access_token}`,
+      },
+      body: '{}',
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data?.plan || null;
+  } catch {
+    return null;
+  }
+}
+
 async function refreshAccountState() {
   if (!accountBar) return;
 
@@ -48,14 +68,31 @@ async function refreshAccountState() {
     loginButton.hidden = false;
     logoutButton.hidden = true;
     upgradeButton.hidden = true;
+    cachedPlan = null;
     return;
   }
 
   const email = session.user?.email ?? '';
-  status.textContent = email ? `Conta: ${email}` : 'Conta ativa';
+  // Show plan in status if known
+  if (cachedPlan) {
+    const label = cachedPlan === 'pro' ? 'Pro' : 'Free';
+    status.textContent = email ? `${label} · ${email}` : label;
+  } else {
+    status.textContent = email ? `Conta: ${email}` : 'Conta ativa';
+    // Fetch plan in the background (non-blocking)
+    fetchPlan(session).then((plan) => {
+      cachedPlan = plan;
+      if (!accountBar) return;
+      const newLabel = plan === 'pro' ? 'Pro' : 'Free';
+      status.textContent = email ? `${newLabel} · ${email}` : newLabel;
+      // Hide upgrade button for Pro users
+      if (plan === 'pro') upgradeButton.hidden = true;
+    });
+  }
+
   loginButton.hidden = true;
   logoutButton.hidden = false;
-  upgradeButton.hidden = false;
+  upgradeButton.hidden = cachedPlan === 'pro';
 }
 
 async function startCheckout() {
@@ -65,16 +102,22 @@ async function startCheckout() {
     return;
   }
 
-  const response = await fetch(API_ENDPOINTS.billingCheckout, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${session.access_token}`,
-    },
-    body: '{}',
-  });
-  const data = await response.json();
-  if (data?.url) window.location.href = data.url;
+  try {
+    const response = await fetch(API_ENDPOINTS.billingCheckout, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${session.access_token}`,
+      },
+      body: '{}',
+    });
+    const data = await response.json();
+    if (data?.url) {
+      window.location.href = data.url;
+    }
+  } catch {
+    // silently ignore — user can retry
+  }
 }
 
 export async function initAccountBar() {
@@ -103,21 +146,34 @@ export async function initAccountBar() {
   logoutButton.dataset.accountLogout = 'true';
   logoutButton.hidden = true;
   logoutButton.addEventListener('click', async () => {
-    const supabase = await getSupabaseClient();
-    await supabase.auth.signOut();
+    try {
+      const supabase = await getSupabaseClient();
+      await supabase.auth.signOut();
+    } catch {
+      // ignore
+    }
     cachedSession = null;
-    await refreshAccountState();
+    cachedPlan = null;
+    window.location.href = '/';
   });
 
   accountBar.append(loginButton, upgradeButton, logoutButton);
-  document.body.prepend(accountBar);
 
-  const supabase = await getSupabaseClient();
-  supabase.auth.onAuthStateChange((_event, session) => {
-    cachedSession = session;
-    refreshAccountState();
-  });
+  // Resolve session BEFORE inserting into DOM to avoid a "Inicia sessão" flash
+  try {
+    const supabase = await getSupabaseClient();
+    const { data } = await supabase.auth.getSession();
+    cachedSession = data?.session || null;
+    supabase.auth.onAuthStateChange((_event, session) => {
+      cachedSession = session;
+      cachedPlan = null;
+      refreshAccountState();
+    });
+  } catch {
+    // ignore — bar still renders without auth wiring
+  }
 
   await refreshAccountState();
+  document.body.prepend(accountBar);
   return accountBar;
 }

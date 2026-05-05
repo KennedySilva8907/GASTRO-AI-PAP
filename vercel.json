@@ -6,6 +6,9 @@
     { "source": "/challenges", "destination": "/challenges/desafio.html" },
     { "source": "/recipes", "destination": "/recipes/receitas.html" },
     { "source": "/auth/login", "destination": "/auth/login.html" },
+    { "source": "/auth/register", "destination": "/auth/register.html" },
+    { "source": "/auth/forgot-password", "destination": "/auth/forgot-password.html" },
+    { "source": "/auth/reset-password", "destination": "/auth/reset-password.html" },
     { "source": "/auth/callback", "destination": "/auth/callback.html" },
     { "source": "/auth", "destination": "/auth/login.html" },
     { "source": "/billing", "destination": "/index.html" }

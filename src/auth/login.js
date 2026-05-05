@@ -2,58 +2,92 @@ import { getSupabaseClient } from './client.js';
 
 const REDIRECT_KEY = 'gastro-auth-redirect';
 
+function setFeedback(el, kind, message) {
+  el.textContent = message;
+  el.className = `auth-feedback auth-feedback--${kind}`;
+  el.hidden = false;
+}
+
+function describeError(err) {
+  const msg = (err?.message || '').toLowerCase();
+  if (msg.includes('invalid login') || msg.includes('invalid credentials')) {
+    return 'Email ou senha incorretos.';
+  }
+  if (msg.includes('email not confirmed') || msg.includes('not confirmed')) {
+    return 'Confirma o teu email antes de entrar. Verifica a caixa de entrada.';
+  }
+  if (msg.includes('rate limit')) {
+    return 'Demasiadas tentativas. Tenta novamente daqui a uns minutos.';
+  }
+  return 'Não foi possível entrar. Tenta novamente.';
+}
+
 async function init() {
   const params = new URLSearchParams(window.location.search);
   const redirect = params.get('redirect') || '/';
   sessionStorage.setItem(REDIRECT_KEY, redirect);
 
+  const form = document.getElementById('login-form');
+  const emailInput = document.getElementById('email');
+  const passwordInput = document.getElementById('password');
+  const submitBtn = document.getElementById('submit-btn');
+  const googleBtn = document.getElementById('google-btn');
+  const feedback = document.getElementById('feedback');
+
+  let supabase;
   try {
-    const supabase = await getSupabaseClient();
-    const { data } = await supabase.auth.getSession();
-    if (data?.session) {
-      window.location.replace(redirect);
-      return;
-    }
+    supabase = await getSupabaseClient();
   } catch {
-    // not authenticated — show form
+    setFeedback(feedback, 'err', 'Falha ao carregar serviço de autenticação.');
+    submitBtn.disabled = true;
+    googleBtn.disabled = true;
+    return;
   }
 
-  const form = document.getElementById('login-form');
-  const emailInput = document.getElementById('login-email');
-  const submitBtn = document.getElementById('login-submit');
-  const feedback = document.getElementById('login-feedback');
+  // Already authenticated → go straight to redirect target
+  const { data: existing } = await supabase.auth.getSession();
+  if (existing?.session) {
+    window.location.replace(redirect);
+    return;
+  }
 
+  // Email + password login
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
+    feedback.hidden = true;
     const email = emailInput.value.trim();
-    if (!email) return;
+    const password = passwordInput.value;
+    if (!email || !password) return;
 
     submitBtn.disabled = true;
-    submitBtn.textContent = 'A enviar…';
-    feedback.hidden = true;
+    submitBtn.textContent = 'A entrar…';
 
     try {
-      const supabase = await getSupabaseClient();
-      const { error } = await supabase.auth.signInWithOtp({
-        email,
-        options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
-        },
-      });
-
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
 
-      feedback.textContent =
-        'Link enviado! Verifica o teu email e clica no link para entrar.';
-      feedback.className = 'login-feedback login-feedback--ok';
-      feedback.hidden = false;
-      submitBtn.textContent = 'Link enviado ✓';
-    } catch {
-      feedback.textContent = 'Não foi possível enviar o link. Tenta novamente.';
-      feedback.className = 'login-feedback login-feedback--err';
-      feedback.hidden = false;
+      window.location.replace(redirect);
+    } catch (err) {
+      setFeedback(feedback, 'err', describeError(err));
       submitBtn.disabled = false;
-      submitBtn.textContent = 'Enviar link mágico';
+      submitBtn.textContent = 'Entrar';
+    }
+  });
+
+  // Google OAuth
+  googleBtn.addEventListener('click', async () => {
+    googleBtn.disabled = true;
+    feedback.hidden = true;
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: `${window.location.origin}/auth/callback` },
+      });
+      if (error) throw error;
+      // OAuth redirects automatically — no further code runs
+    } catch {
+      setFeedback(feedback, 'err', 'Não foi possível abrir o login Google.');
+      googleBtn.disabled = false;
     }
   });
 }

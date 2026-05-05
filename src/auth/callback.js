@@ -6,46 +6,71 @@ async function init() {
   const statusEl = document.getElementById('callback-status');
   const subEl = document.getElementById('callback-sub');
 
-  function showError() {
-    statusEl.textContent = 'Não foi possível verificar a sessão.';
+  function showError(msg) {
+    statusEl.textContent = msg || 'Não foi possível verificar a sessão.';
     subEl.textContent = '';
     const link = document.createElement('a');
     link.href = '/auth/login';
     link.className = 'callback-retry';
-    link.textContent = 'Tentar novamente';
+    link.textContent = 'Voltar ao login';
     subEl.appendChild(link);
   }
 
+  let supabase;
   try {
-    const supabase = await getSupabaseClient();
-
-    // Give Supabase a moment to process the URL hash/code
-    await new Promise((resolve) => setTimeout(resolve, 600));
-
-    let session = (await supabase.auth.getSession()).data?.session;
-
-    if (!session) {
-      // Try explicit code exchange (PKCE flow)
-      const code = new URLSearchParams(window.location.search).get('code');
-      if (code) {
-        const { error } = await supabase.auth.exchangeCodeForSession(code);
-        if (error) throw error;
-        session = (await supabase.auth.getSession()).data?.session;
-      }
-    }
-
-    if (!session) throw new Error('no session');
-
-    statusEl.textContent = 'Sessão iniciada!';
-    subEl.textContent = 'A redirecionar…';
-
-    const target = sessionStorage.getItem(REDIRECT_KEY) || '/';
-    sessionStorage.removeItem(REDIRECT_KEY);
-
-    setTimeout(() => window.location.replace(target), 500);
+    supabase = await getSupabaseClient();
   } catch {
-    showError();
+    showError('Falha ao carregar serviço de autenticação.');
+    return;
   }
+
+  // Wait for Supabase to detect & exchange the URL params (OAuth code or recovery token)
+  const session = await new Promise((resolve) => {
+    const { data } = supabase.auth.onAuthStateChange((event, sess) => {
+      if (event === 'SIGNED_IN' || event === 'PASSWORD_RECOVERY') {
+        data.subscription.unsubscribe();
+        resolve(sess);
+      }
+    });
+
+    // Also check the current state in case it's already established
+    supabase.auth.getSession().then(({ data: cur }) => {
+      if (cur?.session) {
+        data.subscription.unsubscribe();
+        resolve(cur.session);
+      }
+    });
+
+    setTimeout(() => {
+      data.subscription.unsubscribe();
+      resolve(null);
+    }, 8000);
+  });
+
+  if (!session) {
+    showError();
+    return;
+  }
+
+  // Detect password recovery flow → send to reset-password page
+  const isRecovery =
+    window.location.hash.includes('type=recovery') ||
+    new URLSearchParams(window.location.search).get('type') === 'recovery';
+
+  if (isRecovery) {
+    statusEl.textContent = 'Sessão de recuperação ativa';
+    subEl.textContent = 'A redirecionar para a página de nova senha…';
+    setTimeout(() => window.location.replace('/auth/reset-password'), 600);
+    return;
+  }
+
+  statusEl.textContent = 'Sessão iniciada!';
+  subEl.textContent = 'A redirecionar…';
+
+  const target = sessionStorage.getItem(REDIRECT_KEY) || '/';
+  sessionStorage.removeItem(REDIRECT_KEY);
+
+  setTimeout(() => window.location.replace(target), 500);
 }
 
 document.addEventListener('DOMContentLoaded', init);

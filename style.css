@@ -1583,50 +1583,62 @@ body {
 }
 
 /* =============================================
-   AUTH — Login page & Callback page
+   AUTH — Login / Register / Forgot / Reset / Callback
    ============================================= */
 
-.login-body {
+/* Override the global body which has overflow:hidden + height:100vh */
+.auth-body {
+  display: block;
+  height: auto;
   min-height: 100dvh;
-  display: flex;
-  flex-direction: column;
+  overflow-y: auto;
+  font-family: 'Poppins', system-ui, sans-serif;
   background:
     radial-gradient(circle at 20% 15%, rgba(255, 152, 0, 0.18), transparent 32rem),
     radial-gradient(circle at 80% 10%, rgba(255, 208, 138, 0.10), transparent 24rem),
     linear-gradient(135deg, #0b0907 0%, #130d08 56%, #080706 100%);
+  color: #fff;
 }
 
-.login-back {
+.auth-back {
   position: fixed;
   top: 1.25rem;
   left: 1.25rem;
   z-index: 10;
-  text-decoration: none;
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  color: rgba(255, 255, 255, 0.65);
-  font-size: 0.85rem;
+  padding: 0.5rem 0.85rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  background: rgba(16, 10, 7, 0.55);
+  backdrop-filter: blur(12px);
+  text-decoration: none;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.82rem;
   font-family: inherit;
-  transition: color 0.2s;
+  font-weight: 500;
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
 }
 
-.login-back:hover {
+.auth-back:hover {
   color: #ff9800;
+  border-color: rgba(255, 152, 0, 0.3);
+  background: rgba(255, 152, 0, 0.06);
 }
 
-.login-stage {
-  flex: 1;
+.auth-stage {
   display: flex;
   align-items: center;
   justify-content: center;
+  min-height: 100dvh;
   padding: 5rem 1rem 3rem;
 }
 
-/* --- Login card --- */
+/* --- Card --- */
 
-.login-card {
-  width: min(92vw, 28rem);
+.auth-card {
+  width: min(94vw, 26rem);
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 183, 77, 0.14);
   border-radius: 1.5rem;
@@ -1635,199 +1647,228 @@ body {
   box-shadow: 0 28px 80px rgba(0, 0, 0, 0.45);
 }
 
-.login-brand-row {
+.auth-brand {
   display: flex;
   align-items: center;
-  gap: 0.65rem;
+  gap: 0.6rem;
   margin-bottom: 1.5rem;
 }
 
-.login-brand-name {
-  font-size: 1.15rem;
+.auth-brand__name {
+  font-size: 1.05rem;
   font-weight: 700;
   color: #ffd28a;
   letter-spacing: 0.02em;
 }
 
-.login-title {
-  margin: 0 0 0.4rem;
-  font-size: 1.45rem;
+.auth-title {
+  margin: 0 0 0.35rem;
+  font-size: 1.5rem;
   font-weight: 700;
   color: #fff;
-  line-height: 1.25;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
 }
 
-.login-subtitle {
-  margin: 0 0 1.75rem;
-  font-size: 0.9rem;
+.auth-subtitle {
+  margin: 0 0 1.5rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
   color: rgba(255, 255, 255, 0.55);
 }
 
-/* --- Form --- */
+/* --- Google button --- */
 
-.login-form {
-  display: grid;
-  gap: 0.65rem;
-}
-
-.login-label {
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.6);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-
-.login-input {
+.auth-google {
   width: 100%;
-  padding: 0.85rem 1rem;
-  border: 1px solid rgba(255, 183, 77, 0.2);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: 0.9rem;
-  background: rgba(255, 255, 255, 0.06);
-  color: #fff;
-  font: inherit;
-  font-size: 0.95rem;
-  outline: none;
-  box-sizing: border-box;
-  transition: border-color 0.2s, background 0.2s;
-}
-
-.login-input::placeholder {
-  color: rgba(255, 255, 255, 0.3);
-}
-
-.login-input:focus {
-  border-color: #ff9800;
-  background: rgba(255, 152, 0, 0.07);
-}
-
-.login-submit {
-  padding: 0.9rem 1rem;
-  border: 0;
-  border-radius: 0.9rem;
-  background: linear-gradient(135deg, #ffd28a, #ff9800);
+  background: rgba(255, 255, 255, 0.95);
   color: #1f1208;
   font: inherit;
-  font-size: 0.95rem;
-  font-weight: 700;
+  font-size: 0.9rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: opacity 0.2s, transform 0.15s;
+  transition: background 0.2s, transform 0.15s;
 }
 
-.login-submit:hover:not(:disabled) {
-  opacity: 0.9;
+.auth-google:hover:not(:disabled) {
+  background: #fff;
   transform: translateY(-1px);
 }
 
-.login-submit:disabled {
-  opacity: 0.6;
+.auth-google:disabled {
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
-.login-feedback {
-  margin: 0;
-  padding: 0.75rem 1rem;
-  border-radius: 0.75rem;
-  font-size: 0.875rem;
-  line-height: 1.45;
-}
+/* --- Separator --- */
 
-.login-feedback--ok {
-  background: rgba(76, 175, 80, 0.12);
-  border: 1px solid rgba(76, 175, 80, 0.3);
-  color: #a5d6a7;
-}
-
-.login-feedback--err {
-  background: rgba(239, 83, 80, 0.1);
-  border: 1px solid rgba(239, 83, 80, 0.25);
-  color: #ef9a9a;
-}
-
-/* --- Plan comparison --- */
-
-.login-divider {
+.auth-sep {
   position: relative;
-  margin: 1.75rem 0 1.25rem;
+  margin: 1.25rem 0;
   text-align: center;
-  color: rgba(255, 255, 255, 0.3);
-  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.35);
+  font-size: 0.7rem;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
 }
 
-.login-divider::before {
+.auth-sep::before {
   content: '';
   position: absolute;
   top: 50%;
   left: 0;
   right: 0;
   height: 1px;
-  background: rgba(255, 183, 77, 0.12);
+  background: rgba(255, 255, 255, 0.08);
 }
 
-.login-divider span {
+.auth-sep span {
   position: relative;
   padding: 0 0.75rem;
-  background: #0f0b07;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.04)),
+    linear-gradient(135deg, #0b0907 0%, #130d08 100%);
 }
 
-.login-plans {
+/* --- Form --- */
+
+.auth-form {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.75rem;
+  gap: 0.85rem;
 }
 
-.login-plan {
-  padding: 1rem;
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  border-radius: 1rem;
-  background: rgba(255, 255, 255, 0.03);
-}
-
-.login-plan--pro {
-  border-color: rgba(255, 183, 77, 0.25);
-  background: rgba(255, 152, 0, 0.05);
-}
-
-.login-plan__label {
-  display: inline-block;
-  margin-bottom: 0.65rem;
-  padding: 0.2rem 0.6rem;
-  border-radius: 0.4rem;
-  background: rgba(255, 255, 255, 0.08);
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 0.7rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
-}
-
-.login-plan__label--pro {
-  background: linear-gradient(135deg, #ffd28a, #ff9800);
-  color: #1f1208;
-}
-
-.login-plan__list {
-  margin: 0;
-  padding: 0;
-  list-style: none;
+.auth-field {
   display: grid;
   gap: 0.35rem;
 }
 
-.login-plan__list li {
-  font-size: 0.78rem;
-  color: rgba(255, 255, 255, 0.55);
-  padding-left: 1rem;
-  position: relative;
+.auth-field__label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.6);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
 }
 
-.login-plan__list li::before {
-  content: '·';
-  position: absolute;
-  left: 0;
+.auth-field input {
+  width: 100%;
+  padding: 0.75rem 0.95rem;
+  border: 1px solid rgba(255, 183, 77, 0.18);
+  border-radius: 0.75rem;
+  background: rgba(255, 255, 255, 0.04);
+  color: #fff;
+  font: inherit;
+  font-size: 0.92rem;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.auth-field input::placeholder {
+  color: rgba(255, 255, 255, 0.28);
+}
+
+.auth-field input:focus {
+  border-color: #ff9800;
+  background: rgba(255, 152, 0, 0.06);
+}
+
+.auth-field input:autofill,
+.auth-field input:-webkit-autofill {
+  -webkit-text-fill-color: #fff;
+  -webkit-box-shadow: 0 0 0 1000px rgba(255, 152, 0, 0.05) inset;
+  caret-color: #fff;
+}
+
+.auth-mini-link {
+  justify-self: end;
+  margin-top: -0.35rem;
+  margin-bottom: 0.25rem;
+  font-size: 0.78rem;
+  color: rgba(255, 152, 0, 0.85);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.auth-mini-link:hover {
+  color: #ffd28a;
+  text-decoration: underline;
+}
+
+.auth-submit {
+  margin-top: 0.25rem;
+  padding: 0.85rem 1rem;
+  border: 0;
+  border-radius: 0.85rem;
+  background: linear-gradient(135deg, #ffd28a, #ff9800);
+  color: #1f1208;
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
+  box-shadow: 0 8px 24px rgba(255, 152, 0, 0.18);
+}
+
+.auth-submit:hover:not(:disabled) {
+  opacity: 0.95;
+  transform: translateY(-1px);
+  box-shadow: 0 12px 28px rgba(255, 152, 0, 0.28);
+}
+
+.auth-submit:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+.auth-feedback {
+  margin: 0;
+  padding: 0.7rem 0.9rem;
+  border-radius: 0.7rem;
+  font-size: 0.85rem;
+  line-height: 1.45;
+}
+
+.auth-feedback--ok {
+  background: rgba(76, 175, 80, 0.1);
+  border: 1px solid rgba(76, 175, 80, 0.28);
+  color: #a5d6a7;
+}
+
+.auth-feedback--err {
+  background: rgba(239, 83, 80, 0.08);
+  border: 1px solid rgba(239, 83, 80, 0.25);
+  color: #ef9a9a;
+}
+
+.auth-foot {
+  margin: 1.5rem 0 0;
+  text-align: center;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.auth-foot a {
   color: #ff9800;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.2s;
+}
+
+.auth-foot a:hover {
+  color: #ffd28a;
+  text-decoration: underline;
 }
 
 /* --- Callback card --- */
@@ -1847,9 +1888,28 @@ body {
   width: min(88vw, 22rem);
 }
 
+.callback-spinner {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.callback-ring {
+  width: 48px;
+  height: 48px;
+  border: 3px solid rgba(255, 152, 0, 0.18);
+  border-top-color: #ff9800;
+  border-radius: 50%;
+  animation: callback-spin 0.9s linear infinite;
+}
+
+@keyframes callback-spin {
+  to { transform: rotate(360deg); }
+}
+
 .callback-status {
   margin: 0;
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   font-weight: 600;
   color: #fff;
 }
@@ -1884,15 +1944,18 @@ body {
 }
 
 @media (max-width: 480px) {
-  .login-card {
+  .auth-card {
     padding: 1.75rem 1.25rem;
   }
 
-  .login-plans {
-    grid-template-columns: 1fr;
+  .auth-title {
+    font-size: 1.3rem;
   }
 
-  .login-title {
-    font-size: 1.25rem;
+  .auth-back {
+    top: 0.85rem;
+    left: 0.85rem;
+    padding: 0.4rem 0.7rem;
+    font-size: 0.75rem;
   }
 }

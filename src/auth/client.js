@@ -15,19 +15,25 @@ export async function getAuthConfig() {
   return authConfig;
 }
 
+async function loadSupabaseSDK() {
+  if (globalThis.supabase?.createClient) return globalThis.supabase.createClient;
+  // Fallback: ESM CDN if the UMD <script> tag failed to load
+  const mod = await import('https://esm.sh/@supabase/supabase-js@2');
+  return mod.createClient;
+}
+
 export async function getSupabaseClient() {
   if (supabaseClient) return supabaseClient;
 
   const config = await getAuthConfig();
-  const factory =
-    globalThis.supabase?.createClient ||
-    (await import('https://esm.sh/@supabase/supabase-js@2')).createClient;
+  const createClient = await loadSupabaseSDK();
 
-  supabaseClient = factory(config.supabaseUrl, config.supabaseAnonKey, {
+  supabaseClient = createClient(config.supabaseUrl, config.supabaseAnonKey, {
     auth: {
       persistSession: true,
       autoRefreshToken: true,
       detectSessionInUrl: true,
+      flowType: 'pkce',
     },
   });
 

@@ -4,6 +4,7 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'node',
+    hookTimeout: 30000,
     setupFiles: ['./tests/helpers/browser-globals.js'],
     coverage: {
       provider: 'v8',

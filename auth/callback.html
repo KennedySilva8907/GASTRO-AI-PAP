@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <link rel="icon" type="image/svg+xml" href="/frigideira.svg">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A entrar… — GastroAI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body class="login-body">
+
+  <main class="login-stage">
+    <div class="callback-card">
+
+      <div class="callback-spinner" aria-hidden="true">
+        <svg class="login-pan" viewBox="0 0 128 128" width="52" height="52" role="img" aria-label="GastroAI">
+          <clipPath id="cb-clip"><rect rx="12" ry="14" x="4" y="52" width="68" height="28"/></clipPath>
+          <defs>
+            <linearGradient id="cb-grad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#000"/>
+              <stop offset="100%" stop-color="#fff"/>
+            </linearGradient>
+            <mask id="cb-mask"><rect x="0" y="0" width="88" height="80" fill="url(#cb-grad)"/></mask>
+          </defs>
+          <g fill="#ff9800">
+            <g fill="none" stroke-dasharray="20 221" stroke-dashoffset="20" stroke-linecap="round" stroke-width="4">
+              <g stroke="hsl(38,90%,50%)"><circle class="pl__ring" cx="44" cy="40" r="35" transform="rotate(90,44,40)"/></g>
+              <g stroke="hsl(20,90%,45%)" mask="url(#cb-mask)"><circle class="pl__ring" cx="44" cy="40" r="35" transform="rotate(90,44,40)"/></g>
+            </g>
+            <g fill="hsla(36,90%,50%,0)">
+              <g class="pl__drop pl__drop--1"><circle class="pl__drop-inner" cx="13" cy="60" r="2"/></g>
+              <g class="pl__drop pl__drop--2"><circle class="pl__drop-inner" cx="13" cy="60" r="2"/></g>
+              <g class="pl__drop pl__drop--3"><circle class="pl__drop-inner" cx="67" cy="72" r="2"/></g>
+              <g class="pl__drop pl__drop--4"><circle class="pl__drop-inner" cx="67" cy="72" r="2"/></g>
+              <g class="pl__drop pl__drop--5"><circle class="pl__drop-inner" cx="67" cy="72" r="2"/></g>
+            </g>
+            <g class="pl__pan">
+              <rect rx="2" ry="2" x="4" y="66" width="68" height="14" clip-path="url(#cb-clip)"/>
+              <rect rx="2" ry="2" x="76" y="66" width="48" height="7"/>
+            </g>
+          </g>
+        </svg>
+      </div>
+
+      <p class="callback-status" id="callback-status">A verificar sessão…</p>
+      <p class="callback-sub" id="callback-sub">Aguarda um momento.</p>
+
+    </div>
+  </main>
+
+  <script type="module" src="/src/auth/callback.js"></script>
+</body>
+</html>

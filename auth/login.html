@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <link rel="icon" type="image/svg+xml" href="/frigideira.svg">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Entra no GastroAI — IA gastronómica com planos Free e Pro.">
+  <title>Entrar — GastroAI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body class="login-body">
+
+  <a href="/" class="back-button login-back" aria-label="Voltar ao início">
+    <div class="back-button-icon">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+        <path fill="none" d="M0 0h24v24H0z"/>
+        <path fill="currentColor" d="M19 13H5.83l5.59 5.59L10 20l-8-8 8-8 1.41 1.41L5.83 11H19v2z"/>
+      </svg>
+    </div>
+    <span class="back-button-text">Início</span>
+  </a>
+
+  <main class="login-stage">
+
+    <div class="login-card">
+
+      <div class="login-brand-row">
+        <svg class="login-pan" viewBox="0 0 128 128" width="44" height="44" role="img" aria-label="GastroAI">
+          <clipPath id="lp-clip"><rect rx="12" ry="14" x="4" y="52" width="68" height="28"/></clipPath>
+          <defs>
+            <linearGradient id="lp-grad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#000"/>
+              <stop offset="100%" stop-color="#fff"/>
+            </linearGradient>
+            <mask id="lp-mask"><rect x="0" y="0" width="88" height="80" fill="url(#lp-grad)"/></mask>
+          </defs>
+          <g fill="#ff9800">
+            <g fill="none" stroke-dasharray="20 221" stroke-dashoffset="20" stroke-linecap="round" stroke-width="4">
+              <g stroke="hsl(38,90%,50%)"><circle class="pl__ring" cx="44" cy="40" r="35" transform="rotate(90,44,40)"/></g>
+              <g stroke="hsl(20,90%,45%)" mask="url(#lp-mask)"><circle class="pl__ring" cx="44" cy="40" r="35" transform="rotate(90,44,40)"/></g>
+            </g>
+            <g fill="hsla(36,90%,50%,0)">
+              <g class="pl__drop pl__drop--1"><circle class="pl__drop-inner" cx="13" cy="60" r="2"/></g>
+              <g class="pl__drop pl__drop--2"><circle class="pl__drop-inner" cx="13" cy="60" r="2"/></g>
+              <g class="pl__drop pl__drop--3"><circle class="pl__drop-inner" cx="67" cy="72" r="2"/></g>
+              <g class="pl__drop pl__drop--4"><circle class="pl__drop-inner" cx="67" cy="72" r="2"/></g>
+              <g class="pl__drop pl__drop--5"><circle class="pl__drop-inner" cx="67" cy="72" r="2"/></g>
+            </g>
+            <g class="pl__pan">
+              <rect rx="2" ry="2" x="4" y="66" width="68" height="14" clip-path="url(#lp-clip)"/>
+              <rect rx="2" ry="2" x="76" y="66" width="48" height="7"/>
+            </g>
+          </g>
+        </svg>
+        <span class="login-brand-name">GastroAI</span>
+      </div>
+
+      <h1 class="login-title">Entra para cozinhar com IA</h1>
+      <p class="login-subtitle">Sem password — recebe um link mágico no email.</p>
+
+      <form class="login-form" id="login-form" novalidate>
+        <label class="login-label" for="login-email">O teu email</label>
+        <input
+          class="login-input"
+          type="email"
+          id="login-email"
+          name="email"
+          placeholder="chef@exemplo.com"
+          autocomplete="email"
+          inputmode="email"
+          required
+        >
+        <button class="login-submit" type="submit" id="login-submit">
+          Enviar link mágico
+        </button>
+        <p class="login-feedback" id="login-feedback" role="status" hidden></p>
+      </form>
+
+      <div class="login-divider"><span>o que inclui cada plano</span></div>
+
+      <div class="login-plans">
+        <div class="login-plan">
+          <span class="login-plan__label">Free</span>
+          <ul class="login-plan__list">
+            <li>10 mensagens de chat / 24h</li>
+            <li>3 desafios com IA / 24h</li>
+            <li>Catálogo de receitas livre</li>
+          </ul>
+        </div>
+        <div class="login-plan login-plan--pro">
+          <span class="login-plan__label login-plan__label--pro">Pro</span>
+          <ul class="login-plan__list">
+            <li>100 mensagens de chat / 24h</li>
+            <li>30 desafios com IA / 24h</li>
+            <li>Catálogo de receitas livre</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <script type="module" src="/src/auth/login.js"></script>
+</body>
+</html>

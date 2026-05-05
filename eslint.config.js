@@ -34,7 +34,8 @@ export default [
         cancelAnimationFrame: 'readonly',
         requestAnimationFrame: 'readonly',
         sessionStorage: 'readonly',
-        localStorage: 'readonly'
+        localStorage: 'readonly',
+        URLSearchParams: 'readonly'
       }
     }
   },

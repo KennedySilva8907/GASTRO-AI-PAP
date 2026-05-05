@@ -26,7 +26,11 @@ async function createAuthApp() {
     createSupabaseUsageStore: vi.fn(() => ({
       ensureProfile: vi.fn().mockResolvedValue(undefined),
       getLatestSubscription: vi.fn().mockResolvedValue(null),
-      getDailyUsageCount: vi.fn().mockResolvedValue(2),
+      getUsageWindow: vi.fn().mockResolvedValue({
+        count: 2,
+        window_started_at: '2026-05-04T00:00:00.000Z',
+        window_expires_at: '2099-01-01T00:00:00.000Z',
+      }),
     })),
     getPlanFromSubscription: vi.fn(() => 'free'),
   }));

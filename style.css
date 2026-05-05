@@ -1581,3 +1581,318 @@ body {
     image-rendering: crisp-edges;
   }
 }
+
+/* =============================================
+   AUTH — Login page & Callback page
+   ============================================= */
+
+.login-body {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background:
+    radial-gradient(circle at 20% 15%, rgba(255, 152, 0, 0.18), transparent 32rem),
+    radial-gradient(circle at 80% 10%, rgba(255, 208, 138, 0.10), transparent 24rem),
+    linear-gradient(135deg, #0b0907 0%, #130d08 56%, #080706 100%);
+}
+
+.login-back {
+  position: fixed;
+  top: 1.25rem;
+  left: 1.25rem;
+  z-index: 10;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 0.85rem;
+  font-family: inherit;
+  transition: color 0.2s;
+}
+
+.login-back:hover {
+  color: #ff9800;
+}
+
+.login-stage {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5rem 1rem 3rem;
+}
+
+/* --- Login card --- */
+
+.login-card {
+  width: min(92vw, 28rem);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 183, 77, 0.14);
+  border-radius: 1.5rem;
+  padding: 2.25rem 2rem;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.45);
+}
+
+.login-brand-row {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin-bottom: 1.5rem;
+}
+
+.login-brand-name {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #ffd28a;
+  letter-spacing: 0.02em;
+}
+
+.login-title {
+  margin: 0 0 0.4rem;
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.25;
+}
+
+.login-subtitle {
+  margin: 0 0 1.75rem;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+/* --- Form --- */
+
+.login-form {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.login-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.6);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.login-input {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border: 1px solid rgba(255, 183, 77, 0.2);
+  border-radius: 0.9rem;
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  font: inherit;
+  font-size: 0.95rem;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.login-input::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.login-input:focus {
+  border-color: #ff9800;
+  background: rgba(255, 152, 0, 0.07);
+}
+
+.login-submit {
+  padding: 0.9rem 1rem;
+  border: 0;
+  border-radius: 0.9rem;
+  background: linear-gradient(135deg, #ffd28a, #ff9800);
+  color: #1f1208;
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.15s;
+}
+
+.login-submit:hover:not(:disabled) {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.login-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.login-feedback {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  font-size: 0.875rem;
+  line-height: 1.45;
+}
+
+.login-feedback--ok {
+  background: rgba(76, 175, 80, 0.12);
+  border: 1px solid rgba(76, 175, 80, 0.3);
+  color: #a5d6a7;
+}
+
+.login-feedback--err {
+  background: rgba(239, 83, 80, 0.1);
+  border: 1px solid rgba(239, 83, 80, 0.25);
+  color: #ef9a9a;
+}
+
+/* --- Plan comparison --- */
+
+.login-divider {
+  position: relative;
+  margin: 1.75rem 0 1.25rem;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.login-divider::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgba(255, 183, 77, 0.12);
+}
+
+.login-divider span {
+  position: relative;
+  padding: 0 0.75rem;
+  background: #0f0b07;
+}
+
+.login-plans {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.login-plan {
+  padding: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.login-plan--pro {
+  border-color: rgba(255, 183, 77, 0.25);
+  background: rgba(255, 152, 0, 0.05);
+}
+
+.login-plan__label {
+  display: inline-block;
+  margin-bottom: 0.65rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 0.4rem;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+
+.login-plan__label--pro {
+  background: linear-gradient(135deg, #ffd28a, #ff9800);
+  color: #1f1208;
+}
+
+.login-plan__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.login-plan__list li {
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.55);
+  padding-left: 1rem;
+  position: relative;
+}
+
+.login-plan__list li::before {
+  content: '·';
+  position: absolute;
+  left: 0;
+  color: #ff9800;
+}
+
+/* --- Callback card --- */
+
+.callback-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 3rem 2rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 183, 77, 0.14);
+  border-radius: 1.5rem;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.45);
+  text-align: center;
+  width: min(88vw, 22rem);
+}
+
+.callback-status {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.callback-sub {
+  margin: 0;
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.callback-retry {
+  color: #ff9800;
+  text-decoration: none;
+  font-weight: 600;
+  border-bottom: 1px solid rgba(255, 152, 0, 0.35);
+  transition: color 0.2s;
+}
+
+.callback-retry:hover {
+  color: #ffd28a;
+}
+
+/* --- Account bar muted button --- */
+
+.account-bar__button--muted {
+  background: rgba(255, 255, 255, 0.07);
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.account-bar__button--muted:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+@media (max-width: 480px) {
+  .login-card {
+    padding: 1.75rem 1.25rem;
+  }
+
+  .login-plans {
+    grid-template-columns: 1fr;
+  }
+
+  .login-title {
+    font-size: 1.25rem;
+  }
+}

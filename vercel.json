@@ -5,7 +5,9 @@
     { "source": "/chat", "destination": "/chat/chatbot.html" },
     { "source": "/challenges", "destination": "/challenges/desafio.html" },
     { "source": "/recipes", "destination": "/recipes/receitas.html" },
-    { "source": "/auth", "destination": "/index.html" },
+    { "source": "/auth/login", "destination": "/auth/login.html" },
+    { "source": "/auth/callback", "destination": "/auth/callback.html" },
+    { "source": "/auth", "destination": "/auth/login.html" },
     { "source": "/billing", "destination": "/index.html" }
   ],
   "headers": [

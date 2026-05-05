@@ -2,24 +2,15 @@ import { authenticateRequest } from '../_auth.js';
 import { ERROR_CODES, runPreflight } from '../_shared.js';
 import { PLAN_LIMITS, createSupabaseUsageStore, getPlanFromSubscription } from '../_usage.js';
 
-function today() {
-  return new Date().toISOString().slice(0, 10);
-}
-
 async function buildUsageSummary({ store, userId, plan }) {
-  const usageDate = today();
+  const now = new Date();
   const entries = await Promise.all(
     Object.keys(PLAN_LIMITS[plan]).map(async (feature) => {
-      const used = await store.getDailyUsageCount({ userId, feature, usageDate });
+      const window = await store.getUsageWindow({ userId, feature });
       const limit = PLAN_LIMITS[plan][feature];
-      return [
-        feature,
-        {
-          used,
-          limit,
-          remaining: Math.max(0, limit - used),
-        },
-      ];
+      const used =
+        window && now < new Date(window.window_expires_at) ? window.count : 0;
+      return [feature, { used, limit, remaining: Math.max(0, limit - used) }];
     })
   );
 
@@ -56,10 +47,7 @@ export default async function handler(req, res) {
     const usage = await buildUsageSummary({ store, userId: auth.user.id, plan });
 
     return res.status(200).json({
-      user: {
-        id: auth.user.id,
-        email: auth.user.email,
-      },
+      user: { id: auth.user.id, email: auth.user.email },
       plan,
       usage,
     });

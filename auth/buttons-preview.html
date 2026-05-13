@@ -1,0 +1,904 @@
+<!doctype html>
+<html lang="pt">
+  <head>
+    <link rel="icon" type="image/svg+xml" href="/frigideira.svg" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="description" content="Página interna de design system — não indexável." />
+    <title>Menu de Botões — Lab GastroAI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600;1,700&family=Poppins:wght@400;500;600;700&family=Special+Elite&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --ink: #f7ecd9;
+        --ink-muted: rgba(247, 236, 217, 0.55);
+        --ink-faint: rgba(247, 236, 217, 0.32);
+        --espresso: #0b0907;
+        --espresso-2: #130d08;
+        --amber: #ff9800;
+        --amber-soft: #ffd28a;
+        --amber-deep: #b25400;
+        --copper: #c46b2a;
+        --copper-deep: #6e2f10;
+        --olive: #4a5d36;
+        --olive-deep: #2a3520;
+        --parchment: #f3e9d2;
+        --gold: #d4a857;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      html {
+        font-size: 16px;
+      }
+
+      body {
+        min-height: 100dvh;
+        font-family: 'Poppins', system-ui, sans-serif;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at 18% 12%, rgba(255, 152, 0, 0.16), transparent 36rem),
+          radial-gradient(circle at 82% 6%, rgba(255, 208, 138, 0.09), transparent 28rem),
+          radial-gradient(circle at 50% 110%, rgba(180, 80, 30, 0.12), transparent 42rem),
+          linear-gradient(140deg, var(--espresso) 0%, var(--espresso-2) 56%, #050403 100%);
+        padding: clamp(2.5rem, 5vw, 5rem) 1.25rem;
+        position: relative;
+        overflow-x: hidden;
+      }
+
+      body::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        z-index: 0;
+        opacity: 0.32;
+        mix-blend-mode: overlay;
+        background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.5 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+      }
+
+      body::after {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        z-index: 1;
+        pointer-events: none;
+        background: linear-gradient(
+          90deg,
+          transparent 0%,
+          rgba(255, 152, 0, 0.32) 30%,
+          rgba(255, 208, 138, 0.5) 50%,
+          rgba(255, 152, 0, 0.32) 70%,
+          transparent 100%
+        );
+      }
+
+      .lab {
+        position: relative;
+        z-index: 2;
+        max-width: 78rem;
+        margin: 0 auto;
+      }
+
+      /* ===== Hero ===== */
+
+      .hero {
+        margin-bottom: clamp(3rem, 6vw, 5rem);
+        text-align: center;
+      }
+
+      .hero__kicker {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: var(--amber-soft);
+        letter-spacing: 0.32em;
+        text-transform: uppercase;
+        margin-bottom: 1.25rem;
+      }
+
+      .hero__kicker::before,
+      .hero__kicker::after {
+        content: '';
+        width: 28px;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, var(--amber-soft));
+      }
+
+      .hero__kicker::after {
+        background: linear-gradient(90deg, var(--amber-soft), transparent);
+      }
+
+      .hero__title {
+        font-family: 'Cormorant Garamond', Georgia, serif;
+        font-size: clamp(2.6rem, 6.4vw, 5rem);
+        font-weight: 600;
+        line-height: 0.98;
+        letter-spacing: -0.015em;
+        margin-bottom: 1rem;
+      }
+
+      .hero__title em {
+        font-style: italic;
+        color: var(--amber-soft);
+        font-weight: 500;
+      }
+
+      .hero__lead {
+        max-width: 38rem;
+        margin: 0 auto;
+        font-size: 1rem;
+        line-height: 1.6;
+        color: var(--ink-muted);
+      }
+
+      /* ===== Variants grid ===== */
+
+      .menu {
+        display: grid;
+        gap: 1.25rem;
+        grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+      }
+
+      .course {
+        position: relative;
+        padding: 1.75rem 1.5rem 1.5rem;
+        background: rgba(255, 255, 255, 0.035);
+        border: 1px solid rgba(255, 183, 77, 0.12);
+        border-radius: 1.25rem;
+        backdrop-filter: blur(20px);
+        box-shadow: 0 22px 60px rgba(0, 0, 0, 0.4);
+        transition: border-color 0.3s, transform 0.3s;
+      }
+
+      .course:hover {
+        border-color: rgba(255, 183, 77, 0.28);
+        transform: translateY(-2px);
+      }
+
+      .course__corner {
+        position: absolute;
+        top: 1rem;
+        right: 1.25rem;
+        font-family: 'Cormorant Garamond', serif;
+        font-style: italic;
+        font-size: 1.1rem;
+        color: var(--ink-faint);
+      }
+
+      .course__name {
+        font-family: 'Cormorant Garamond', Georgia, serif;
+        font-size: 2rem;
+        font-weight: 600;
+        line-height: 1;
+        margin-bottom: 0.4rem;
+        color: #fff;
+      }
+
+      .course__name em {
+        font-style: italic;
+        color: var(--amber-soft);
+      }
+
+      .course__type {
+        display: inline-block;
+        font-size: 0.66rem;
+        font-weight: 600;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: var(--ink-faint);
+        margin-bottom: 1.25rem;
+      }
+
+      /* In-context preview */
+      .stage {
+        margin: 1rem 0 1.25rem;
+        padding: 1.25rem 1.1rem 1.4rem;
+        background:
+          radial-gradient(ellipse at center top, rgba(255, 152, 0, 0.04), transparent 70%),
+          rgba(0, 0, 0, 0.18);
+        border-radius: 0.75rem;
+        border: 1px solid rgba(255, 255, 255, 0.04);
+      }
+
+      .stage__label {
+        font-size: 0.62rem;
+        font-weight: 600;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--ink-faint);
+        margin-bottom: 0.4rem;
+      }
+
+      .stage__field {
+        width: 100%;
+        padding: 0.55rem 0.7rem;
+        margin-bottom: 0.85rem;
+        border: 1px solid rgba(255, 183, 77, 0.18);
+        border-radius: 0.55rem;
+        background: rgba(255, 255, 255, 0.03);
+        color: var(--ink);
+        font: 0.78rem 'Poppins', sans-serif;
+        letter-spacing: 0.15em;
+        pointer-events: none;
+      }
+
+      .stage__row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        flex-wrap: wrap;
+      }
+
+      .stage__hint {
+        font-size: 0.7rem;
+        color: var(--ink-faint);
+        font-style: italic;
+      }
+
+      .course__note {
+        margin-top: 0.5rem;
+        font-size: 0.78rem;
+        line-height: 1.6;
+        color: var(--ink-muted);
+      }
+
+      .course__note strong {
+        color: var(--amber-soft);
+        font-weight: 600;
+      }
+
+      /* ============================================================
+         I.  MAÎTRE  —  Cream parchment with corner ornaments
+         ============================================================ */
+
+      .btn-maitre {
+        position: relative;
+        padding: 0.85rem 1.85rem;
+        border: 0;
+        border-radius: 4px;
+        background: linear-gradient(180deg, #f7e9cd 0%, #ead9b6 100%);
+        color: #2a1608;
+        font:
+          italic 600 1.05rem/1 'Cormorant Garamond',
+          serif;
+        letter-spacing: 0.04em;
+        cursor: pointer;
+        box-shadow:
+          0 1px 0 rgba(255, 255, 255, 0.6) inset,
+          0 -1px 0 rgba(120, 85, 30, 0.2) inset,
+          0 8px 24px rgba(0, 0, 0, 0.3);
+        transition: transform 0.18s, box-shadow 0.2s;
+      }
+      .btn-maitre::before,
+      .btn-maitre::after {
+        content: '';
+        position: absolute;
+        width: 6px;
+        height: 6px;
+        border: 1px solid rgba(120, 85, 30, 0.35);
+        transition: border-color 0.2s, transform 0.25s;
+      }
+      .btn-maitre::before {
+        top: 4px;
+        left: 4px;
+        border-right: 0;
+        border-bottom: 0;
+      }
+      .btn-maitre::after {
+        bottom: 4px;
+        right: 4px;
+        border-left: 0;
+        border-top: 0;
+      }
+      .btn-maitre:hover {
+        transform: translateY(-1px);
+      }
+      .btn-maitre:hover::before,
+      .btn-maitre:hover::after {
+        border-color: var(--amber-deep);
+        transform: scale(1.4);
+      }
+      .btn-maitre:active {
+        transform: translateY(0) scale(0.98);
+      }
+      .btn-maitre__seal {
+        position: absolute;
+        left: 50%;
+        bottom: 0.45rem;
+        height: 1px;
+        background: var(--gold);
+        box-shadow: 0 0 6px rgba(212, 168, 87, 0.6);
+        width: 0;
+        transform: translateX(-50%);
+        pointer-events: none;
+      }
+      .btn-maitre.is-clicked .btn-maitre__seal {
+        animation: maitre-seal 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+      }
+      @keyframes maitre-seal {
+        0% {
+          width: 0;
+          opacity: 1;
+        }
+        50% {
+          width: 80%;
+          opacity: 1;
+        }
+        100% {
+          width: 80%;
+          opacity: 0;
+        }
+      }
+
+      /* ============================================================
+         II.  FORGE  —  Brushed copper, glows red-hot when struck
+         ============================================================ */
+
+      .btn-forge {
+        position: relative;
+        padding: 1rem 2rem;
+        border: 0;
+        border-radius: 2px;
+        color: #fff3df;
+        font:
+          700 0.78rem/1 'Poppins',
+          sans-serif;
+        letter-spacing: 0.34em;
+        text-transform: uppercase;
+        cursor: pointer;
+        background:
+          repeating-linear-gradient(
+            90deg,
+            rgba(255, 255, 255, 0.04) 0,
+            rgba(255, 255, 255, 0.04) 1px,
+            transparent 1px,
+            transparent 3px
+          ),
+          linear-gradient(180deg, #c46b2a 0%, #8b3f15 60%, #6e2f10 100%);
+        box-shadow:
+          0 1px 0 rgba(255, 220, 170, 0.4) inset,
+          0 -2px 0 rgba(40, 15, 0, 0.4) inset,
+          0 8px 22px rgba(110, 47, 16, 0.55),
+          0 0 0 1px rgba(255, 220, 170, 0.08) inset;
+        transition: filter 0.25s, transform 0.18s;
+        text-shadow: 0 1px 0 rgba(40, 15, 0, 0.5);
+        overflow: hidden;
+      }
+      .btn-forge::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(
+          ellipse at center,
+          rgba(255, 100, 0, 0.5),
+          transparent 70%
+        );
+        opacity: 0;
+        transition: opacity 0.25s;
+      }
+      .btn-forge:hover {
+        filter: brightness(1.1) saturate(1.15);
+      }
+      .btn-forge:hover::before {
+        opacity: 0.4;
+      }
+      .btn-forge:active {
+        transform: translateY(1px);
+      }
+      .btn-forge.is-clicked {
+        animation: forge-strike 0.85s ease-out;
+      }
+      .btn-forge.is-clicked::before {
+        animation: forge-glow 0.85s ease-out;
+      }
+      @keyframes forge-strike {
+        0% {
+          filter: brightness(1) saturate(1);
+        }
+        15% {
+          filter: brightness(2.2) saturate(2) hue-rotate(-10deg);
+        }
+        45% {
+          filter: brightness(1.4) saturate(1.5);
+        }
+        100% {
+          filter: brightness(1) saturate(1);
+        }
+      }
+      @keyframes forge-glow {
+        0% {
+          opacity: 1;
+          background: radial-gradient(ellipse at center, #fff, #ff6a00 30%, transparent 70%);
+        }
+        100% {
+          opacity: 0;
+          background: radial-gradient(ellipse at center, rgba(255, 100, 0, 0.5), transparent 70%);
+        }
+      }
+
+      /* ============================================================
+         III.  RECIPE CARD  —  Tilted parchment slip, stamps on click
+         ============================================================ */
+
+      .btn-recipe {
+        position: relative;
+        padding: 0.85rem 2rem 0.95rem;
+        border: 0;
+        border-radius: 2px;
+        background: linear-gradient(180deg, var(--parchment), #ebd9b3);
+        color: #4a2410;
+        font:
+          400 0.95rem/1 'Special Elite',
+          'Courier New',
+          monospace;
+        letter-spacing: 0.02em;
+        cursor: pointer;
+        transform: rotate(-1.5deg);
+        transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.25s;
+        box-shadow:
+          0 1px 0 rgba(255, 255, 255, 0.5) inset,
+          0 6px 14px rgba(0, 0, 0, 0.3),
+          0 12px 28px rgba(0, 0, 0, 0.18);
+      }
+      .btn-recipe::before {
+        content: 'rcp.';
+        position: absolute;
+        top: 4px;
+        left: 7px;
+        font:
+          400 0.55rem/1 'Special Elite',
+          monospace;
+        color: #c0392b;
+        letter-spacing: 0.05em;
+      }
+      .btn-recipe::after {
+        content: '';
+        position: absolute;
+        inset: 3px;
+        border: 1px dashed rgba(74, 36, 16, 0.18);
+        border-radius: inherit;
+        pointer-events: none;
+      }
+      .btn-recipe span.arrow {
+        display: inline-block;
+        margin-left: 0.4em;
+        transition: transform 0.25s;
+      }
+      .btn-recipe:hover {
+        transform: rotate(0deg) translateY(-2px);
+        box-shadow:
+          0 1px 0 rgba(255, 255, 255, 0.6) inset,
+          0 10px 20px rgba(0, 0, 0, 0.35),
+          0 16px 36px rgba(0, 0, 0, 0.22);
+      }
+      .btn-recipe:hover span.arrow {
+        transform: translateX(4px);
+      }
+      .btn-recipe.is-clicked {
+        animation: recipe-stamp 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      @keyframes recipe-stamp {
+        0% {
+          transform: rotate(0) translateY(-2px);
+        }
+        25% {
+          transform: rotate(2deg) translateY(2px) scale(0.96);
+          box-shadow:
+            0 1px 0 rgba(255, 255, 255, 0.5) inset,
+            0 0 0 4px rgba(192, 57, 43, 0.12) inset,
+            0 2px 6px rgba(0, 0, 0, 0.45);
+        }
+        100% {
+          transform: rotate(-1.5deg) translateY(0);
+        }
+      }
+
+      /* ============================================================
+         IV.  OLIVE  —  Mediterranean olive green, leaves fall on click
+         ============================================================ */
+
+      .btn-olive {
+        position: relative;
+        padding: 0.95rem 2.1rem;
+        border: 0;
+        border-radius: 999px;
+        background: linear-gradient(180deg, #5a6f43 0%, #3a4a2e 60%, #2a3520 100%);
+        color: #f3e9d2;
+        font:
+          600 1.05rem/1 'Cormorant Garamond',
+          serif;
+        letter-spacing: 0.06em;
+        cursor: pointer;
+        box-shadow:
+          0 1px 0 rgba(255, 255, 255, 0.12) inset,
+          0 -1px 0 rgba(0, 0, 0, 0.4) inset,
+          0 8px 20px rgba(20, 30, 12, 0.5),
+          0 0 0 1px rgba(212, 168, 87, 0.18);
+        transition: transform 0.2s, box-shadow 0.25s;
+        overflow: visible;
+      }
+      .btn-olive::before {
+        content: '';
+        position: absolute;
+        inset: 2px;
+        border-radius: inherit;
+        background: radial-gradient(
+          ellipse at top,
+          rgba(255, 240, 200, 0.18),
+          transparent 65%
+        );
+        pointer-events: none;
+      }
+      .btn-olive:hover {
+        transform: translateY(-1px);
+        box-shadow:
+          0 1px 0 rgba(255, 255, 255, 0.18) inset,
+          0 -1px 0 rgba(0, 0, 0, 0.45) inset,
+          0 12px 28px rgba(20, 30, 12, 0.55),
+          0 0 0 1px rgba(212, 168, 87, 0.32);
+      }
+      .btn-olive:active {
+        transform: translateY(1px) scale(0.98);
+      }
+
+      .olive-leaf {
+        position: absolute;
+        width: 14px;
+        height: 8px;
+        border-radius: 50% 0 50% 0;
+        background: linear-gradient(135deg, #8aa363, #5a6f43);
+        pointer-events: none;
+        opacity: 0;
+        animation: olive-fall 1.1s cubic-bezier(0.4, 0, 0.6, 1) forwards;
+      }
+      @keyframes olive-fall {
+        0% {
+          opacity: 0;
+          transform: translate(0, -10px) rotate(0deg);
+        }
+        15% {
+          opacity: 1;
+        }
+        100% {
+          opacity: 0;
+          transform: translate(var(--dx), 70px) rotate(var(--rot));
+        }
+      }
+
+      /* ============================================================
+         V.  EMBER BLOOM  —  Bronze with internal glow that surges
+         ============================================================ */
+
+      .btn-ember-bloom {
+        position: relative;
+        padding: 1rem 2.4rem;
+        border: 0;
+        border-radius: 0.65rem;
+        color: #fff5e0;
+        font:
+          700 0.92rem/1 'Poppins',
+          sans-serif;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        cursor: pointer;
+        background:
+          radial-gradient(ellipse at center, rgba(255, 130, 0, 0.42), transparent 60%),
+          linear-gradient(180deg, #5e2d10 0%, #3a1908 100%);
+        box-shadow:
+          0 1px 0 rgba(255, 200, 140, 0.25) inset,
+          0 -1px 0 rgba(0, 0, 0, 0.5) inset,
+          0 0 0 1px rgba(255, 152, 0, 0.18) inset,
+          0 12px 32px rgba(60, 25, 8, 0.5);
+        transition: background 0.5s, box-shadow 0.4s, transform 0.18s, letter-spacing 0.4s;
+        overflow: hidden;
+        z-index: 0;
+      }
+      .btn-ember-bloom::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        background: radial-gradient(
+          circle at center,
+          rgba(255, 200, 100, 0.7),
+          rgba(255, 100, 0, 0.4) 40%,
+          transparent 70%
+        );
+        opacity: 0;
+        transform: scale(0.4);
+        transition: opacity 0.5s, transform 0.5s;
+      }
+      .btn-ember-bloom:hover {
+        letter-spacing: 0.22em;
+        box-shadow:
+          0 1px 0 rgba(255, 200, 140, 0.4) inset,
+          0 -1px 0 rgba(0, 0, 0, 0.5) inset,
+          0 0 0 1px rgba(255, 152, 0, 0.5) inset,
+          0 18px 40px rgba(255, 152, 0, 0.32);
+      }
+      .btn-ember-bloom:hover::before {
+        opacity: 0.9;
+        transform: scale(1.05);
+      }
+      .btn-ember-bloom:active {
+        transform: translateY(1px);
+      }
+      .btn-ember-bloom.is-clicked::before {
+        animation: bloom-surge 0.85s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+      @keyframes bloom-surge {
+        0% {
+          opacity: 1;
+          transform: scale(0.3);
+          background: radial-gradient(circle at center, #fff, #ffae42 50%, transparent 80%);
+        }
+        50% {
+          opacity: 1;
+          transform: scale(1.4);
+          background: radial-gradient(
+            circle at center,
+            rgba(255, 200, 100, 0.9),
+            rgba(255, 100, 0, 0.5) 40%,
+            transparent 70%
+          );
+        }
+        100% {
+          opacity: 0.9;
+          transform: scale(1.05);
+        }
+      }
+
+      /* ===== Footer ===== */
+
+      .footnote {
+        margin-top: clamp(3rem, 6vw, 5rem);
+        text-align: center;
+        font-size: 0.82rem;
+        line-height: 1.6;
+        color: var(--ink-muted);
+      }
+
+      .footnote strong {
+        color: var(--amber-soft);
+        font-weight: 600;
+      }
+
+      .footnote a {
+        color: var(--amber-soft);
+        text-decoration: none;
+        border-bottom: 1px solid rgba(255, 210, 138, 0.3);
+      }
+
+      /* ===== Stagger reveal on load ===== */
+
+      .course {
+        opacity: 0;
+        transform: translateY(20px);
+        animation: course-rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+      }
+      .course:nth-child(1) {
+        animation-delay: 0.1s;
+      }
+      .course:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+      .course:nth-child(3) {
+        animation-delay: 0.3s;
+      }
+      .course:nth-child(4) {
+        animation-delay: 0.4s;
+      }
+      .course:nth-child(5) {
+        animation-delay: 0.5s;
+      }
+      @keyframes course-rise {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .hero {
+        opacity: 0;
+        animation: course-rise 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.05s forwards;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <main class="lab">
+      <header class="hero">
+        <span class="hero__kicker">Menu de Degustação · Lab GastroAI</span>
+        <h1 class="hero__title">Cinco gestos para <em>entrar</em>.</h1>
+        <p class="hero__lead">
+          Cada variante é o CTA principal das telas de auth — Entrar, Criar conta, Enviar link de
+          recuperação, Guardar nova senha. Prova cada um. Quando escolheres, diz-me só o nome e eu
+          aplico em todas as páginas.
+        </p>
+      </header>
+
+      <section class="menu">
+        <!-- I. MAÎTRE -->
+        <article class="course">
+          <span class="course__corner">i.</span>
+          <h2 class="course__name"><em>Maître</em></h2>
+          <span class="course__type">Front-of-House · Marfim</span>
+
+          <div class="stage">
+            <div class="stage__label">Senha</div>
+            <div class="stage__field">••••••••••</div>
+            <div class="stage__row">
+              <button type="button" class="btn-maitre" data-variant="maitre">
+                Continuar
+                <span class="btn-maitre__seal" aria-hidden="true"></span>
+              </button>
+              <span class="stage__hint">Esqueceste?</span>
+            </div>
+          </div>
+
+          <p class="course__note">
+            Marfim quente sobre o card. Tipografia <strong>serif itálica</strong> e quatro
+            cantinhos hairline a marcar a moldura. Ao clicar, traça-se uma fina linha
+            <strong>dourada</strong> por baixo do texto — um selo de aprovação. Refinado,
+            front-of-house, white-glove.
+          </p>
+        </article>
+
+        <!-- II. FORGE -->
+        <article class="course">
+          <span class="course__corner">ii.</span>
+          <h2 class="course__name"><em>Forge</em></h2>
+          <span class="course__type">Cobre Escovado · Industrial</span>
+
+          <div class="stage">
+            <div class="stage__label">Senha</div>
+            <div class="stage__field">••••••••••</div>
+            <div class="stage__row">
+              <button type="button" class="btn-forge" data-variant="forge">Entrar</button>
+              <span class="stage__hint">Esqueceste?</span>
+            </div>
+          </div>
+
+          <p class="course__note">
+            Cobre escovado com <strong>microbanding vertical</strong>. Tracking largo, tipografia
+            condensed industrial. Ao clicar, fica em <strong>brasa</strong> — o metal aquece numa
+            chapa de fogo e arrefece. Peso, autoridade, kitchen brigade.
+          </p>
+        </article>
+
+        <!-- III. RECIPE CARD -->
+        <article class="course">
+          <span class="course__corner">iii.</span>
+          <h2 class="course__name"><em>Recipe Card</em></h2>
+          <span class="course__type">Pergaminho Inclinado · Datilografada</span>
+
+          <div class="stage">
+            <div class="stage__label">Senha</div>
+            <div class="stage__field">••••••••••</div>
+            <div class="stage__row">
+              <button type="button" class="btn-recipe" data-variant="recipe">
+                Continuar<span class="arrow">→</span>
+              </button>
+              <span class="stage__hint">Esqueceste?</span>
+            </div>
+          </div>
+
+          <p class="course__note">
+            Cartão de receita <strong>inclinado a -1.5°</strong>, dashed border tracejada, monograma
+            "rcp." em tinta vermelha. <strong>Special Elite</strong> (datilografada). Hover
+            endireita. Click <strong>carimba</strong> com selo. Paper-craft, nostálgico, IKEA
+            cookbook.
+          </p>
+        </article>
+
+        <!-- IV. OLIVE -->
+        <article class="course">
+          <span class="course__corner">iv.</span>
+          <h2 class="course__name"><em>Olive</em></h2>
+          <span class="course__type">Mediterrâneo · Verde Azeitona</span>
+
+          <div class="stage">
+            <div class="stage__label">Senha</div>
+            <div class="stage__field">••••••••••</div>
+            <div class="stage__row">
+              <button type="button" class="btn-olive" data-variant="olive">Entrar</button>
+              <span class="stage__hint">Esqueceste?</span>
+            </div>
+          </div>
+
+          <p class="course__note">
+            <strong>Sai do âmbar</strong> — verde azeitona com hairline dourado. Cormorant regular.
+            Ao clicar, <strong>folhinhas caem</strong> da parte de cima como se atirasses ervas para
+            uma frigideira. Mediterrâneo, herbal, calmo.
+          </p>
+        </article>
+
+        <!-- V. EMBER BLOOM -->
+        <article class="course">
+          <span class="course__corner">v.</span>
+          <h2 class="course__name"><em>Ember Bloom</em></h2>
+          <span class="course__type">Bronze Cinematográfico</span>
+
+          <div class="stage">
+            <div class="stage__label">Senha</div>
+            <div class="stage__field">••••••••••</div>
+            <div class="stage__row">
+              <button type="button" class="btn-ember-bloom" data-variant="ember">Continuar</button>
+              <span class="stage__hint">Esqueceste?</span>
+            </div>
+          </div>
+
+          <p class="course__note">
+            Bronze profundo com um <strong>glow interior</strong> que se acende em hover (a brasa
+            respira). Tracking abre-se à medida que aproximas. Click faz a brasa
+            <strong>florescer</strong> em explosão controlada e voltar ao estado quente. Cinematic,
+            premium, sommelier.
+          </p>
+        </article>
+      </section>
+
+      <footer class="footnote">
+        Quando escolheres, escreve-me só o nome — <strong>Maître</strong>, <strong>Forge</strong>,
+        <strong>Recipe Card</strong>, <strong>Olive</strong> ou <strong>Ember Bloom</strong> — e eu
+        aplico em <a href="/auth/login">login</a>, <a href="/auth/register">registo</a>,
+        <a href="/auth/forgot-password">recuperação</a> e nova senha.
+      </footer>
+    </main>
+
+    <script>
+      const buttons = document.querySelectorAll('button[data-variant]');
+
+      buttons.forEach((btn) => {
+        btn.addEventListener('click', (event) => {
+          // Restart click animation reliably
+          btn.classList.remove('is-clicked');
+          void btn.offsetWidth;
+          btn.classList.add('is-clicked');
+
+          // OLIVE: spawn falling leaves from the top of the button
+          if (btn.dataset.variant === 'olive') {
+            const rect = btn.getBoundingClientRect();
+            const count = 5;
+            for (let i = 0; i < count; i++) {
+              const leaf = document.createElement('span');
+              leaf.className = 'olive-leaf';
+              const startX = (rect.width * (i + 0.5)) / count;
+              leaf.style.left = `${startX - 7}px`;
+              leaf.style.top = `0px`;
+              leaf.style.setProperty('--dx', `${(Math.random() - 0.5) * 60}px`);
+              leaf.style.setProperty('--rot', `${(Math.random() - 0.5) * 720}deg`);
+              btn.appendChild(leaf);
+              leaf.addEventListener('animationend', () => leaf.remove(), { once: true });
+            }
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

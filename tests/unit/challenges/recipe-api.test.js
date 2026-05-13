@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { UserFacingError } from '../../../src/shared/errors.js';
 
 vi.mock('../../../src/auth/session.js', () => ({
   getCurrentSession: vi.fn(async () => ({ access_token: 'test-access-token' })),
@@ -114,6 +115,18 @@ describe('getRecipe', () => {
   });
 
   describe('fallback behavior on API failure', () => {
+    it('does not retry or return fallback when auth redirects to login', async () => {
+      const authError = new UserFacingError(
+        'Authentication required',
+        'Inicia sessão para usar esta funcionalidade de IA.'
+      );
+      authError.requiresAuth = true;
+      globalThis.fetch = vi.fn().mockRejectedValue(authError);
+
+      await expect(getRecipe('principiante')).rejects.toMatchObject({ requiresAuth: true });
+      expect(globalThis.fetch).toHaveBeenCalledTimes(1);
+    });
+
     it('returns a fallback recipe when both fetch attempts fail', async () => {
       // Both the initial call and the retry will reject
       globalThis.fetch = vi.fn().mockRejectedValue(new Error('Network error'));

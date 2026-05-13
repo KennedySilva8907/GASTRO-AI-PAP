@@ -5,6 +5,7 @@
 
 import { handleAsyncError } from '../shared/errors.js';
 import { fetchWithAuth } from '../shared/api-client.js';
+import { API_ENDPOINTS } from '../shared/constants.js';
 import {
   buildChatRequestPayload,
   extractChatResponseText,
@@ -201,7 +202,7 @@ async function getChatbotResponse(message) {
   currentRequest = controller;
 
   try {
-    const response = await fetchWithAuth('/api/chat', {
+    const response = await fetchWithAuth(API_ENDPOINTS.chat, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(buildChatRequestPayload(message, conversationHistory)),
@@ -260,6 +261,10 @@ async function handleChatSubmit(event, elements, sanitizeHtml) {
       }
       await addMessage('bot', botResponse, elements.chatMessages, sanitizeHtml, elements);
     } catch (error) {
+      if (error.requiresAuth) {
+        removeTypingIndicator(elements.chatMessages);
+        return;
+      }
       const userMessage = handleAsyncError(
         error,
         'Desculpe, ocorreu um erro ao processar a sua mensagem. Por favor, tente novamente.'

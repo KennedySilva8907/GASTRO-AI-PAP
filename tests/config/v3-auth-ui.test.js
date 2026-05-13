@@ -20,4 +20,31 @@ describe('V3 account UI contract', () => {
     expect(css).toContain('.account-bar');
     expect(css).toContain('.account-dialog');
   });
+
+  it('keeps auth navigation buttons aligned with the app back-button style', () => {
+    [
+      'auth/login.html',
+      'auth/register.html',
+      'auth/forgot-password.html',
+      'auth/account.html',
+    ].forEach((file) => {
+      const html = readFileSync(resolve(ROOT, file), 'utf8');
+      expect(html).toContain('class="back-button"');
+      expect(html).toContain('class="back-button-icon"');
+      expect(html).toContain('class="back-button-text"');
+    });
+  });
+
+  it('uses the compact auth pan instead of the full home pan animation', () => {
+    [
+      'auth/login.html',
+      'auth/register.html',
+      'auth/forgot-password.html',
+      'auth/reset-password.html',
+    ].forEach((file) => {
+      const html = readFileSync(resolve(ROOT, file), 'utf8');
+      expect(html).toContain('class="auth-pan"');
+      expect(html).not.toContain('class="pl auth-pan"');
+    });
+  });
 });

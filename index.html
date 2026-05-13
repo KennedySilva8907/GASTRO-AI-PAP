@@ -20,9 +20,13 @@
   <!-- Previne flash ao entrar via transição -->
   <script>(function(){if(!sessionStorage.getItem('gastro-transition-meta'))return;var d=document.documentElement;d.classList.add('page-entering');d.style.background='radial-gradient(circle at 24% 18%,rgba(255,152,0,.24),transparent 34rem),radial-gradient(circle at 78% 8%,rgba(255,208,138,.14),transparent 24rem),linear-gradient(135deg,#0b0907 0%,#130d08 56%,#080706 100%)';})();</script>
   <!-- Biblioteca Anime.js para animações -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" defer></script>
-  <!-- Supabase JS (V3 auth) -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"
+    integrity="sha384-fXdIufVbE9aU7STmdk/DWK0imNOozId9fTwzM/gi0NfPjphEIC3gq0M760UnsKVy"
+    crossorigin="anonymous" defer></script>
+  <!-- Supabase JS (V3 auth) — version pinned + SRI to defend against CDN compromise -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.105.3/dist/umd/supabase.min.js"
+    integrity="sha384-iWpUQPQzWsFiosLgsS8o+e6E8y3Gm+EW2m/vAAo7A2H3fuc4KOKEx+5CAord2H2z"
+    crossorigin="anonymous" defer></script>
 </head>
 <body>
   <!-- Botão de informação (GastroAI) no canto superior direito -->

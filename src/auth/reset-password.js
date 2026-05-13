@@ -22,12 +22,29 @@ async function init() {
     return;
   }
 
-  // Wait for Supabase to process the recovery token from the URL
-  await new Promise((resolve) => setTimeout(resolve, 400));
+  // Wait reliably for Supabase to exchange the recovery token via onAuthStateChange.
+  // 400ms setTimeout was unreliable on slow connections and in Safari.
+  const session = await new Promise((resolve) => {
+    const { data } = supabase.auth.onAuthStateChange((event, sess) => {
+      if (event === 'PASSWORD_RECOVERY' || event === 'SIGNED_IN') {
+        data.subscription.unsubscribe();
+        resolve(sess);
+      }
+    });
+    // Fallback if a session is already established by the time we attach the listener
+    supabase.auth.getSession().then(({ data: cur }) => {
+      if (cur?.session) {
+        data.subscription.unsubscribe();
+        resolve(cur.session);
+      }
+    });
+    setTimeout(() => {
+      data.subscription.unsubscribe();
+      resolve(null);
+    }, 8000);
+  });
 
-  // The recovery token gives us a temporary session. If absent, the link is invalid/expired.
-  const { data } = await supabase.auth.getSession();
-  if (!data?.session) {
+  if (!session) {
     setFeedback(
       feedback,
       'err',
@@ -44,8 +61,8 @@ async function init() {
     const password = passwordInput.value;
     const confirm = confirmInput.value;
 
-    if (password.length < 6) {
-      setFeedback(feedback, 'err', 'A senha precisa de ter pelo menos 6 caracteres.');
+    if (password.length < 8) {
+      setFeedback(feedback, 'err', 'A senha precisa de ter pelo menos 8 caracteres.');
       return;
     }
     if (password !== confirm) {

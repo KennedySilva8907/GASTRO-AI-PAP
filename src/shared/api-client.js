@@ -7,10 +7,12 @@ export async function fetchWithAuth(url, options = {}, sessionProvider = getCurr
 
   if (!token) {
     promptForLogin();
-    throw new UserFacingError(
+    const error = new UserFacingError(
       'Authentication required',
       'Inicia sessão para usar esta funcionalidade de IA.'
     );
+    error.requiresAuth = true;
+    throw error;
   }
 
   const headers = {

@@ -1,90 +1,200 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt">
-<head>
-  <link rel="icon" type="image/svg+xml" href="/frigideira.svg">
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Cria a tua conta GastroAI.">
-  <title>Criar conta — GastroAI</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/style.css">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-</head>
-<body class="auth-body">
+  <head>
+    <link rel="icon" type="image/svg+xml" href="/frigideira.svg" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Cria a tua conta GastroAI." />
+    <title>Criar conta — GastroAI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Poppins:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.105.3/dist/umd/supabase.min.js"
+      integrity="sha384-iWpUQPQzWsFiosLgsS8o+e6E8y3Gm+EW2m/vAAo7A2H3fuc4KOKEx+5CAord2H2z"
+      crossorigin="anonymous"></script>
+  </head>
+  <body class="auth-body">
+    <a href="/" class="back-button" data-auth-link aria-label="Voltar ao início">
+      <span class="back-button-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
+          <path fill="none" d="M0 0h24v24H0z" />
+          <path d="M19 13H5.83l5.59 5.59L10 20l-8-8 8-8 1.41 1.41L5.83 11H19v2z" />
+        </svg>
+      </span>
+      <span class="back-button-text">Início</span>
+    </a>
 
-  <a href="/" class="auth-back" aria-label="Voltar ao início">
-    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
-      <path fill="currentColor" d="M19 13H5.83l5.59 5.59L10 20l-8-8 8-8 1.41 1.41L5.83 11H19v2z"/>
-    </svg>
-    <span>Início</span>
-  </a>
-
-  <main class="auth-stage">
-    <div class="auth-card">
-
-      <div class="auth-brand">
-        <svg class="auth-pan" viewBox="0 0 128 128" width="38" height="38" role="img" aria-label="GastroAI">
-          <clipPath id="rp-clip"><rect rx="12" ry="14" x="4" y="52" width="68" height="28"/></clipPath>
-          <g fill="#ff9800">
-            <g class="pl__pan">
-              <rect rx="2" ry="2" x="4" y="66" width="68" height="14" clip-path="url(#rp-clip)"/>
-              <rect rx="2" ry="2" x="76" y="66" width="48" height="7"/>
+    <main class="auth-stage">
+      <div class="auth-card">
+        <div class="auth-brand">
+          <span class="auth-brand__name">GastroAI Atelier</span>
+          <svg class="auth-pan" viewBox="0 0 128 128" role="img" aria-label="GastroAI">
+            <clipPath id="pan-clip-register">
+              <rect rx="12" ry="14" x="4" y="52" width="68" height="28" />
+            </clipPath>
+            <defs>
+              <linearGradient id="pl-grad-register" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#000" />
+                <stop offset="100%" stop-color="#fff" />
+              </linearGradient>
+              <mask id="pl-mask-register">
+                <rect x="0" y="0" width="88" height="80" fill="url(#pl-grad-register)" />
+              </mask>
+            </defs>
+            <g fill="currentColor">
+              <g
+                fill="none"
+                stroke-dasharray="20 221"
+                stroke-dashoffset="20"
+                stroke-linecap="round"
+                stroke-width="4"
+              >
+                <g stroke="hsl(38,90%,50%)">
+                  <circle class="pl__ring" cx="44" cy="40" r="35" transform="rotate(90,44,40)" />
+                </g>
+                <g stroke="hsl(8,90%,40%)" mask="url(#pl-mask-register)">
+                  <circle class="pl__ring" cx="44" cy="40" r="35" transform="rotate(90,44,40)" />
+                </g>
+              </g>
+              <g fill="hsla(36,90%,50%,0)">
+                <g class="pl__drop pl__drop--1">
+                  <circle class="pl__drop-inner" cx="13" cy="60" r="2" />
+                </g>
+                <g class="pl__drop pl__drop--2">
+                  <circle class="pl__drop-inner" cx="13" cy="60" r="2" />
+                </g>
+                <g class="pl__drop pl__drop--3">
+                  <circle class="pl__drop-inner" cx="67" cy="72" r="2" />
+                </g>
+                <g class="pl__drop pl__drop--4">
+                  <circle class="pl__drop-inner" cx="67" cy="72" r="2" />
+                </g>
+                <g class="pl__drop pl__drop--5">
+                  <circle class="pl__drop-inner" cx="67" cy="72" r="2" />
+                </g>
+              </g>
+              <g class="pl__pan">
+                <rect
+                  rx="2"
+                  ry="2"
+                  x="4"
+                  y="66"
+                  width="68"
+                  height="14"
+                  clip-path="url(#pan-clip-register)"
+                />
+                <rect rx="2" ry="2" x="76" y="66" width="48" height="7" />
+              </g>
+              <rect
+                class="pl__shadow"
+                fill="hsla(36,90%,50%,0.18)"
+                rx="3.5"
+                ry="3.5"
+                x="10"
+                y="121"
+                width="60"
+                height="7"
+              />
             </g>
-          </g>
-        </svg>
-        <span class="auth-brand__name">GastroAI</span>
+          </svg>
+        </div>
+
+        <h1 class="auth-title">Criar a tua <em>conta</em></h1>
+        <p class="auth-subtitle">Começa grátis — sem cartão, sem compromisso.</p>
+
+        <button type="button" class="auth-google" id="google-btn">
+          <svg viewBox="0 0 18 18" width="18" height="18" aria-hidden="true">
+            <path
+              fill="#4285F4"
+              d="M17.64 9.205c0-.639-.057-1.252-.164-1.841H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"
+            />
+            <path
+              fill="#34A853"
+              d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"
+            />
+            <path
+              fill="#FBBC05"
+              d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z"
+            />
+            <path
+              fill="#EA4335"
+              d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"
+            />
+          </svg>
+          Continuar com Google
+        </button>
+
+        <div class="auth-sep"><span>ou com email</span></div>
+
+        <form class="auth-form" id="register-form" novalidate>
+          <label class="auth-field">
+            <span class="auth-field__label">Nome</span>
+            <input
+              type="text"
+              name="name"
+              id="name"
+              autocomplete="name"
+              required
+              minlength="2"
+              placeholder="O teu nome"
+            />
+          </label>
+
+          <label class="auth-field">
+            <span class="auth-field__label">Email</span>
+            <input
+              type="email"
+              name="email"
+              id="email"
+              autocomplete="email"
+              required
+              placeholder="chef@exemplo.com"
+            />
+          </label>
+
+          <label class="auth-field">
+            <span class="auth-field__label">Senha</span>
+            <input
+              type="password"
+              name="password"
+              id="password"
+              autocomplete="new-password"
+              required
+              minlength="8"
+              placeholder="Mínimo 8 caracteres"
+            />
+          </label>
+
+          <label class="auth-field">
+            <span class="auth-field__label">Confirmar senha</span>
+            <input
+              type="password"
+              name="confirm"
+              id="confirm"
+              autocomplete="new-password"
+              required
+              minlength="8"
+              placeholder="Repete a senha"
+            />
+          </label>
+
+          <button type="submit" class="auth-submit" id="submit-btn">
+            Criar conta
+            <span class="auth-submit__seal" aria-hidden="true"></span>
+          </button>
+
+          <p class="auth-feedback" id="feedback" role="status" hidden></p>
+        </form>
+
+        <p class="auth-foot">Já tens conta? <a href="/auth/login" data-auth-link>Entrar</a></p>
       </div>
+    </main>
 
-      <h1 class="auth-title">Criar a tua conta</h1>
-      <p class="auth-subtitle">Começa grátis. Sem cartão de crédito.</p>
-
-      <button type="button" class="auth-google" id="google-btn">
-        <svg viewBox="0 0 18 18" width="18" height="18" aria-hidden="true">
-          <path fill="#4285F4" d="M17.64 9.205c0-.639-.057-1.252-.164-1.841H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"/>
-          <path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"/>
-          <path fill="#FBBC05" d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z"/>
-          <path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"/>
-        </svg>
-        Continuar com Google
-      </button>
-
-      <div class="auth-sep"><span>ou com email</span></div>
-
-      <form class="auth-form" id="register-form" novalidate>
-        <label class="auth-field">
-          <span class="auth-field__label">Nome</span>
-          <input type="text" name="name" id="name" autocomplete="name" required minlength="2" placeholder="O teu nome">
-        </label>
-
-        <label class="auth-field">
-          <span class="auth-field__label">Email</span>
-          <input type="email" name="email" id="email" autocomplete="email" required placeholder="chef@exemplo.com">
-        </label>
-
-        <label class="auth-field">
-          <span class="auth-field__label">Senha</span>
-          <input type="password" name="password" id="password" autocomplete="new-password" required minlength="6" placeholder="Mínimo 6 caracteres">
-        </label>
-
-        <label class="auth-field">
-          <span class="auth-field__label">Confirmar senha</span>
-          <input type="password" name="confirm" id="confirm" autocomplete="new-password" required minlength="6" placeholder="Repete a senha">
-        </label>
-
-        <button type="submit" class="auth-submit" id="submit-btn">Criar conta</button>
-
-        <p class="auth-feedback" id="feedback" role="status" hidden></p>
-      </form>
-
-      <p class="auth-foot">
-        Já tens conta? <a href="/auth/login">Entrar</a>
-      </p>
-
-    </div>
-  </main>
-
-  <script type="module" src="/src/auth/register.js"></script>
-</body>
+    <script type="module" src="/src/auth/transitions.js"></script>
+    <script type="module" src="/src/auth/register.js"></script>
+  </body>
 </html>

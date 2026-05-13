@@ -1,4 +1,4 @@
-import { getSupabaseClient } from './client.js';
+import { getSupabaseClient, sanitizeRedirect } from './client.js';
 import { API_ENDPOINTS } from '../shared/constants.js';
 
 const REDIRECT_KEY = 'gastro-auth-redirect';
@@ -30,7 +30,9 @@ export async function getCurrentSession() {
 
 export function promptForLogin() {
   if (typeof window === 'undefined') return;
-  const redirect = window.location.pathname + window.location.search;
+  // Same-origin path only — sanitize even though we built it from window.location
+  // to defend against extension-injected exotic chars or malformed paths.
+  const redirect = sanitizeRedirect(window.location.pathname + window.location.search);
   sessionStorage.setItem(REDIRECT_KEY, redirect);
   window.location.href = `/auth/login?redirect=${encodeURIComponent(redirect)}`;
 }
@@ -97,12 +99,14 @@ async function refreshAccountState() {
 
 async function startCheckout() {
   const session = await getCurrentSession();
+  const status = accountBar?.querySelector('[data-account-status]');
   if (!session) {
     promptForLogin();
     return;
   }
 
   try {
+    if (status) status.textContent = 'A abrir Stripe Checkout...';
     const response = await fetch(API_ENDPOINTS.billingCheckout, {
       method: 'POST',
       headers: {
@@ -114,9 +118,11 @@ async function startCheckout() {
     const data = await response.json();
     if (data?.url) {
       window.location.href = data.url;
+      return;
     }
+    if (status) status.textContent = 'Não foi possível abrir o checkout.';
   } catch {
-    // silently ignore — user can retry
+    if (status) status.textContent = 'Erro no checkout. Tenta novamente.';
   }
 }
 
@@ -131,6 +137,9 @@ export async function initAccountBar() {
   status.className = 'account-bar__status';
   status.dataset.accountStatus = '';
   status.textContent = 'Inicia sessão para usar IA';
+  status.addEventListener('click', () => {
+    if (cachedSession) window.location.href = '/auth/account';
+  });
   accountBar.appendChild(status);
 
   const loginButton = createButton('account-bar__button', 'Entrar');
@@ -171,6 +180,18 @@ export async function initAccountBar() {
     });
   } catch {
     // ignore — bar still renders without auth wiring
+  }
+
+  // Cross-tab sync: when Supabase writes/clears its session in localStorage from
+  // another tab, refresh this tab's account-bar so logout/login propagate.
+  if (typeof window !== 'undefined') {
+    window.addEventListener('storage', (event) => {
+      if (event.key && event.key.startsWith('sb-')) {
+        cachedSession = null;
+        cachedPlan = null;
+        refreshAccountState();
+      }
+    });
   }
 
   await refreshAccountState();

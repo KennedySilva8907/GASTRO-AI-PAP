@@ -1,4 +1,4 @@
-import { getSupabaseClient } from './client.js';
+import { getSupabaseClient, sanitizeRedirect } from './client.js';
 
 const REDIRECT_KEY = 'gastro-auth-redirect';
 
@@ -24,7 +24,7 @@ function describeError(err) {
 
 async function init() {
   const params = new URLSearchParams(window.location.search);
-  const redirect = params.get('redirect') || '/';
+  const redirect = sanitizeRedirect(params.get('redirect'));
   sessionStorage.setItem(REDIRECT_KEY, redirect);
 
   const form = document.getElementById('login-form');

@@ -40,6 +40,9 @@ export async function getRecipe(level) {
     const text = extractResponseText(data);
     return processRecipeText(text, level);
   } catch (error) {
+    if (error.requiresAuth) {
+      throw error;
+    }
     handleAsyncError(error, 'Erro ao carregar receita.');
     return retryGetRecipe(level);
   }
@@ -224,6 +227,9 @@ async function retryGetRecipe(level) {
       return processRecipeText(data.candidates[0].content.parts[0].text.trim(), level);
     }
   } catch (retryError) {
+    if (retryError.requiresAuth) {
+      throw retryError;
+    }
     handleAsyncError(retryError, 'Erro na segunda tentativa');
   }
 

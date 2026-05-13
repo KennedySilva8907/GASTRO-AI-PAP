@@ -1,4 +1,4 @@
-import { getSupabaseClient } from './client.js';
+import { getSupabaseClient, sanitizeRedirect } from './client.js';
 
 const REDIRECT_KEY = 'gastro-auth-redirect';
 
@@ -67,7 +67,9 @@ async function init() {
   statusEl.textContent = 'Sessão iniciada!';
   subEl.textContent = 'A redirecionar…';
 
-  const target = sessionStorage.getItem(REDIRECT_KEY) || '/';
+  // Re-validate the stored redirect — defence in depth in case
+  // sessionStorage was tampered with from another tab/origin.
+  const target = sanitizeRedirect(sessionStorage.getItem(REDIRECT_KEY));
   sessionStorage.removeItem(REDIRECT_KEY);
 
   setTimeout(() => window.location.replace(target), 500);

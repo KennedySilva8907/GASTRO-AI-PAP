@@ -1,5 +1,4 @@
 import { describe, expect, it, vi } from 'vitest';
-import { UserFacingError } from '../../../src/shared/errors.js';
 import { fetchWithAuth } from '../../../src/shared/api-client.js';
 
 describe('fetchWithAuth', () => {
@@ -28,8 +27,9 @@ describe('fetchWithAuth', () => {
   });
 
   it('throws a user-facing error when no session is available', async () => {
-    await expect(fetchWithAuth('/api/chat', {}, async () => null)).rejects.toBeInstanceOf(
-      UserFacingError
-    );
+    await expect(fetchWithAuth('/api/chat', {}, async () => null)).rejects.toMatchObject({
+      name: 'UserFacingError',
+      requiresAuth: true,
+    });
   });
 });

@@ -64,6 +64,12 @@ body {
   letter-spacing: 0.01em;
   text-overflow: ellipsis;
   white-space: nowrap;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.account-bar__status:hover {
+  color: #ffd28a;
 }
 
 .account-bar__button {
@@ -1596,46 +1602,131 @@ body {
 
 /* Override the global body which has overflow:hidden + height:100vh */
 .auth-body {
+  position: relative;
   display: block;
   height: auto;
   min-height: 100dvh;
   overflow-y: auto;
   font-family: 'Poppins', system-ui, sans-serif;
   background:
-    radial-gradient(circle at 20% 15%, rgba(255, 152, 0, 0.18), transparent 32rem),
-    radial-gradient(circle at 80% 10%, rgba(255, 208, 138, 0.10), transparent 24rem),
+    radial-gradient(circle at 18% 12%, rgba(255, 152, 0, 0.22), transparent 34rem),
+    radial-gradient(circle at 82% 8%, rgba(255, 208, 138, 0.12), transparent 26rem),
+    radial-gradient(circle at 50% 110%, rgba(120, 60, 20, 0.18), transparent 38rem),
     linear-gradient(135deg, #0b0907 0%, #130d08 56%, #080706 100%);
   color: #fff;
 }
 
-.auth-back {
+/* Subtle film grain overlay — gives the dark surface a warm, tactile, cookbook feel */
+.auth-body::before {
+  content: '';
   position: fixed;
-  top: 1.25rem;
-  left: 1.25rem;
-  z-index: 10;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.5rem 0.85rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 999px;
-  background: rgba(16, 10, 7, 0.55);
-  backdrop-filter: blur(12px);
-  text-decoration: none;
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 0.82rem;
-  font-family: inherit;
-  font-weight: 500;
-  transition: color 0.2s, border-color 0.2s, background 0.2s;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.35;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.5 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
 }
 
-.auth-back:hover {
-  color: #ff9800;
-  border-color: rgba(255, 152, 0, 0.3);
-  background: rgba(255, 152, 0, 0.06);
+/* Decorative top hairline — editorial cookbook feel */
+.auth-body::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 152, 0, 0.35) 30%,
+    rgba(255, 208, 138, 0.55) 50%,
+    rgba(255, 152, 0, 0.35) 70%,
+    transparent 100%
+  );
+  z-index: 2;
+}
+
+/* Back button — same design as chat/recipes/challenges pages */
+.back-button {
+  position: fixed;
+  top: 22px;
+  left: 22px;
+  z-index: 50;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 18px 12px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  background: rgba(18, 10, 7, 0.52);
+  color: white;
+  cursor: pointer;
+  text-decoration: none;
+  font-family: inherit;
+  box-shadow: 0 18px 36px rgba(0, 0, 0, 0.18);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  animation: back-button-halo-pulse 2.6s infinite;
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    background 180ms ease;
+}
+
+.back-button:hover,
+.back-button:focus-visible {
+  transform: translateY(-2px);
+  background: rgba(18, 10, 7, 0.68);
+  box-shadow: 0 22px 42px rgba(0, 0, 0, 0.22);
+  outline: none;
+}
+
+.back-button:active {
+  transform: scale(0.97);
+}
+
+.back-button-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ffd28a, #ff9800);
+  box-shadow: 0 10px 20px rgba(249, 115, 22, 0.26);
+}
+
+.back-button-icon svg {
+  width: 20px;
+  height: 20px;
+  fill: white;
+}
+
+.back-button-text {
+  font-family: 'Poppins', 'Segoe UI Emoji', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+@keyframes back-button-halo-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 154, 61, 0.5);
+  }
+  70% {
+    box-shadow: 0 0 0 14px rgba(255, 154, 61, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 154, 61, 0);
+  }
 }
 
 .auth-stage {
+  position: relative;
+  z-index: 2;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1655,34 +1746,58 @@ body {
   box-shadow: 0 28px 80px rgba(0, 0, 0, 0.45);
 }
 
+/* Editorial brand kicker — tight monogram-style label + tiny pan icon */
 .auth-brand {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: 0.5rem;
   margin-bottom: 1.5rem;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid rgba(255, 183, 77, 0.18);
+  /* no width:100% — container hugs its content tightly */
 }
 
 .auth-brand__name {
-  font-size: 1.05rem;
-  font-weight: 700;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 600;
   color: #ffd28a;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.auth-pan {
+  width: 26px !important;
+  height: 26px !important;
+  max-width: 26px !important;
+  max-height: 26px !important;
+  display: inline-block !important;
+  flex-shrink: 0;
 }
 
 .auth-title {
-  margin: 0 0 0.35rem;
-  font-size: 1.5rem;
-  font-weight: 700;
+  margin: 0 0 0.5rem;
+  font-family: 'Cormorant Garamond', 'Georgia', serif;
+  font-size: 2.05rem;
+  font-weight: 600;
   color: #fff;
-  line-height: 1.2;
-  letter-spacing: -0.01em;
+  line-height: 1.05;
+  letter-spacing: -0.005em;
+}
+
+.auth-title em {
+  font-style: italic;
+  font-weight: 500;
+  color: #ffd28a;
 }
 
 .auth-subtitle {
-  margin: 0 0 1.5rem;
+  margin: 0 0 1.65rem;
   font-size: 0.875rem;
-  line-height: 1.5;
-  color: rgba(255, 255, 255, 0.55);
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.5);
+  letter-spacing: 0.005em;
 }
 
 /* --- Google button --- */
@@ -1702,7 +1817,9 @@ body {
   font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s, transform 0.15s;
+  transition:
+    background 0.2s,
+    transform 0.15s;
 }
 
 .auth-google:hover:not(:disabled) {
@@ -1715,34 +1832,50 @@ body {
   cursor: not-allowed;
 }
 
-/* --- Separator --- */
+/* --- Separator with editorial ornament --- */
 
 .auth-sep {
-  position: relative;
-  margin: 1.25rem 0;
-  text-align: center;
-  color: rgba(255, 255, 255, 0.35);
-  font-size: 0.7rem;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  margin: 1.4rem 0 1.25rem;
 }
 
-.auth-sep::before {
+.auth-sep::before,
+.auth-sep::after {
   content: '';
-  position: absolute;
-  top: 50%;
-  left: 0;
-  right: 0;
+  flex: 1;
   height: 1px;
-  background: rgba(255, 255, 255, 0.08);
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(255, 183, 77, 0.22),
+    rgba(255, 183, 77, 0.22),
+    transparent
+  );
 }
 
 .auth-sep span {
-  position: relative;
-  padding: 0 0.75rem;
-  background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.04)),
-    linear-gradient(135deg, #0b0907 0%, #130d08 100%);
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 0.7rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-family: 'Poppins', sans-serif;
+}
+
+.auth-sep span::before,
+.auth-sep span::after {
+  content: '';
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: rgba(255, 152, 0, 0.55);
+  box-shadow: 0 0 8px rgba(255, 152, 0, 0.45);
 }
 
 /* --- Form --- */
@@ -1776,7 +1909,9 @@ body {
   font-size: 0.92rem;
   outline: none;
   box-sizing: border-box;
-  transition: border-color 0.2s, background 0.2s;
+  transition:
+    border-color 0.2s,
+    background 0.2s;
 }
 
 .auth-field input::placeholder {
@@ -1788,11 +1923,17 @@ body {
   background: rgba(255, 152, 0, 0.06);
 }
 
-.auth-field input:autofill,
-.auth-field input:-webkit-autofill {
-  -webkit-text-fill-color: #fff;
-  -webkit-box-shadow: 0 0 0 1000px rgba(255, 152, 0, 0.05) inset;
-  caret-color: #fff;
+/* Chrome autofill — solid inset shadow with !important is the only way to override Chrome's yellow */
+.auth-field input:-webkit-autofill,
+.auth-field input:-webkit-autofill:hover,
+.auth-field input:-webkit-autofill:focus,
+.auth-field input:-webkit-autofill:active {
+  -webkit-text-fill-color: #fff !important;
+  -webkit-box-shadow: 0 0 0 1000px #1a120a inset !important;
+  box-shadow: 0 0 0 1000px #1a120a inset !important;
+  caret-color: #fff !important;
+  border-color: rgba(255, 183, 77, 0.25) !important;
+  transition: background-color 9999s ease-in-out 0s !important;
 }
 
 .auth-mini-link {
@@ -1823,7 +1964,10 @@ body {
   font-weight: 700;
   letter-spacing: 0.01em;
   cursor: pointer;
-  transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
+  transition:
+    opacity 0.2s,
+    transform 0.15s,
+    box-shadow 0.2s;
   box-shadow: 0 8px 24px rgba(255, 152, 0, 0.18);
 }
 
@@ -1912,7 +2056,9 @@ body {
 }
 
 @keyframes callback-spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .callback-status {
@@ -1951,8 +2097,291 @@ body {
   background: rgba(255, 255, 255, 0.12);
 }
 
+/* --- Page transitions between auth pages --- */
+
+.auth-body {
+  animation: auth-fade-in 380ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.auth-body.auth-leaving {
+  animation: auth-fade-out 260ms cubic-bezier(0.45, 0, 0.55, 1) forwards;
+}
+
+@keyframes auth-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.985);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+@keyframes auth-fade-out {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.985);
+    filter: blur(4px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-body,
+  .auth-body.auth-leaving {
+    animation: none;
+  }
+}
+
+/* --- User account panel --- */
+
+.account-card {
+  width: min(94vw, 32rem);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 183, 77, 0.14);
+  border-radius: 1.5rem;
+  padding: 2rem;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.45);
+}
+
+.account-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.account-avatar {
+  flex: 0 0 auto;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ffd28a, #ff9800);
+  color: #1f1208;
+  font-size: 1.2rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-transform: uppercase;
+  box-shadow: 0 10px 24px rgba(249, 115, 22, 0.3);
+}
+
+.account-identity {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.account-name {
+  margin: 0;
+  font-family: 'Cormorant Garamond', 'Georgia', serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #fff;
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.account-email {
+  margin: 0;
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.55);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.account-plan-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.account-plan-badge--free {
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.account-plan-badge--pro {
+  background: linear-gradient(135deg, #ffd28a, #ff9800);
+  color: #1f1208;
+}
+
+.account-section {
+  margin-top: 1.5rem;
+}
+
+.account-section__title {
+  margin: 0 0 0.75rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.45);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.account-usage {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.account-usage__row {
+  padding: 0.85rem 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 0.85rem;
+}
+
+.account-usage__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 0.5rem;
+}
+
+.account-usage__label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.account-usage__count {
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.55);
+  font-variant-numeric: tabular-nums;
+}
+
+.account-usage__count strong {
+  color: #ffd28a;
+  font-weight: 700;
+}
+
+.account-usage__bar {
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.account-usage__fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #ffd28a, #ff9800);
+  transition: width 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.account-usage__fill--full {
+  background: linear-gradient(90deg, #ef9a9a, #ef5350);
+}
+
+.account-actions {
+  display: grid;
+  gap: 0.55rem;
+  margin-top: 1.5rem;
+}
+
+.account-action {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0.85rem;
+  background: rgba(255, 255, 255, 0.03);
+  color: #fff;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 0.2s,
+    background 0.2s,
+    transform 0.15s;
+  text-decoration: none;
+}
+
+.account-action:hover {
+  border-color: rgba(255, 152, 0, 0.3);
+  background: rgba(255, 152, 0, 0.05);
+  transform: translateY(-1px);
+}
+
+.account-action__chevron {
+  color: rgba(255, 255, 255, 0.35);
+  transition:
+    color 0.2s,
+    transform 0.2s;
+}
+
+.account-action:hover .account-action__chevron {
+  color: #ff9800;
+  transform: translateX(2px);
+}
+
+.account-action--primary {
+  background: linear-gradient(135deg, #ffd28a, #ff9800);
+  border-color: transparent;
+  color: #1f1208;
+  font-weight: 700;
+}
+
+.account-action--primary:hover {
+  background: linear-gradient(135deg, #ffdca0, #ffa724);
+  transform: translateY(-1px);
+}
+
+.account-action--primary .account-action__chevron {
+  color: rgba(31, 18, 8, 0.6);
+}
+
+.account-action--danger:hover {
+  border-color: rgba(239, 83, 80, 0.4);
+  background: rgba(239, 83, 80, 0.07);
+}
+
+.account-skeleton {
+  height: 0.85rem;
+  border-radius: 0.4rem;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.04) 0%,
+    rgba(255, 255, 255, 0.08) 50%,
+    rgba(255, 255, 255, 0.04) 100%
+  );
+  background-size: 200% 100%;
+  animation: account-skeleton-shine 1.4s ease-in-out infinite;
+}
+
+@keyframes account-skeleton-shine {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
 @media (max-width: 480px) {
-  .auth-card {
+  .auth-card,
+  .account-card {
     padding: 1.75rem 1.25rem;
   }
 
@@ -1960,10 +2389,613 @@ body {
     font-size: 1.3rem;
   }
 
-  .auth-back {
-    top: 0.85rem;
-    left: 0.85rem;
-    padding: 0.4rem 0.7rem;
-    font-size: 0.75rem;
+  .back-button {
+    top: 14px;
+    left: 14px;
+    padding: 10px 14px 10px 10px;
   }
+
+  .back-button-icon {
+    width: 34px;
+    height: 34px;
+  }
+
+  .back-button-text {
+    font-size: 0.78rem;
+  }
+}
+
+/* AUTH REDESIGN — premium kitchen pass */
+.auth-body {
+  background:
+    radial-gradient(circle at 17% 16%, rgba(255, 152, 0, 0.2), transparent 18rem),
+    radial-gradient(circle at 82% 18%, rgba(255, 213, 138, 0.12), transparent 24rem),
+    linear-gradient(115deg, rgba(255, 255, 255, 0.035) 0 1px, transparent 1px 16px),
+    linear-gradient(135deg, #080604 0%, #150d08 44%, #070605 100%);
+}
+
+.auth-stage {
+  min-height: 100dvh;
+  padding: 5.5rem 1.25rem 3rem;
+  isolation: isolate;
+}
+
+.auth-card,
+.account-card,
+.callback-card {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(255, 210, 138, 0.2);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.085), rgba(255, 255, 255, 0.025)),
+    rgba(14, 9, 6, 0.78);
+  box-shadow:
+    0 34px 90px rgba(0, 0, 0, 0.52),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(24px) saturate(1.12);
+  -webkit-backdrop-filter: blur(24px) saturate(1.12);
+}
+
+.auth-card::before,
+.account-card::before,
+.callback-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(255, 152, 0, 0.22), transparent 34%),
+    radial-gradient(circle at 92% 10%, rgba(255, 210, 138, 0.16), transparent 13rem);
+  opacity: 0.72;
+}
+
+.auth-card > *,
+.account-card > *,
+.callback-card > * {
+  position: relative;
+}
+
+.auth-card {
+  width: min(94vw, 28rem);
+  padding: 2rem;
+  border-radius: 1.75rem;
+}
+
+.auth-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.72rem;
+  margin-bottom: 1.35rem;
+  padding: 0.42rem 0.72rem 0.42rem 0.46rem;
+  border: 1px solid rgba(255, 210, 138, 0.2);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.055);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.auth-brand__name {
+  color: #ffe0a8;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+}
+
+.auth-pan {
+  display: inline-block;
+  width: 2rem;
+  height: 2rem;
+  flex: 0 0 auto;
+  padding: 0.28rem;
+  color: #ffb13b;
+  background: linear-gradient(135deg, rgba(255, 210, 138, 0.24), rgba(255, 152, 0, 0.08));
+  border-radius: 50%;
+  box-shadow: 0 10px 24px rgba(255, 152, 0, 0.18);
+}
+
+.auth-pan .pl__ring,
+.auth-pan .pl__drop,
+.auth-pan .pl__drop-inner,
+.auth-pan .pl__pan,
+.auth-pan .pl__shadow {
+  animation: none !important;
+}
+
+.auth-title {
+  max-width: 11ch;
+  margin-bottom: 0.7rem;
+  font-size: clamp(2.25rem, 7vw, 3.35rem);
+  line-height: 0.92;
+  letter-spacing: -0.035em;
+}
+
+.auth-title em {
+  color: #ffc66d;
+}
+
+.auth-subtitle {
+  max-width: 27rem;
+  margin-bottom: 1.8rem;
+  color: rgba(255, 244, 229, 0.66);
+}
+
+.auth-google,
+.auth-field input,
+.account-action {
+  border-color: rgba(255, 210, 138, 0.18);
+  background: rgba(255, 255, 255, 0.065);
+  color: #fff6e8;
+}
+
+.auth-google {
+  min-height: 3.05rem;
+  border-radius: 999px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.auth-google:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.11);
+  box-shadow: 0 18px 34px rgba(0, 0, 0, 0.22);
+}
+
+.auth-field input {
+  border-radius: 1rem;
+  min-height: 3rem;
+}
+
+.auth-field input:focus {
+  border-color: rgba(255, 190, 94, 0.72);
+  background: rgba(255, 152, 0, 0.075);
+  box-shadow: 0 0 0 4px rgba(255, 152, 0, 0.08);
+}
+
+/* (Removed: previous "ink" .auth-submit override with → arrow circle.
+    Replaced by the MAÎTRE block at the end of this file.) */
+
+.auth-body .back-button {
+  top: 22px;
+  left: 22px;
+  background: rgba(18, 10, 7, 0.62);
+}
+
+.auth-body .back-button-text {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.auth-body .back-button:hover,
+.auth-body .back-button:focus-visible {
+  background: rgba(18, 10, 7, 0.78);
+}
+
+@media (max-width: 480px) {
+  .auth-stage {
+    padding-top: 5.25rem;
+  }
+
+  .auth-card,
+  .account-card {
+    width: min(94vw, 28rem);
+    padding: 1.55rem;
+  }
+
+  .auth-title {
+    font-size: clamp(2rem, 13vw, 2.65rem);
+  }
+
+  .auth-brand {
+    max-width: 100%;
+  }
+
+  .auth-brand__name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+/* AUTH BUTTON MOTION PATCH (auth-submit excluded — handled by MAÎTRE block) */
+.auth-google,
+.account-action,
+.auth-body .back-button {
+  position: relative;
+  overflow: hidden;
+  transform-origin: center;
+}
+
+.auth-google::after,
+.account-action::after {
+  content: '';
+  position: absolute;
+  inset: -45%;
+  pointer-events: none;
+  background: linear-gradient(
+    115deg,
+    transparent 0%,
+    transparent 38%,
+    rgba(255, 255, 255, 0.34) 48%,
+    rgba(255, 214, 151, 0.22) 52%,
+    transparent 64%,
+    transparent 100%
+  );
+  opacity: 0;
+  transform: translateX(-52%) rotate(8deg);
+}
+
+.auth-google:active,
+.account-action:active {
+  transform: translateY(1px) scale(0.985);
+}
+
+.auth-google:active::after,
+.account-action:active::after {
+  animation: auth-button-sheen 620ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.auth-click-orb {
+  position: absolute;
+  z-index: 0;
+  width: 0.5rem;
+  height: 0.5rem;
+  pointer-events: none;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.75) 0%,
+    rgba(255, 210, 138, 0.42) 38%,
+    transparent 70%
+  );
+  transform: translate(-50%, -50%) scale(0);
+  animation: auth-click-orb 720ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.auth-submit > *,
+.auth-google > *,
+.account-action > *,
+.auth-body .back-button > * {
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes auth-button-sheen {
+  0% {
+    opacity: 0;
+    transform: translateX(-55%) rotate(8deg);
+  }
+  18% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(55%) rotate(8deg);
+  }
+}
+
+@keyframes auth-button-loading {
+  0% {
+    transform: translateX(-55%) rotate(8deg);
+  }
+  100% {
+    transform: translateX(55%) rotate(8deg);
+  }
+}
+
+@keyframes auth-click-orb {
+  0% {
+    opacity: 0.85;
+    transform: translate(-50%, -50%) scale(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(34);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-google:active::after,
+  .account-action:active::after,
+  .auth-click-orb {
+    animation: none;
+  }
+}
+
+/* ============================================================
+   FINAL OVERRIDES — chosen variant: MAÎTRE + scale lock + account compaction
+   These rules come last so they win the cascade.
+   ============================================================ */
+
+/* 1. Lock auth pages to a 16px root font-size.
+   The global :root uses calc() that scales rem up to ~21px on 1080p+ screens,
+   which was making the account/auth cards feel zoomed and require scrolling. */
+html:has(body.auth-body) {
+  font-size: 16px;
+}
+
+/* 2. MAÎTRE — match the preview/buttons-preview variant 1 EXACTLY.
+   The !important on every property is deliberate — earlier rules in this
+   file fight back, and we need the visual to match the chosen mockup. */
+
+body.auth-body .auth-submit {
+  position: relative !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0 !important;
+  min-height: auto !important;
+  margin-top: 0.4rem !important;
+  padding: 0.85rem 1.85rem !important;
+  border: 0 !important;
+  border-radius: 4px !important;
+  background: linear-gradient(180deg, #f7e9cd 0%, #ead9b6 100%) !important;
+  color: #2a1608 !important;
+  font:
+    italic 600 1.05rem/1 'Cormorant Garamond',
+    Georgia,
+    serif !important;
+  letter-spacing: 0.04em !important;
+  text-transform: none !important;
+  text-shadow: none !important;
+  cursor: pointer;
+  overflow: visible !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.6) inset,
+    0 -1px 0 rgba(120, 85, 30, 0.2) inset,
+    0 8px 24px rgba(0, 0, 0, 0.3) !important;
+  transition:
+    transform 0.18s,
+    box-shadow 0.2s !important;
+}
+
+/* Corner ornaments — L-brackets at the four corners.
+   Continuous gentle breathe + dramatic rotate/scale on hover.
+   Top-left on ::before, bottom-right on ::after. */
+
+body.auth-body .auth-submit::before,
+body.auth-body .auth-submit::after {
+  content: '' !important;
+  display: block !important;
+  position: absolute !important;
+  width: 7px !important;
+  height: 7px !important;
+  border: 1px solid rgba(120, 85, 30, 0.4) !important;
+  background: none !important;
+  box-shadow: none !important;
+  inset: auto !important;
+  opacity: 1 !important;
+  pointer-events: none;
+  animation: maitre-corner-breathe 3.6s ease-in-out infinite !important;
+  transition:
+    border-color 0.3s ease,
+    transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1),
+    width 0.45s cubic-bezier(0.34, 1.56, 0.64, 1),
+    height 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+  transform-origin: center;
+}
+
+body.auth-body .auth-submit::before {
+  top: 8px !important;
+  left: 8px !important;
+  border-right: 0 !important;
+  border-bottom: 0 !important;
+}
+
+body.auth-body .auth-submit::after {
+  bottom: 8px !important;
+  right: 8px !important;
+  border-left: 0 !important;
+  border-top: 0 !important;
+  animation-delay: -1.8s !important; /* out of phase with ::before */
+}
+
+@keyframes maitre-corner-breathe {
+  0%,
+  100% {
+    opacity: 0.45;
+    border-color: rgba(120, 85, 30, 0.32);
+  }
+  50% {
+    opacity: 1;
+    border-color: rgba(180, 100, 30, 0.65);
+  }
+}
+
+body.auth-body .auth-submit:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+body.auth-body .auth-submit:hover::before,
+body.auth-body .auth-submit:hover::after {
+  width: 11px !important;
+  height: 11px !important;
+  border-color: #b25400 !important;
+  opacity: 1 !important;
+  animation: none !important;
+}
+
+/* On click — corners flash bright + grow briefly as a confirmation gesture */
+body.auth-body .auth-submit.is-clicked::before,
+body.auth-body .auth-submit.is-clicked::after {
+  animation: maitre-corner-flash 0.55s cubic-bezier(0.22, 1, 0.36, 1) !important;
+}
+
+@keyframes maitre-corner-flash {
+  0% {
+    transform: scale(1);
+    border-color: #b25400;
+  }
+  40% {
+    transform: scale(1.7);
+    border-color: #ff9800;
+  }
+  100% {
+    transform: scale(1);
+    border-color: rgba(120, 85, 30, 0.4);
+  }
+}
+
+body.auth-body .auth-submit:active:not(:disabled) {
+  transform: translateY(0) scale(0.98);
+}
+
+body.auth-body .auth-submit:disabled {
+  opacity: 0.65 !important;
+  filter: grayscale(0.2);
+  cursor: progress;
+}
+
+/* Gold seal underline — same as preview */
+.auth-submit__seal {
+  position: absolute;
+  left: 50%;
+  bottom: 0.45rem;
+  height: 1px;
+  background: #d4a857;
+  box-shadow: 0 0 6px rgba(212, 168, 87, 0.6);
+  width: 0;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.auth-submit.is-clicked .auth-submit__seal {
+  animation: auth-submit-seal 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes auth-submit-seal {
+  0% {
+    width: 0;
+    opacity: 1;
+  }
+  50% {
+    width: 80%;
+    opacity: 1;
+  }
+  100% {
+    width: 80%;
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-submit.is-clicked .auth-submit__seal,
+  body.auth-body .auth-submit::before,
+  body.auth-body .auth-submit::after,
+  body.auth-body .auth-submit.is-clicked::before,
+  body.auth-body .auth-submit.is-clicked::after,
+  body.auth-body .auth-submit:hover::before,
+  body.auth-body .auth-submit:hover::after {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+  }
+  body.auth-body .auth-submit {
+    transition: none !important;
+  }
+}
+
+/* Landscape on small phones: shrink top padding so back-button doesn't
+   overlap the form, and collapse the back-button label to icon only. */
+@media screen and (max-height: 600px) and (orientation: landscape) {
+  body.auth-body .auth-stage {
+    padding-top: 1.5rem !important;
+    padding-bottom: 1.5rem !important;
+    align-items: flex-start;
+  }
+
+  body.auth-body .back-button {
+    top: 10px;
+    left: 10px;
+    padding: 6px 10px 6px 6px;
+  }
+
+  body.auth-body .back-button-icon {
+    width: 28px;
+    height: 28px;
+  }
+
+  body.auth-body .back-button-icon svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  body.auth-body .back-button-text {
+    display: none;
+  }
+}
+
+/* 3. Compact .account-card so it fits without scrolling on a normal viewport */
+.account-card {
+  width: min(94vw, 26rem);
+  padding: 1.5rem 1.6rem;
+  border-radius: 1.25rem;
+}
+
+.account-header {
+  gap: 0.85rem;
+  margin-bottom: 1rem;
+}
+
+.account-avatar {
+  width: 2.5rem;
+  height: 2.5rem;
+  font-size: 0.95rem;
+}
+
+.account-name {
+  font-size: 1.25rem;
+}
+
+.account-email {
+  font-size: 0.78rem;
+}
+
+.account-plan-badge {
+  padding: 0.22rem 0.6rem;
+  font-size: 0.66rem;
+}
+
+.account-section {
+  margin-top: 1.05rem;
+}
+
+.account-section__title {
+  margin: 0 0 0.55rem;
+  font-size: 0.66rem;
+}
+
+.account-usage {
+  gap: 0.5rem;
+}
+
+.account-usage__row {
+  padding: 0.65rem 0.85rem;
+  border-radius: 0.7rem;
+}
+
+.account-usage__head {
+  margin-bottom: 0.4rem;
+}
+
+.account-usage__label {
+  font-size: 0.8rem;
+}
+
+.account-usage__count {
+  font-size: 0.72rem;
+}
+
+.account-actions {
+  gap: 0.4rem;
+}
+
+.account-action {
+  padding: 0.7rem 0.9rem;
+  font-size: 0.85rem;
+  border-radius: 0.7rem;
+}
+
+/* When the account card is on screen, give it more vertical breathing room */
+.auth-stage:has(.account-card) {
+  padding-top: 4rem;
+  padding-bottom: 2rem;
 }

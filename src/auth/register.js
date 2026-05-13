@@ -12,7 +12,7 @@ function describeError(err) {
     return 'Já existe uma conta com esse email. Tenta entrar ou recuperar a senha.';
   }
   if (msg.includes('password')) {
-    return 'Senha inválida. Usa pelo menos 6 caracteres.';
+    return 'Senha inválida. Usa pelo menos 8 caracteres.';
   }
   if (msg.includes('rate limit')) {
     return 'Demasiadas tentativas. Tenta daqui a uns minutos.';
@@ -64,8 +64,8 @@ async function init() {
       setFeedback(feedback, 'err', 'Email é obrigatório.');
       return;
     }
-    if (password.length < 6) {
-      setFeedback(feedback, 'err', 'A senha precisa de ter pelo menos 6 caracteres.');
+    if (password.length < 8) {
+      setFeedback(feedback, 'err', 'A senha precisa de ter pelo menos 8 caracteres.');
       return;
     }
     if (password !== confirm) {

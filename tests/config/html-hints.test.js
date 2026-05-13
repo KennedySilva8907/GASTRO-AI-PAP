@@ -40,7 +40,8 @@ describe('HTML Performance Hints', () => {
   describe('no render-blocking CDN scripts', () => {
     it('index.html: anime.js has defer', () => {
       const html = readHTML('index.html');
-      expect(html).toMatch(/anime\.min\.js["']\s+defer/);
+      // Allow SRI attributes (integrity, crossorigin) between src and defer
+      expect(html).toMatch(/anime\.min\.js["'][\s\S]*?\sdefer\b/);
     });
 
     it('chat/chatbot.html: matter.js has defer', () => {
@@ -60,7 +61,8 @@ describe('HTML Performance Hints', () => {
 
     it('chat/chatbot.html: dompurify has defer', () => {
       const html = readHTML('chat/chatbot.html');
-      expect(html).toMatch(/purify\.min\.js["']\s+defer/);
+      // Allow SRI attributes (integrity, crossorigin) between src and defer
+      expect(html).toMatch(/purify\.min\.js["'][\s\S]*?\sdefer\b/);
     });
 
     it('recipes/receitas.html: gsap has defer', () => {
@@ -70,7 +72,8 @@ describe('HTML Performance Hints', () => {
 
     it('challenges/desafio.html: dompurify has defer', () => {
       const html = readHTML('challenges/desafio.html');
-      expect(html).toMatch(/purify\.min\.js["']\s+defer/);
+      // Allow SRI attributes (integrity, crossorigin) between src and defer
+      expect(html).toMatch(/purify\.min\.js["'][\s\S]*?\sdefer\b/);
     });
   });
 

@@ -64,20 +64,18 @@ export function createSupabaseUsageStore(supabase = getSupabaseAdminClient()) {
       return data;
     },
 
-    async setUsageWindow({ userId, feature, count, windowStartedAt, windowExpiresAt }) {
-      const { error } = await supabase.from('daily_usage').upsert(
-        {
-          user_id: userId,
-          feature,
-          count,
-          window_started_at: windowStartedAt,
-          window_expires_at: windowExpiresAt,
-          updated_at: new Date().toISOString(),
-        },
-        { onConflict: 'user_id,feature' }
-      );
-
+    // Atomic check-and-increment via Postgres RPC.
+    // Closes the TOCTOU race that previously let parallel requests
+    // bypass the daily limit (read 9 → check 9<10 → write 10 twice).
+    async atomicCheckAndIncrement({ userId, feature, limit, now }) {
+      const { data, error } = await supabase.rpc('check_and_increment_usage', {
+        p_user_id: userId,
+        p_feature: feature,
+        p_limit: limit,
+        p_now: now.toISOString(),
+      });
       if (error) throw error;
+      return data;
     },
 
     async insertUsageEvent({ userId, feature, plan }) {
@@ -111,31 +109,23 @@ export async function checkAndIncrementUsage({ store, user, feature, now = new D
   const plan = getPlanFromSubscription(subscription, now);
   const limit = PLAN_LIMITS[plan][feature];
 
-  const window = await activeStore.getUsageWindow({ userId: user.id, feature });
+  // Single atomic operation — replaces the previous read/check/write pattern
+  // that was vulnerable to TOCTOU race conditions.
+  const result = await activeStore.atomicCheckAndIncrement({
+    userId: user.id,
+    feature,
+    limit,
+    now,
+  });
 
-  let count;
-  let windowStartedAt;
-  let windowExpiresAt;
-
-  if (!window || now >= new Date(window.window_expires_at)) {
-    // Start a fresh 24-hour window
-    windowStartedAt = now.toISOString();
-    windowExpiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000).toISOString();
-    count = 0;
-  } else {
-    count = window.count;
-    windowStartedAt = window.window_started_at;
-    windowExpiresAt = window.window_expires_at;
-  }
-
-  if (count >= limit) {
+  if (!result.allowed) {
     return {
       allowed: false,
       status: 429,
       plan,
       usage: {
         feature,
-        used: count,
+        used: result.count,
         limit,
         remaining: 0,
       },
@@ -146,28 +136,27 @@ export async function checkAndIncrementUsage({ store, user, feature, now = new D
     };
   }
 
-  const nextCount = count + 1;
-  await activeStore.setUsageWindow({
-    userId: user.id,
-    feature,
-    count: nextCount,
-    windowStartedAt,
-    windowExpiresAt,
-  });
-  await activeStore.insertUsageEvent({
-    userId: user.id,
-    feature,
-    plan,
-  });
+  // Log the event separately — count is already committed atomically above.
+  // If this fails, we have a slight discrepancy in usage_events, but the
+  // rate limit count is still correct (which is the security-critical part).
+  try {
+    await activeStore.insertUsageEvent({
+      userId: user.id,
+      feature,
+      plan,
+    });
+  } catch (err) {
+    console.error('[Usage Event Log Error]', { message: err?.message });
+  }
 
   return {
     allowed: true,
     plan,
     usage: {
       feature,
-      used: nextCount,
+      used: result.count,
       limit,
-      remaining: Math.max(0, limit - nextCount),
+      remaining: Math.max(0, limit - result.count),
     },
   };
 }

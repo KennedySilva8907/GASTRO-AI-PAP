@@ -8,18 +8,26 @@ export const config = {
   },
 };
 
+// Stripe verifies the HMAC over the EXACT bytes Stripe sent. We must never
+// re-serialize a parsed object — JSON.stringify of a parsed body changes
+// whitespace and key ordering, breaking signature verification (and silently
+// allowing a forged JSON to be accepted if combined with the legacy fallback).
 function getRawBody(req) {
   if (Buffer.isBuffer(req.body)) return req.body.toString('utf8');
   if (typeof req.body === 'string') return req.body;
-  if (req.body && typeof req.body === 'object') return JSON.stringify(req.body);
-  return '';
+  // Some test/runtime environments hand us a Uint8Array — that's still raw bytes
+  // (not a parsed object), so it's safe to wrap. We do NOT accept plain objects.
+  if (req.body instanceof Uint8Array) return Buffer.from(req.body).toString('utf8');
+  // Body is missing, null, or already parsed into an object. Refuse to verify.
+  throw new Error('Stripe webhook body unavailable in raw form (bodyParser misconfigured)');
 }
 
+// Always require the real Stripe SDK to construct/verify the event.
+// The previous JSON.parse fallback was a foot-gun: any path where stripe
+// became falsy (config drift, refactor) would let an attacker POST a
+// hand-crafted event with status:'active' for any user_id.
 function constructStripeEvent({ stripe, rawBody, signature, webhookSecret }) {
-  if (stripe?.webhooks?.constructEvent) {
-    return stripe.webhooks.constructEvent(rawBody, signature, webhookSecret);
-  }
-  return JSON.parse(rawBody || '{}');
+  return stripe.webhooks.constructEvent(rawBody, signature, webhookSecret);
 }
 
 export default async function handler(req, res) {
@@ -49,7 +57,8 @@ export default async function handler(req, res) {
     await handleStripeEvent({ store, event });
     return res.status(200).json({ received: true });
   } catch (error) {
-    console.error('[Stripe Webhook Error]', error);
+    // Don't leak internals (stack, query hints) to a public webhook receiver.
+    console.error('[Stripe Webhook Error]', { message: error?.message });
     return res.status(400).json({
       error: 'Invalid Stripe webhook',
       code: ERROR_CODES.INVALID_INPUT,

@@ -27,7 +27,6 @@ describe('getPlanFromSubscription', () => {
 describe('checkAndIncrementUsage', () => {
   const now = new Date('2026-05-04T12:00:00.000Z');
   const windowActive = {
-    count: 0,
     window_started_at: '2026-05-04T00:00:00.000Z',
     window_expires_at: '2026-05-05T00:00:00.000Z',
   };
@@ -36,11 +35,11 @@ describe('checkAndIncrementUsage', () => {
     const store = {
       ensureProfile: vi.fn(),
       getLatestSubscription: vi.fn().mockResolvedValue(null),
-      getUsageWindow: vi.fn().mockResolvedValue({
-        ...windowActive,
+      atomicCheckAndIncrement: vi.fn().mockResolvedValue({
+        allowed: false,
         count: PLAN_LIMITS.free.chat,
+        ...windowActive,
       }),
-      setUsageWindow: vi.fn(),
       insertUsageEvent: vi.fn(),
     };
 
@@ -54,8 +53,14 @@ describe('checkAndIncrementUsage', () => {
     expect(result.allowed).toBe(false);
     expect(result.status).toBe(429);
     expect(result.body.code).toBe('ERR_RATE_LIMIT_001');
-    expect(store.setUsageWindow).not.toHaveBeenCalled();
+    expect(result.usage.used).toBe(PLAN_LIMITS.free.chat);
     expect(store.insertUsageEvent).not.toHaveBeenCalled();
+    expect(store.atomicCheckAndIncrement).toHaveBeenCalledWith({
+      userId: 'user-1',
+      feature: 'chat',
+      limit: PLAN_LIMITS.free.chat,
+      now,
+    });
   });
 
   it('increments usage for a pro user within the challenge limit', async () => {
@@ -65,11 +70,11 @@ describe('checkAndIncrementUsage', () => {
         status: 'active',
         current_period_end: '2026-05-10T00:00:00.000Z',
       }),
-      getUsageWindow: vi.fn().mockResolvedValue({
+      atomicCheckAndIncrement: vi.fn().mockResolvedValue({
+        allowed: true,
+        count: 5,
         ...windowActive,
-        count: 4,
       }),
-      setUsageWindow: vi.fn().mockResolvedValue(undefined),
       insertUsageEvent: vi.fn().mockResolvedValue(undefined),
     };
 
@@ -82,13 +87,13 @@ describe('checkAndIncrementUsage', () => {
 
     expect(result.allowed).toBe(true);
     expect(result.plan).toBe('pro');
+    expect(result.usage.used).toBe(5);
     expect(result.usage.remaining).toBe(PLAN_LIMITS.pro.challenge_recipe - 5);
-    expect(store.setUsageWindow).toHaveBeenCalledWith({
+    expect(store.atomicCheckAndIncrement).toHaveBeenCalledWith({
       userId: 'user-1',
       feature: 'challenge_recipe',
-      count: 5,
-      windowStartedAt: windowActive.window_started_at,
-      windowExpiresAt: windowActive.window_expires_at,
+      limit: PLAN_LIMITS.pro.challenge_recipe,
+      now,
     });
     expect(store.insertUsageEvent).toHaveBeenCalledWith({
       userId: 'user-1',
@@ -97,44 +102,45 @@ describe('checkAndIncrementUsage', () => {
     });
   });
 
-  it('resets usage and starts a new window when the previous window has expired', async () => {
+  it('passes the current limit to the atomic RPC for free users', async () => {
     const store = {
       ensureProfile: vi.fn(),
       getLatestSubscription: vi.fn().mockResolvedValue(null),
-      getUsageWindow: vi.fn().mockResolvedValue({
-        count: PLAN_LIMITS.free.chat,
-        window_started_at: '2026-05-03T00:00:00.000Z',
-        window_expires_at: '2026-05-04T00:00:00.000Z', // expired — now is 12:00
+      atomicCheckAndIncrement: vi.fn().mockResolvedValue({
+        allowed: true,
+        count: 1,
+        ...windowActive,
       }),
-      setUsageWindow: vi.fn().mockResolvedValue(undefined),
       insertUsageEvent: vi.fn().mockResolvedValue(undefined),
     };
 
-    const result = await checkAndIncrementUsage({
+    await checkAndIncrementUsage({
       store,
       user: { id: 'user-1', email: 'chef@example.com' },
       feature: 'chat',
       now,
     });
 
-    expect(result.allowed).toBe(true);
-    expect(result.usage.used).toBe(1);
-    expect(store.setUsageWindow).toHaveBeenCalledWith({
+    expect(store.atomicCheckAndIncrement).toHaveBeenCalledWith({
       userId: 'user-1',
       feature: 'chat',
-      count: 1,
-      windowStartedAt: now.toISOString(),
-      windowExpiresAt: new Date(now.getTime() + 24 * 60 * 60 * 1000).toISOString(),
+      limit: PLAN_LIMITS.free.chat,
+      now,
     });
   });
 
-  it('starts a fresh window when no prior usage exists', async () => {
+  it('still allows the request even if usage_event log fails', async () => {
+    // The atomic RPC has already committed the count — failing to log
+    // the analytics event must not throw or break the user-facing flow.
     const store = {
       ensureProfile: vi.fn(),
       getLatestSubscription: vi.fn().mockResolvedValue(null),
-      getUsageWindow: vi.fn().mockResolvedValue(null),
-      setUsageWindow: vi.fn().mockResolvedValue(undefined),
-      insertUsageEvent: vi.fn().mockResolvedValue(undefined),
+      atomicCheckAndIncrement: vi.fn().mockResolvedValue({
+        allowed: true,
+        count: 3,
+        ...windowActive,
+      }),
+      insertUsageEvent: vi.fn().mockRejectedValue(new Error('log failed')),
     };
 
     const result = await checkAndIncrementUsage({
@@ -145,13 +151,6 @@ describe('checkAndIncrementUsage', () => {
     });
 
     expect(result.allowed).toBe(true);
-    expect(result.usage.used).toBe(1);
-    expect(store.setUsageWindow).toHaveBeenCalledWith({
-      userId: 'user-1',
-      feature: 'chat',
-      count: 1,
-      windowStartedAt: now.toISOString(),
-      windowExpiresAt: new Date(now.getTime() + 24 * 60 * 60 * 1000).toISOString(),
-    });
+    expect(result.usage.used).toBe(3);
   });
 });

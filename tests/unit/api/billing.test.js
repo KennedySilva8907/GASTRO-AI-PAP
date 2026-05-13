@@ -65,8 +65,7 @@ describe('createPortalSession', () => {
 describe('handleStripeEvent', () => {
   it('stores subscription state from checkout.session.completed', async () => {
     const store = {
-      hasProcessedEvent: vi.fn().mockResolvedValue(false),
-      markEventProcessed: vi.fn().mockResolvedValue(undefined),
+      registerStripeEvent: vi.fn().mockResolvedValue(true),
       upsertSubscription: vi.fn().mockResolvedValue(undefined),
     };
 
@@ -85,6 +84,7 @@ describe('handleStripeEvent', () => {
       },
     });
 
+    expect(store.registerStripeEvent).toHaveBeenCalledWith('evt_1', 'checkout.session.completed');
     expect(store.upsertSubscription).toHaveBeenCalledWith(
       expect.objectContaining({
         userId: 'user-1',
@@ -93,22 +93,54 @@ describe('handleStripeEvent', () => {
         status: 'active',
       })
     );
-    expect(store.markEventProcessed).toHaveBeenCalledWith('evt_1', 'checkout.session.completed');
   });
 
-  it('skips events that were already processed', async () => {
+  it('skips events that were already processed (atomic register returns false)', async () => {
     const store = {
-      hasProcessedEvent: vi.fn().mockResolvedValue(true),
-      markEventProcessed: vi.fn(),
+      registerStripeEvent: vi.fn().mockResolvedValue(false),
       upsertSubscription: vi.fn(),
     };
 
-    await handleStripeEvent({
+    const result = await handleStripeEvent({
       store,
       event: { id: 'evt_1', type: 'customer.subscription.updated', data: { object: {} } },
     });
 
+    expect(result.processed).toBe(false);
     expect(store.upsertSubscription).not.toHaveBeenCalled();
-    expect(store.markEventProcessed).not.toHaveBeenCalled();
+  });
+
+  it('updates subscription state on customer.subscription.updated', async () => {
+    const store = {
+      registerStripeEvent: vi.fn().mockResolvedValue(true),
+      upsertSubscription: vi.fn().mockResolvedValue(undefined),
+    };
+
+    await handleStripeEvent({
+      store,
+      event: {
+        id: 'evt_2',
+        type: 'customer.subscription.updated',
+        data: {
+          object: {
+            id: 'sub_123',
+            customer: 'cus_123',
+            status: 'active',
+            current_period_end: 1893456000,
+            items: { data: [{ price: { id: 'price_pro' } }] },
+            metadata: { user_id: 'user-1' },
+          },
+        },
+      },
+    });
+
+    expect(store.upsertSubscription).toHaveBeenCalledWith(
+      expect.objectContaining({
+        userId: 'user-1',
+        stripeSubscriptionId: 'sub_123',
+        status: 'active',
+        priceId: 'price_pro',
+      })
+    );
   });
 });

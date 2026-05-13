@@ -28,24 +28,19 @@ export function createSupabaseBillingStore(supabase = getSupabaseAdminClient()) 
       return data;
     },
 
-    async hasProcessedEvent(eventId) {
-      const { data, error } = await supabase
-        .from('stripe_events')
-        .select('id')
-        .eq('id', eventId)
-        .maybeSingle();
-
+    // Atomic register-event for Stripe webhook idempotency.
+    // Returns true if this is the first time we're seeing the event (process it),
+    // false if Stripe already delivered it before (skip).
+    // Race-safe via the UNIQUE PRIMARY KEY constraint on stripe_events.id.
+    // Replaces the previous hasProcessedEvent + markEventProcessed pair which
+    // had a TOCTOU race when Stripe re-delivered an event in parallel.
+    async registerStripeEvent(eventId, eventType) {
+      const { data, error } = await supabase.rpc('register_stripe_event', {
+        p_event_id: eventId,
+        p_event_type: eventType,
+      });
       if (error) throw error;
       return Boolean(data);
-    },
-
-    async markEventProcessed(eventId, eventType) {
-      const { error } = await supabase.from('stripe_events').insert({
-        id: eventId,
-        event_type: eventType,
-      });
-
-      if (error) throw error;
     },
 
     async upsertSubscription({
@@ -131,21 +126,49 @@ export async function handleStripeEvent({ store, event }) {
     throw new Error('Billing store is not configured');
   }
 
-  if (await activeStore.hasProcessedEvent(event.id)) {
+  // Race-safe idempotency: a single SQL INSERT … ON CONFLICT DO NOTHING.
+  // If two parallel deliveries arrive, only one returns true here.
+  const isNew = await activeStore.registerStripeEvent(event.id, event.type);
+  if (!isNew) {
     return { processed: false };
   }
 
   const object = event.data.object;
 
   if (event.type === 'checkout.session.completed') {
-    await activeStore.upsertSubscription({
-      userId: object.client_reference_id || object.metadata?.user_id,
+    const userId = object.client_reference_id || object.metadata?.user_id;
+    let payload = {
+      userId,
       stripeCustomerId: object.customer,
       stripeSubscriptionId: object.subscription,
       status: 'active',
       priceId: null,
       currentPeriodEnd: null,
-    });
+    };
+
+    // Expand the subscription so we persist priceId + currentPeriodEnd immediately.
+    // Without this, if customer.subscription.created fails or arrives out of order,
+    // we'd be stuck with status:'active' but null current_period_end — which makes
+    // isPeriodCurrent() return true forever (Pro for life bug).
+    const stripe = getStripeClient();
+    if (stripe && object.subscription) {
+      try {
+        const subscription = await stripe.subscriptions.retrieve(object.subscription);
+        payload = {
+          userId,
+          ...subscriptionPayloadFromObject({
+            ...subscription,
+            metadata: { user_id: userId, ...subscription.metadata },
+          }),
+        };
+      } catch {
+        // fall through with the partial payload — subscription.created event will fix it
+      }
+    }
+
+    if (payload.userId) {
+      await activeStore.upsertSubscription(payload);
+    }
   }
 
   if (
@@ -159,6 +182,6 @@ export async function handleStripeEvent({ store, event }) {
     }
   }
 
-  await activeStore.markEventProcessed(event.id, event.type);
+  // Event was already registered atomically at the start of this function.
   return { processed: true };
 }

@@ -43,7 +43,7 @@ export default async function handler(req, res) {
 
     return res.status(200).json({ url: session.url });
   } catch (error) {
-    console.error('[Stripe Checkout Error]', error);
+    console.error('[Stripe Checkout Error]', { message: error?.message, code: error?.code });
     return res.status(500).json({
       error: 'Unable to start checkout',
       code: ERROR_CODES.INTERNAL,

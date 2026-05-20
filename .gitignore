@@ -38,3 +38,23 @@ build/
 coverage/
 lighthouse-report.json
 .env*.local
+
+# Graphify knowledge graph (output + per-machine cache + chunked corpus)
+graphify-out/
+.graphify_cached.json
+.graphify_detect.json
+.graphify_incremental.json
+.graphify_uncached.txt
+.graphify_python
+.graphify_chunks/
+
+# Obsidian vault config (per-user UI state, not project config)
+.obsidian/
+
+# Playwright test artifacts (snapshots, logs from local dev runs)
+.playwright-mcp/
+
+# Internal design previews (kept local, not deployed)
+*-preview.html
+**/*-preview.html
+

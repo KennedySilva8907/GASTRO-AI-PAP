@@ -1,11 +1,26 @@
 import { getSupabaseClient, sanitizeRedirect } from './client.js';
+import { initials } from './initials.js';
 import { API_ENDPOINTS } from '../shared/constants.js';
 
 const REDIRECT_KEY = 'gastro-auth-redirect';
 
 let accountBar = null;
+let avatarEls = null;
 let cachedSession = null;
+let cachedUser = null;
 let cachedPlan = null;
+
+// Fetch fresh user data from Supabase (forces a server roundtrip) so
+// user_metadata.avatar_url updates show up after signOut + signIn.
+// session.user is captured at JWT issue time and goes stale.
+async function refreshCachedUser(supabase) {
+  try {
+    const { data } = await supabase.auth.getUser();
+    cachedUser = data?.user || null;
+  } catch {
+    cachedUser = null;
+  }
+}
 
 function createButton(className, text) {
   const button = document.createElement('button');
@@ -13,6 +28,59 @@ function createButton(className, text) {
   button.className = className;
   button.textContent = text;
   return button;
+}
+
+/**
+ * Build the mini avatar (32px circle) shown at the start of the account-bar.
+ * Renders the user photo when available, with initials as the always-present
+ * fallback layer for failed loads, non-Google accounts, and not-yet-uploaded.
+ */
+function createMiniAvatar() {
+  const wrap = document.createElement('span');
+  wrap.className = 'account-bar__avatar';
+  wrap.setAttribute('aria-hidden', 'true');
+
+  const initialsSpan = document.createElement('span');
+  initialsSpan.className = 'account-bar__avatar-initials';
+  initialsSpan.textContent = '?';
+
+  const img = document.createElement('img');
+  img.className = 'account-bar__avatar-img';
+  img.alt = '';
+  img.hidden = true;
+  // If the photo URL 404s or loads broken, revert to initials automatically
+  img.addEventListener('error', () => {
+    img.hidden = true;
+    img.removeAttribute('src');
+    initialsSpan.hidden = false;
+  });
+
+  wrap.append(initialsSpan, img);
+  return { wrap, img, initialsSpan };
+}
+
+function updateMiniAvatar(avatarEls, session) {
+  if (!avatarEls) return;
+  const { img, initialsSpan } = avatarEls;
+
+  const meta = session?.user?.user_metadata || {};
+  // Priority: our custom upload first, then OAuth photos.
+  // custom_avatar is namespaced so OAuth providers can't overwrite it.
+  const photo = meta.custom_avatar || meta.avatar_url || meta.picture;
+  const name = meta.name || meta.full_name || '';
+  const email = session?.user?.email || '';
+
+  initialsSpan.textContent = initials(name || email);
+
+  if (photo) {
+    img.src = photo;
+    img.hidden = false;
+    initialsSpan.hidden = true;
+  } else {
+    img.hidden = true;
+    img.removeAttribute('src');
+    initialsSpan.hidden = false;
+  }
 }
 
 export async function getCurrentSession() {
@@ -64,6 +132,18 @@ async function refreshAccountState() {
   const loginButton = accountBar.querySelector('[data-account-login]');
   const logoutButton = accountBar.querySelector('[data-account-logout]');
   const upgradeButton = accountBar.querySelector('[data-account-upgrade]');
+
+  // Mini avatar reflects current session (photo / initials / hidden).
+  // Pass the fresh user (cachedUser) so newly-uploaded avatars show up
+  // after a fresh sign-in instead of staying on initials.
+  if (avatarEls) {
+    if (session) {
+      avatarEls.wrap.hidden = false;
+      updateMiniAvatar(avatarEls, { user: cachedUser || session.user });
+    } else {
+      avatarEls.wrap.hidden = true;
+    }
+  }
 
   if (!session) {
     status.textContent = 'Inicia sessão para usar IA';
@@ -133,6 +213,13 @@ export async function initAccountBar() {
   accountBar.className = 'account-bar';
   accountBar.setAttribute('aria-label', 'Conta GastroAI');
 
+  // Mini avatar (photo or initials) — clickable, navigates to /auth/account
+  avatarEls = createMiniAvatar();
+  avatarEls.wrap.addEventListener('click', () => {
+    if (cachedSession) window.location.href = '/auth/account';
+  });
+  accountBar.appendChild(avatarEls.wrap);
+
   const status = document.createElement('span');
   status.className = 'account-bar__status';
   status.dataset.accountStatus = '';
@@ -173,9 +260,17 @@ export async function initAccountBar() {
     const supabase = await getSupabaseClient();
     const { data } = await supabase.auth.getSession();
     cachedSession = data?.session || null;
-    supabase.auth.onAuthStateChange((_event, session) => {
+    if (cachedSession) {
+      await refreshCachedUser(supabase);
+    }
+    supabase.auth.onAuthStateChange(async (_event, session) => {
       cachedSession = session;
       cachedPlan = null;
+      if (session) {
+        await refreshCachedUser(supabase);
+      } else {
+        cachedUser = null;
+      }
       refreshAccountState();
     });
   } catch {
@@ -188,6 +283,7 @@ export async function initAccountBar() {
     window.addEventListener('storage', (event) => {
       if (event.key && event.key.startsWith('sb-')) {
         cachedSession = null;
+        cachedUser = null;
         cachedPlan = null;
         refreshAccountState();
       }
@@ -195,6 +291,11 @@ export async function initAccountBar() {
   }
 
   await refreshAccountState();
-  document.body.prepend(accountBar);
+  // Insert into <html> instead of <body>. The chat page applies
+  // `will-change: transform` on body, which turns body into the containing
+  // block for fixed descendants — that breaks position:fixed/top:1rem and
+  // the bar rendered at the flex-centered middle of the page. Anchoring to
+  // documentElement bypasses any body transform/will-change effect.
+  document.documentElement.appendChild(accountBar);
   return accountBar;
 }

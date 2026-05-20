@@ -2554,77 +2554,135 @@ body {
 
 .account-actions {
   display: grid;
-  gap: 0.55rem;
-  margin-top: 1.5rem;
+  gap: 0;
+  margin-top: 1.25rem;
+  /* Per-section ordinal: 01-02 inside Subscrição, 01-02 inside Conta. */
+  counter-reset: account-action;
 }
 
+/* Editorial-index account action — numbered list, hairline rules, serif
+   label, monospaced cue. The cue stays anchored to the right via grid;
+   no transform on the cue itself, so the old "arrow drifts to the
+   middle on press" bug is eliminated by structure, not by patches. */
 .account-action {
-  display: flex;
+  counter-increment: account-action;
+  position: relative;
+  display: grid;
+  grid-template-columns: 2.4rem 1fr auto;
   align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  padding: 0.85rem 1rem;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 0.85rem;
-  background: rgba(255, 255, 255, 0.03);
+  gap: 0.9rem;
+  width: 100%;
+  padding: 0.95rem 1rem;
+  border: 0;
+  border-top: 1px solid rgba(255, 250, 243, 0.10);
+  border-radius: 0;
+  background: transparent;
   color: #fff;
   font: inherit;
-  font-size: 0.9rem;
-  font-weight: 500;
   text-align: left;
   cursor: pointer;
-  transition:
-    border-color 0.2s,
-    background 0.2s,
-    transform 0.15s;
   text-decoration: none;
+  transition: background 220ms ease, color 220ms ease;
+}
+
+.account-action:last-child {
+  border-bottom: 1px solid rgba(255, 250, 243, 0.10);
+}
+
+.account-action::before {
+  content: counter(account-action, decimal-leading-zero);
+  font-family: 'JetBrains Mono', 'Consolas', monospace;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  color: #ffd28a;
+  transition: color 220ms ease;
+}
+
+.account-action__label {
+  position: relative;
+  font-family: 'Cormorant Garamond', 'Times New Roman', serif;
+  font-weight: 500;
+  font-size: 1.18rem;
+  line-height: 1.1;
+  letter-spacing: 0.005em;
+  color: #fff;
+}
+
+/* Amber filete sweeping under the label on hover — animates ::after's
+   transform, not the label's, so the label never shifts. */
+.account-action__label::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -0.32rem;
+  width: 100%;
+  height: 1px;
+  background: #ffd28a;
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.account-action:hover .account-action__label::after,
+.account-action:focus-visible .account-action__label::after {
+  transform: scaleX(0.42);
+}
+
+.account-action__cue {
+  font-family: 'JetBrains Mono', 'Consolas', monospace;
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(255, 250, 243, 0.32);
+  transition: color 220ms ease;
 }
 
 .account-action:hover {
-  border-color: rgba(255, 152, 0, 0.3);
-  background: rgba(255, 152, 0, 0.05);
-  transform: translateY(-1px);
+  background: rgba(255, 152, 0, 0.035);
 }
 
-.account-action__chevron {
-  color: rgba(255, 255, 255, 0.35);
-  transition:
-    color 0.2s,
-    transform 0.2s;
+.account-action:hover .account-action__cue,
+.account-action:focus-visible .account-action__cue {
+  color: #ffd28a;
 }
 
-/* Generic chevron hover — exclude primary so the amber arrow doesn't
-   vanish against the amber gradient background. */
-.account-action:not(.account-action--primary):hover .account-action__chevron {
+/* Primary (Upgrade Pro) — amber-tinted label + filled-tone cue. */
+.account-action--primary::before {
   color: #ff9800;
-  transform: translateX(2px);
 }
 
-/* Pro CTA — same dark glass shell as other account actions, with a
-   subtle amber accent (border + text + chevron). Distinguishable as
-   primary without dominating visually. */
-.account-action--primary {
-  border-color: rgba(255, 152, 0, 0.35);
+.account-action--primary .account-action__label {
   color: #ffd28a;
   font-weight: 600;
 }
 
-.account-action--primary:hover {
-  border-color: rgba(255, 152, 0, 0.6);
-  background: rgba(255, 152, 0, 0.08);
-}
-
-.account-action--primary .account-action__chevron {
+.account-action--primary .account-action__cue {
   color: #ff9800;
 }
 
-.account-action--primary:hover .account-action__chevron {
-  color: #ffd28a;
+.account-action--primary:hover {
+  background: rgba(255, 152, 0, 0.06);
 }
 
+/* Danger (Logout) — red filete + cue without breaking the editorial
+   feel. Only the colour swaps; structure is identical. */
 .account-action--danger:hover {
-  border-color: rgba(239, 83, 80, 0.4);
-  background: rgba(239, 83, 80, 0.07);
+  background: rgba(239, 83, 80, 0.05);
+}
+
+.account-action--danger .account-action__label::after {
+  background: #ef9a9a;
+}
+
+.account-action--danger:hover .account-action__cue,
+.account-action--danger:focus-visible .account-action__cue {
+  color: #ef9a9a;
+}
+
+.account-action--danger:hover::before {
+  color: #ef9a9a;
 }
 
 .account-skeleton {
@@ -2863,27 +2921,22 @@ body {
   }
 }
 
-/* AUTH BUTTON MOTION PATCH (auth-submit excluded — handled by MAÎTRE block).
-   .auth-body .back-button is intentionally NOT in this list: it must stay
-   position:fixed (inherited from the base .back-button rule) so it sticks
-   to the viewport on scroll. The shine ::after effect below only targets
-   .auth-google / .account-action, so the back-button doesn't need
-   overflow:hidden either. */
-.auth-google,
-.account-action {
+/* AUTH BUTTON MOTION PATCH — sheen only on .auth-google (the OAuth pill
+   on login/register). Account-actions are now an editorial list (no
+   glass shell, no chevron) so the sheen would clip oddly across the
+   hairline rules. Their feedback is the amber filete sweep + cue color
+   transition handled in the .account-action block above. */
+.auth-google {
   position: relative;
   overflow: hidden;
   transform-origin: center;
 }
 
-/* Keep the auth back-button's transform-origin centered for press-scale
-   without changing its positioning. */
 .auth-body .back-button {
   transform-origin: center;
 }
 
-.auth-google::after,
-.account-action::after {
+.auth-google::after {
   content: '';
   position: absolute;
   inset: -45%;
@@ -2901,14 +2954,20 @@ body {
   transform: translateX(-52%) rotate(8deg);
 }
 
-.auth-google:active,
-.account-action:active {
+.auth-google:active {
   transform: translateY(1px) scale(0.985);
 }
 
-.auth-google:active::after,
-.account-action:active::after {
+.auth-google:active::after {
   animation: auth-button-sheen 620ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Subtle press-scale for the editorial account-actions — uniform on
+   the whole row so nothing inside drifts independently. */
+.account-action:active {
+  transform: translateY(0) scale(0.997);
+  transition-duration: 80ms;
+  background: rgba(255, 152, 0, 0.06);
 }
 
 .auth-click-orb {

@@ -1,19 +1,181 @@
 import { getSupabaseClient } from './client.js';
 import { API_ENDPOINTS } from '../shared/constants.js';
+import { initials } from './initials.js';
 
 function setText(id, text) {
   const el = document.getElementById(id);
   if (el) el.textContent = text;
 }
 
-function initials(nameOrEmail) {
-  const source = (nameOrEmail || '').trim();
-  if (!source) return '·';
-  const parts = source.split(/\s+/);
-  if (parts.length >= 2) {
-    return (parts[0][0] + parts[1][0]).toUpperCase();
+const AVATAR_BUCKET = 'avatars';
+const AVATAR_MAX_BYTES = 2 * 1024 * 1024; // 2 MB Supabase bucket limit
+const AVATAR_INPUT_MAX_BYTES = 15 * 1024 * 1024; // accept up to 15 MB on input, then compress
+const AVATAR_MAX_DIMENSION = 768; // avatars rendered ≤ 3rem; 768px covers retina + future use
+const AVATAR_ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/bmp'];
+
+/**
+ * Take any user-supplied image and return a JPEG Blob ≤ 2MB.
+ * Resizes down to AVATAR_MAX_DIMENSION on the longest side, then reduces JPEG
+ * quality progressively until it fits. Avoids sending the user back with
+ * "Imagem demasiado grande" — most phone photos are >2MB.
+ */
+async function compressImage(file) {
+  const dataUrl = await new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => resolve(e.target.result);
+    reader.onerror = () => reject(new Error('read failed'));
+    reader.readAsDataURL(file);
+  });
+
+  const img = await new Promise((resolve, reject) => {
+    const i = new Image();
+    i.onload = () => resolve(i);
+    i.onerror = () => reject(new Error('decode failed'));
+    i.src = dataUrl;
+  });
+
+  let { width, height } = img;
+  if (width > AVATAR_MAX_DIMENSION || height > AVATAR_MAX_DIMENSION) {
+    const ratio = Math.min(AVATAR_MAX_DIMENSION / width, AVATAR_MAX_DIMENSION / height);
+    width = Math.round(width * ratio);
+    height = Math.round(height * ratio);
   }
-  return source.slice(0, 2).toUpperCase();
+
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(img, 0, 0, width, height);
+
+  // Try qualities 0.92 → 0.5 until under the limit
+  for (const quality of [0.92, 0.85, 0.78, 0.7, 0.6, 0.5]) {
+    const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/jpeg', quality));
+    if (blob && blob.size <= AVATAR_MAX_BYTES) {
+      return blob;
+    }
+  }
+
+  throw new Error('Could not compress image small enough');
+}
+
+function showAvatarImage(url) {
+  const img = document.getElementById('avatar-img');
+  const initialsEl = document.getElementById('avatar-initials');
+  if (!img || !initialsEl) return;
+  // If the image fails to load (404, network, broken URL), automatically
+  // fall back to initials so the user never sees an empty/broken avatar.
+  img.onerror = () => {
+    img.hidden = true;
+    img.removeAttribute('src');
+    initialsEl.hidden = false;
+  };
+  img.src = url;
+  img.hidden = false;
+  initialsEl.hidden = true;
+}
+
+function showAvatarInitials(text) {
+  const img = document.getElementById('avatar-img');
+  const initialsEl = document.getElementById('avatar-initials');
+  if (!img || !initialsEl) return;
+  initialsEl.textContent = text;
+  initialsEl.hidden = false;
+  img.hidden = true;
+  img.removeAttribute('src');
+}
+
+function flashAvatarError(message) {
+  // Show error in the user-name slot briefly — non-blocking, no alert popup.
+  const nameEl = document.getElementById('user-name');
+  if (!nameEl) return;
+  const original = nameEl.textContent;
+  nameEl.textContent = message;
+  nameEl.style.color = '#ef9a9a';
+  setTimeout(() => {
+    nameEl.textContent = original;
+    nameEl.style.color = '';
+  }, 2400);
+}
+
+function wireAvatarUpload(supabase, session) {
+  const btn = document.getElementById('avatar-btn');
+  const input = document.getElementById('avatar-input');
+  if (!btn || !input) return;
+
+  btn.addEventListener('click', () => input.click());
+
+  input.addEventListener('change', async (event) => {
+    const file = event.target.files?.[0];
+    event.target.value = ''; // allow re-selecting the same file later
+    if (!file) return;
+
+    if (!AVATAR_ALLOWED_TYPES.includes(file.type)) {
+      flashAvatarError('Formato inválido. Usa JPG, PNG, WebP, GIF ou BMP.');
+      return;
+    }
+    if (file.size > AVATAR_INPUT_MAX_BYTES) {
+      flashAvatarError('Imagem demasiado grande. Máximo 15 MB.');
+      return;
+    }
+
+    // Optimistic preview from the original file (instant feedback)
+    const previewUrl = URL.createObjectURL(file);
+    showAvatarImage(previewUrl);
+    btn.classList.add('is-uploading');
+
+    try {
+      // Resize + compress to ≤2MB so any phone photo works regardless of size
+      const blob = await compressImage(file);
+
+      const path = `${session.user.id}/avatar-${Date.now()}.jpg`;
+      const { error: uploadError } = await supabase.storage
+        .from(AVATAR_BUCKET)
+        .upload(path, blob, { upsert: true, contentType: 'image/jpeg' });
+      if (uploadError) {
+        // Surface the real Supabase message so misconfigured buckets/policies
+        // can be diagnosed instead of always showing a generic "tenta de novo".
+        const msg = uploadError.message || '';
+        if (/bucket.*not found|404/i.test(msg)) {
+          throw new Error('Bucket "avatars" não existe no Supabase.');
+        }
+        if (/policy|row-level security|rls/i.test(msg)) {
+          throw new Error('Falta permissão no bucket. Verifica as policies SQL.');
+        }
+        if (/payload.*too large|413/i.test(msg)) {
+          throw new Error('Imagem ainda demasiado grande depois de comprimir.');
+        }
+        throw new Error(msg || 'Upload falhou.');
+      }
+
+      const { data: pub } = supabase.storage.from(AVATAR_BUCKET).getPublicUrl(path);
+      const publicUrl = pub?.publicUrl;
+      if (!publicUrl) throw new Error('Não foi possível obter o URL público.');
+
+      // Persist under a custom field name. Supabase OAuth providers (Google)
+      // overwrite `avatar_url` with the IdP's picture on every sign-in,
+      // so storing there means the uploaded photo gets wiped at logout/login.
+      // `custom_avatar` is namespaced to us — no provider touches it.
+      const { error: updateError } = await supabase.auth.updateUser({
+        data: { custom_avatar: publicUrl },
+      });
+      if (updateError) throw updateError;
+
+      // Swap the local blob preview for the persistent CDN URL
+      showAvatarImage(publicUrl);
+      URL.revokeObjectURL(previewUrl);
+    } catch (err) {
+      flashAvatarError(err?.message || 'Não foi possível guardar a foto.');
+      // Revert preview — fall back to initials if there's no prior avatar
+      URL.revokeObjectURL(previewUrl);
+      // Read order: custom upload > Google OAuth photo > Google picture > initials
+      const meta = session.user?.user_metadata || {};
+      const existing = meta.custom_avatar || meta.avatar_url || meta.picture;
+      if (existing) showAvatarImage(existing);
+      else showAvatarInitials(document.getElementById('avatar-initials')?.dataset.fallback || '·');
+    } finally {
+      btn.classList.remove('is-uploading');
+    }
+  });
 }
 
 function fillUsage(usage, plan) {
@@ -111,14 +273,41 @@ async function init() {
     return;
   }
 
-  // Fill identity from session metadata
-  const name = session.user?.user_metadata?.name || session.user?.user_metadata?.full_name || '';
-  const email = session.user?.email || '';
+  // session.user.user_metadata can be stale right after sign-in (the JWT
+  // captures it at issue time, doesn't refetch on update). Pull fresh
+  // user data from the server so the avatar_url set last session shows up.
+  let user = session.user;
+  try {
+    const { data: fresh } = await supabase.auth.getUser();
+    if (fresh?.user) user = fresh.user;
+  } catch {
+    // ignore — fall back to the session.user we already have
+  }
+
+  // Fill identity from (fresh) user metadata
+  const name = user?.user_metadata?.name || user?.user_metadata?.full_name || '';
+  const email = user?.email || '';
   const display = name || email.split('@')[0] || 'Conta';
+  const fallbackInitials = initials(name || email);
 
   setText('user-name', display);
   setText('user-email', email);
-  setText('avatar', initials(name || email));
+
+  // Avatar priority: custom upload (our field, immune to OAuth resets) →
+  // Google's avatar_url (gets overwritten on every Google sign-in) →
+  // Google's picture (same) → initials fallback.
+  const meta = user?.user_metadata || {};
+  const avatarUrl = meta.custom_avatar || meta.avatar_url || meta.picture;
+  const initialsEl = document.getElementById('avatar-initials');
+  if (initialsEl) {
+    initialsEl.textContent = fallbackInitials;
+    initialsEl.dataset.fallback = fallbackInitials;
+  }
+  if (avatarUrl) {
+    showAvatarImage(avatarUrl);
+  }
+
+  wireAvatarUpload(supabase, session);
 
   // Wire logout
   document.getElementById('logout-btn').addEventListener('click', async () => {
@@ -165,4 +354,8 @@ async function init() {
   }
 }
 
-document.addEventListener('DOMContentLoaded', init);
+// Only register the DOM listener in browser environments. Vitest in Node
+// imports this module to reuse `initials()`, where `document` is undefined.
+if (typeof document !== 'undefined') {
+  document.addEventListener('DOMContentLoaded', init);
+}

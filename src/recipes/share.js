@@ -7,6 +7,30 @@
  */
 
 /**
+ * Build the canonical shareable URL for a recipe.
+ * Strips the .html extension (Vercel rewrites /recipes to receitas.html)
+ * and converts the internal underscore-based recipe id into a friendlier
+ * hyphenated slug, e.g. "bacalhau_a_bras" -> "bacalhau-a-bras".
+ * @param {string} recipeId
+ * @returns {string}
+ */
+export function buildShareUrl(recipeId) {
+  const slug = String(recipeId || '').trim().replace(/_/g, '-');
+  const base = `${window.location.origin}/recipes`;
+  return slug ? `${base}/${slug}` : base;
+}
+
+/**
+ * Inverse of the slug transform — accepts either underscore or hyphen
+ * form so old shared links keep working.
+ * @param {string} slug
+ * @returns {string}
+ */
+export function recipeIdFromSlug(slug) {
+  return String(slug || '').trim().replace(/-/g, '_');
+}
+
+/**
  * Share a recipe using Web Share API with Clipboard API fallback.
  * @param {string} title - Recipe title for share data
  * @param {string} url - Shareable URL

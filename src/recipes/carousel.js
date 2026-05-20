@@ -8,7 +8,7 @@
 
 import { getBackgroundImageUrl } from './preloader.js';
 import { LazyBackgroundLoader } from './lazy-loader.js';
-import { shareRecipe } from './share.js';
+import { shareRecipe, buildShareUrl, recipeIdFromSlug } from './share.js';
 import { buildRecipeCatalog } from './catalog.js';
 import { RecipesStageController } from './stage-controller.js';
 import { RecipePanelController } from './panel-controller.js';
@@ -139,10 +139,18 @@ export class RecipesExperience {
     this.panel.open = (recipe, trigger) => {
       rawOpen.call(this.panel, recipe, trigger);
       panelEl?.dispatchEvent(new window.Event('show', { bubbles: true }));
+      // Reflect the open recipe in the URL so the address bar matches the
+      // share link (e.g. /recipes/bacalhau-a-bras). replaceState avoids
+      // polluting browser history with every open/close.
+      try {
+        const slug = String(recipe?.id || '').replace(/_/g, '-');
+        if (slug) window.history.replaceState(null, '', `/recipes/${slug}`);
+      } catch { /* ignored: cross-origin or unsupported */ }
     };
     this.panel.close = () => {
       rawClose.call(this.panel);
       panelEl?.dispatchEvent(new window.Event('hide', { bubbles: true }));
+      try { window.history.replaceState(null, '', '/recipes'); } catch { /* ignored */ }
     };
     this.panel._onCloseClick = this.panel.close.bind(this.panel);
 
@@ -163,6 +171,27 @@ export class RecipesExperience {
     this.stage.init();
 
     this._responsiveHandler = new ResponsiveModalHandler();
+
+    // Deep link: if the URL points at a specific recipe (either via the
+    // /recipes/<slug> rewrite that adds ?recipe= or a legacy #hash) open
+    // its panel automatically once the catalog is ready.
+    const params = new URLSearchParams(window.location.search);
+    const slugFromQuery = params.get('recipe');
+    const slugFromHash = window.location.hash.replace(/^#/, '');
+    const targetSlug = slugFromQuery || slugFromHash;
+    if (targetSlug) {
+      const targetId = recipeIdFromSlug(targetSlug);
+      const recipe = catalog.find((r) => r.id === targetId);
+      if (recipe) {
+        // Defer so the open animation runs after the stage has settled.
+        setTimeout(() => {
+          this.panel.open(
+            { ...recipe, summary: `${recipe.country} em destaque nas receitas do mundo.` },
+            null,
+          );
+        }, 240);
+      }
+    }
   }
 
   destroy() {
@@ -979,8 +1008,7 @@ export class VerticalCarousel {
         shareBtn.textContent = 'Partilhar';
 
         shareBtn.addEventListener('click', () => {
-          const shareUrl = window.location.origin + '/recipes/receitas.html';
-          shareRecipe(this.recipes[recipeKey].title, shareUrl);
+          shareRecipe(this.recipes[recipeKey].title, buildShareUrl(recipeKey));
         });
 
         recipeContainer.appendChild(shareBtn);

@@ -7,6 +7,7 @@ import { describe, it, expect, afterEach, vi, beforeEach } from 'vitest';
 
 vi.mock('../../../src/recipes/share.js', () => ({
   shareRecipe: vi.fn().mockResolvedValue(undefined),
+  buildShareUrl: (id) => `${window.location.origin}/recipes/${String(id).replace(/_/g, '-')}`,
 }));
 
 import {
@@ -98,15 +99,15 @@ describe('RecipePanelController', () => {
     expect(actions.textContent).toMatch(/share|partilhar|compartilhar/i);
   });
 
-  it('share click calls shareRecipe with title and hash URL', async () => {
+  it('share click calls shareRecipe with title and canonical slug URL', async () => {
     const root = panelFixture();
     const ctrl = createController(root, []);
     ctrl.init();
 
     const recipe = {
-      id: 'ramen',
-      title: 'Ramen',
-      country: 'JP',
+      id: 'bacalhau_a_bras',
+      title: 'Bacalhau à Brás',
+      country: 'PT',
       summary: '',
       videoId: 'abc',
       content: '',
@@ -116,9 +117,10 @@ describe('RecipePanelController', () => {
     const shareBtn = root.querySelector('[data-panel-actions] button');
     shareBtn.click();
 
+    // /recipes/<slug> with underscores converted to hyphens — no .html.
     expect(shareRecipe).toHaveBeenCalledWith(
-      'Ramen',
-      `${window.location.origin}/recipes/receitas.html#ramen`,
+      'Bacalhau à Brás',
+      `${window.location.origin}/recipes/bacalhau-a-bras`,
     );
   });
 

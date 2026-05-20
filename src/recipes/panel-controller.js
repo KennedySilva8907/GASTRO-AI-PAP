@@ -2,7 +2,7 @@
  * Floating editorial recipe panel: video embed, copy, share, focus management.
  */
 
-import { shareRecipe } from './share.js';
+import { shareRecipe, buildShareUrl } from './share.js';
 
 /**
  * Normalize a YouTube video id or URL fragment to an embed URL.
@@ -145,8 +145,7 @@ export class RecipePanelController {
       shareBtn.className = 'share-button recipes-panel__share';
       shareBtn.textContent = 'Partilhar';
       shareBtn.addEventListener('click', () => {
-        const url = `${window.location.origin}/recipes/receitas.html#${recipe.id}`;
-        void shareRecipe(recipe.title, url);
+        void shareRecipe(recipe.title, buildShareUrl(recipe.id));
       });
       this.actionsEl.appendChild(shareBtn);
     }

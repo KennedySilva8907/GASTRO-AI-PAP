@@ -5,7 +5,6 @@
 
 import { handleAsyncError } from '../shared/errors.js';
 import { navigateTo, revealPage } from '../shared/transitions.js';
-import { initAccountBar } from '../auth/session.js';
 
 import { createTimer, formatTime } from './timer.js';
 import { getRecipe } from './recipe-api.js';
@@ -51,8 +50,6 @@ const state = {
 let root = null;
 
 function init() {
-  initAccountBar();
-
   root = document.getElementById('challenge-root');
   if (!root) return;
 

@@ -7,7 +7,6 @@ import { foodImages } from '../shared/constants.js';
 import { sanitizeHtml } from '../shared/sanitizer.js';
 import { handleAsyncError } from '../shared/errors.js';
 import { navigateTo, revealPage } from '../shared/transitions.js';
-import { initAccountBar } from '../auth/session.js';
 import { initPhysics } from './matter-setup.js';
 import { initChatHandlers } from './handlers.js';
 
@@ -146,8 +145,6 @@ function initChatDragging(chatContainer, chatHeader) {
  */
 document.addEventListener('DOMContentLoaded', () => {
   try {
-    initAccountBar();
-
     // Initialize Matter.js physics animation
     const foodContainer = document.getElementById('food-container');
     if (foodContainer) {

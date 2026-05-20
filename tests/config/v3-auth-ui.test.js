@@ -5,15 +5,21 @@ import { resolve } from 'node:path';
 const ROOT = process.cwd();
 
 describe('V3 account UI contract', () => {
-  ['src/main.js', 'src/chat/index.js', 'src/recipes/index.js', 'src/challenges/index.js'].forEach(
-    (file) => {
-      it(`${file} initializes the shared account bar`, () => {
-        const source = readFileSync(resolve(ROOT, file), 'utf8');
-        expect(source).toContain('initAccountBar');
-        expect(source).toContain('initAccountBar();');
-      });
-    }
-  );
+  it('home page initializes the shared account bar', () => {
+    const source = readFileSync(resolve(ROOT, 'src/main.js'), 'utf8');
+    expect(source).toContain('initAccountBar');
+    expect(source).toContain('initAccountBar();');
+  });
+
+  // Account bar is intentionally absent from chat/recipes/challenges:
+  // these pages have their own headers and full-bleed layouts where the
+  // floating pill would clash. Users access auth via /auth/* directly.
+  ['src/chat/index.js', 'src/recipes/index.js', 'src/challenges/index.js'].forEach((file) => {
+    it(`${file} does NOT mount the account bar`, () => {
+      const source = readFileSync(resolve(ROOT, file), 'utf8');
+      expect(source).not.toContain('initAccountBar(');
+    });
+  });
 
   it('defines shared account bar styles', () => {
     const css = readFileSync(resolve(ROOT, 'style.css'), 'utf8');

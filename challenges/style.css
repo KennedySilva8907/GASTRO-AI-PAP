@@ -22,14 +22,30 @@
   --serif: 'Cormorant Garamond', 'Times New Roman', serif;
   --sans: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --mono: 'JetBrains Mono', 'Consolas', monospace;
+
+  /* Fluid spacing/type tokens (mirror of style.css). */
+  --space-2xs: clamp(0.25rem, 0.2rem + 0.25vw, 0.5rem);
+  --space-xs:  clamp(0.5rem, 0.4rem + 0.5vw, 0.75rem);
+  --space-sm:  clamp(0.75rem, 0.6rem + 0.75vw, 1rem);
+  --space-md:  clamp(1rem, 0.8rem + 1vw, 1.5rem);
+  --space-lg:  clamp(1.5rem, 1.2rem + 1.5vw, 2.5rem);
+  --fz-xs:   clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
+  --fz-sm:   clamp(0.875rem, 0.8rem + 0.375vw, 1rem);
+  --fz-base: clamp(1rem, 0.94rem + 0.3vw, 1.125rem);
+  --fz-lg:   clamp(1.5rem, 1.2rem + 1.5vw, 2.25rem);
+  --fz-xl:   clamp(2rem, 1.6rem + 2vw, 3rem);
+  --fz-display: clamp(2.75rem, 2rem + 4vw, 6rem);
 }
 
 *, *::before, *::after { box-sizing: border-box; }
+
+img, video, iframe, svg { max-width: 100%; height: auto; }
 
 html, body {
   margin: 0;
   padding: 0;
   min-height: 100vh;
+  min-height: 100dvh;
 }
 
 html.page-entering body { opacity: 0; }
@@ -1393,12 +1409,24 @@ button { font-family: inherit; cursor: pointer; }
 
 /* =========================================================
    Responsive
+   Note: the file uses max-width breakpoints (desktop-first) which is
+   inverted from the rest of the project. Kept here intentionally to
+   avoid a sweeping rewrite of the 1450-line file in this P0 pass — we
+   only add an intermediate breakpoint (1024) and a tighter narrow-phone
+   tier (480) so the gaps between 720 and 1100 stop being a cliff.
    ========================================================= */
 @media (max-width: 1100px) {
   .pass-grid { grid-template-columns: repeat(2, 1fr); }
   .pass-service__grid { grid-template-columns: 1fr; }
   .service-hud { position: relative; top: auto; }
-  .timer-digits { font-size: 60px; }
+  .timer-digits { font-size: clamp(48px, 8vw, 60px); }
+}
+
+/* Tablet — fills the gap that previously existed between 720-1100px. */
+@media (max-width: 1024px) {
+  .challenge-page { padding: clamp(70px, 8vw, 96px) clamp(16px, 3vw, 28px) clamp(40px, 6vw, 60px); }
+  .pass-card__ghost { font-size: clamp(60px, 9vw, 80px); }
+  .step-current__number { font-size: clamp(48px, 7vw, 60px); }
 }
 
 @media (max-width: 720px) {
@@ -1429,6 +1457,19 @@ button { font-family: inherit; cursor: pointer; }
     border-bottom: 1px solid var(--line);
     padding: 14px 0;
   }
+}
+
+/* Narrow phones (iPhone SE width 320-419) — tighter horizontal padding
+   and slightly smaller hero numbers so nothing pushes overflow. */
+@media (max-width: 480px) {
+  .challenge-page { padding: 78px 14px 48px; }
+  .pass-card { padding: 18px 16px; }
+  .pass-card__ghost { font-size: 64px; }
+  .timer-digits { font-size: clamp(40px, 12vw, 52px); }
+  .step-current { padding: 18px 16px 20px; }
+  .step-current__number { font-size: clamp(40px, 11vw, 56px); }
+  .step-current__body { font-size: 16px; }
+  .service-end { padding: 40px 18px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

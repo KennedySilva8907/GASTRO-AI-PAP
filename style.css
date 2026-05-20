@@ -16,12 +16,57 @@
   padding: 0;
 }
 
+/* Responsive media defaults — prevents fixed-width images/videos from
+   blowing the layout on narrow viewports. */
+img,
+video,
+iframe,
+svg {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Enforce WCAG 2.5.5 minimum touch target on coarse pointers only, so we
+   don't bloat the desktop UI. Skips elements that opt out via the
+   .touch-target-exempt class. */
+@media (hover: none) and (pointer: coarse) {
+  button:not(.touch-target-exempt),
+  a[role="button"]:not(.touch-target-exempt),
+  [role="button"]:not(.touch-target-exempt),
+  input[type="checkbox"],
+  input[type="radio"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
 :root {
   --hue: 223;
   --bg: hsl(var(--hue), 10%, 90%);
   --fg: hsl(var(--hue), 10%, 10%);
   --trans-dur: 0.3s;
   font-size: calc(14px + (30 - 14) * (100vw - 280px) / (3840 - 280));
+
+  /* Fluid spacing tokens — clamp(min, preferred, max). Used for paddings,
+     gaps and margins so they breathe between 320px and 2560px without
+     needing per-breakpoint overrides. */
+  --space-2xs: clamp(0.25rem, 0.2rem + 0.25vw, 0.5rem);
+  --space-xs:  clamp(0.5rem, 0.4rem + 0.5vw, 0.75rem);
+  --space-sm:  clamp(0.75rem, 0.6rem + 0.75vw, 1rem);
+  --space-md:  clamp(1rem, 0.8rem + 1vw, 1.5rem);
+  --space-lg:  clamp(1.5rem, 1.2rem + 1.5vw, 2.5rem);
+  --space-xl:  clamp(2rem, 1.5rem + 2.5vw, 4rem);
+
+  /* Fluid type scale (modular ~1.25). Floor stays legible (≥12px) and the
+     ceiling prevents text from blowing up on 4K. */
+  --fz-xs:      clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
+  --fz-sm:      clamp(0.875rem, 0.8rem + 0.375vw, 1rem);
+  --fz-base:    clamp(1rem, 0.94rem + 0.3vw, 1.125rem);
+  --fz-md:      clamp(1.125rem, 1rem + 0.625vw, 1.5rem);
+  --fz-lg:      clamp(1.5rem, 1.2rem + 1.5vw, 2.25rem);
+  --fz-xl:      clamp(2rem, 1.6rem + 2vw, 3rem);
+  --fz-2xl:     clamp(2.5rem, 1.8rem + 3.5vw, 4.5rem);
+  --fz-display: clamp(3rem, 2rem + 5vw, 6rem);
 }
 
 body {
@@ -29,7 +74,10 @@ body {
   color: var(--fg);
   display: flex;
   font: 1em/1.5 sans-serif;
+  /* dvh accounts for the dynamic mobile URL bar; 100vh fallback for
+     browsers without dvh support. */
   height: 100vh;
+  height: 100dvh;
   perspective: 1000px;
   overflow: hidden;
   position: relative;
@@ -46,12 +94,85 @@ body {
   max-width: min(92vw, 44rem);
   padding: 0.45rem 0.55rem 0.45rem 0.85rem;
   color: #fff;
+  /* Explicit font — the bar is now appended to <html>, not <body>, so it
+     doesn't inherit body's font-family. Lock to Poppins to match the rest. */
+  font-family: 'Poppins', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif;
   background: rgba(16, 10, 7, 0.68);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 999px;
   box-shadow: 0 18px 42px rgba(0, 0, 0, 0.22);
-  transform: translateX(-50%);
+  transform: translateX(-50%) translateY(0);
   backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  animation: account-bar-rise 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+  transition:
+    background 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.account-bar:hover {
+  background: rgba(16, 10, 7, 0.82);
+  border-color: rgba(255, 210, 138, 0.35);
+  box-shadow:
+    0 18px 42px rgba(0, 0, 0, 0.28),
+    0 0 0 1px rgba(255, 152, 0, 0.18);
+}
+
+@keyframes account-bar-rise {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* Mini avatar (32px) at the start of the bar — photo or initials.
+   Hidden when logged out, falls back to initials if photo URL fails. */
+.account-bar__avatar {
+  position: relative;
+  flex: 0 0 auto;
+  width: 1.85rem;
+  height: 1.85rem;
+  border-radius: 50%;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #ffd28a, #ff9800);
+  color: #1f1208;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  cursor: pointer;
+  user-select: none;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.account-bar__avatar[hidden] {
+  display: none;
+}
+
+.account-bar__avatar:hover {
+  transform: scale(1.08);
+  box-shadow: 0 4px 14px rgba(255, 152, 0, 0.4);
+}
+
+.account-bar__avatar-initials {
+  text-transform: uppercase;
+}
+
+.account-bar__avatar-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .account-bar__status {
@@ -74,25 +195,67 @@ body {
 
 .account-bar__button {
   flex: 0 0 auto;
-  border: 0;
-  padding: 0.45rem 0.75rem;
+  position: relative;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 0.45rem 0.85rem;
   color: #fff;
-  font: inherit;
+  font-family: inherit;
   font-size: 0.76rem;
   font-weight: 700;
+  letter-spacing: 0.02em;
   white-space: nowrap;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.08);
   border-radius: 999px;
   cursor: pointer;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.15s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.2s ease;
 }
 
-.account-bar__button + .account-bar__button {
-  margin-left: 0.4rem;
+.account-bar__button:hover {
+  background: rgba(255, 255, 255, 0.16);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+}
+
+.account-bar__button:active {
+  transform: translateY(0) scale(0.96);
+}
+
+.account-bar__button:focus-visible {
+  outline: 2px solid rgba(255, 152, 0, 0.7);
+  outline-offset: 2px;
+}
+
+/* Defensive separator — guarantees visible gap even when a per-page CSS
+   like chat/style.css ships a universal `* { margin: 0 }` reset.
+   Combined with the flex `gap` on .account-bar, this is double-insurance. */
+.account-bar > .account-bar__button + .account-bar__button {
+  margin-left: 0.4rem !important;
 }
 
 .account-bar__button--pro {
   color: #1f1208;
   background: linear-gradient(135deg, #ffd28a, #ff9800);
+  border-color: rgba(255, 152, 0, 0.4);
+  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.25);
+}
+
+.account-bar__button--pro:hover {
+  background: linear-gradient(135deg, #ffdca0, #ffa724);
+  border-color: rgba(255, 152, 0, 0.65);
+  box-shadow: 0 8px 22px rgba(255, 152, 0, 0.4);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .account-bar,
+  .account-bar__button {
+    animation: none !important;
+    transition: none !important;
+  }
 }
 
 .account-dialog[hidden] {
@@ -340,6 +503,12 @@ body {
   height: 100%;
   z-index: -2;
   pointer-events: none;
+  /* Soft defocus on the floating food layer so it reads as ambient
+     background rather than competing with the centered logo + buttons.
+     Slight saturation bump keeps the colors from looking washed out
+     after the blur dilutes them. */
+  filter: blur(10px) saturate(1.1);
+  -webkit-filter: blur(10px) saturate(1.1);
 }
 
 .food-element {
@@ -512,6 +681,23 @@ body {
   top: 20px;
   right: 20px;
   z-index: 1000;
+}
+
+/* On narrow viewports the centered .account-bar (max-width 92vw) reaches
+   the right edge and collides with the GastroAI info button. Stack the
+   ai-button just below the account-bar (account-bar sits at top:1rem
+   and is ~52px tall, so ~4.5rem clears it with a small gap). The info
+   panel that opens from this button is shifted down to match. */
+@media (max-width: 640px) {
+  .ai-button {
+    top: 6rem;
+    right: 0.75rem;
+  }
+
+  .ai-info {
+    top: 9.5rem;
+    right: 0.75rem;
+  }
 }
 
 /* ==================== PAINEL DE INFORMAÇÕES ==================== */
@@ -1143,8 +1329,10 @@ body {
   }
 
   .ai-button {
-    top: 10px;
-    right: 10px;
+    /* Stack below the centered account-bar (top:1rem, ~52px tall) with
+       a clear ~32px gap so the two don't look glued together. */
+    top: 6rem;
+    right: 0.75rem;
     padding: 8px 12px;
   }
 
@@ -1219,8 +1407,10 @@ body {
   }
 
   .ai-button {
-    top: 10px;
-    right: 10px;
+    /* Stack below the centered account-bar (top:1rem, ~52px tall) with
+       a clear ~32px gap so the two don't look glued together. */
+    top: 6rem;
+    right: 0.75rem;
     padding: 8px 12px;
   }
 
@@ -1294,8 +1484,9 @@ body {
   }
 
   .ai-button {
-    top: 15px;
-    right: 15px;
+    /* Stack below the centered account-bar on phablets too. */
+    top: 6rem;
+    right: 1rem;
   }
 
   /* Botões empilhados verticalmente */
@@ -2161,18 +2352,89 @@ body {
 
 .account-avatar {
   flex: 0 0 auto;
+  position: relative;
   width: 3rem;
   height: 3rem;
+  padding: 0;
+  border: 0;
   border-radius: 50%;
   background: linear-gradient(135deg, #ffd28a, #ff9800);
   color: #1f1208;
   font-size: 1.2rem;
   font-weight: 700;
+  font-family: inherit;
   display: flex;
   align-items: center;
   justify-content: center;
   text-transform: uppercase;
   box-shadow: 0 10px 24px rgba(249, 115, 22, 0.3);
+  overflow: hidden;
+  cursor: pointer;
+  transition:
+    transform 0.2s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.2s ease;
+}
+
+.account-avatar:hover {
+  transform: scale(1.06);
+  box-shadow: 0 14px 32px rgba(249, 115, 22, 0.45);
+}
+
+.account-avatar:focus-visible {
+  outline: 2px solid #ff9800;
+  outline-offset: 3px;
+}
+
+.account-avatar__initials {
+  position: relative;
+  z-index: 1;
+}
+
+.account-avatar__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  z-index: 1;
+}
+
+.account-avatar__overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.account-avatar:hover .account-avatar__overlay,
+.account-avatar:focus-visible .account-avatar__overlay {
+  opacity: 1;
+}
+
+.account-avatar.is-uploading .account-avatar__overlay {
+  opacity: 1;
+  animation: account-avatar-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes account-avatar-pulse {
+  0%, 100% { background: rgba(0, 0, 0, 0.55); }
+  50% { background: rgba(255, 152, 0, 0.55); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .account-avatar,
+  .account-avatar__overlay,
+  .account-avatar.is-uploading .account-avatar__overlay {
+    transition: none !important;
+    animation: none !important;
+  }
 }
 
 .account-identity {
@@ -2331,25 +2593,33 @@ body {
     transform 0.2s;
 }
 
-.account-action:hover .account-action__chevron {
+/* Generic chevron hover — exclude primary so the amber arrow doesn't
+   vanish against the amber gradient background. */
+.account-action:not(.account-action--primary):hover .account-action__chevron {
   color: #ff9800;
   transform: translateX(2px);
 }
 
+/* Pro CTA — same dark glass shell as other account actions, with a
+   subtle amber accent (border + text + chevron). Distinguishable as
+   primary without dominating visually. */
 .account-action--primary {
-  background: linear-gradient(135deg, #ffd28a, #ff9800);
-  border-color: transparent;
-  color: #1f1208;
-  font-weight: 700;
+  border-color: rgba(255, 152, 0, 0.35);
+  color: #ffd28a;
+  font-weight: 600;
 }
 
 .account-action--primary:hover {
-  background: linear-gradient(135deg, #ffdca0, #ffa724);
-  transform: translateY(-1px);
+  border-color: rgba(255, 152, 0, 0.6);
+  background: rgba(255, 152, 0, 0.08);
 }
 
 .account-action--primary .account-action__chevron {
-  color: rgba(31, 18, 8, 0.6);
+  color: #ff9800;
+}
+
+.account-action--primary:hover .account-action__chevron {
+  color: #ffd28a;
 }
 
 .account-action--danger:hover {
@@ -2593,12 +2863,22 @@ body {
   }
 }
 
-/* AUTH BUTTON MOTION PATCH (auth-submit excluded — handled by MAÎTRE block) */
+/* AUTH BUTTON MOTION PATCH (auth-submit excluded — handled by MAÎTRE block).
+   .auth-body .back-button is intentionally NOT in this list: it must stay
+   position:fixed (inherited from the base .back-button rule) so it sticks
+   to the viewport on scroll. The shine ::after effect below only targets
+   .auth-google / .account-action, so the back-button doesn't need
+   overflow:hidden either. */
 .auth-google,
-.account-action,
-.auth-body .back-button {
+.account-action {
   position: relative;
   overflow: hidden;
+  transform-origin: center;
+}
+
+/* Keep the auth back-button's transform-origin centered for press-scale
+   without changing its positioning. */
+.auth-body .back-button {
   transform-origin: center;
 }
 

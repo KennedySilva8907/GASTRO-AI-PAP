@@ -15,7 +15,19 @@
   --recipes-shadow-lg: 0 24px 60px rgba(56, 31, 18, 0.24);
   --recipes-shadow-md: 0 16px 30px rgba(64, 37, 22, 0.16);
   --recipes-focus: rgba(255, 233, 198, 0.98);
+
+  /* Fluid spacing/type tokens (mirror of style.css). */
+  --space-2xs: clamp(0.25rem, 0.2rem + 0.25vw, 0.5rem);
+  --space-xs:  clamp(0.5rem, 0.4rem + 0.5vw, 0.75rem);
+  --space-sm:  clamp(0.75rem, 0.6rem + 0.75vw, 1rem);
+  --space-md:  clamp(1rem, 0.8rem + 1vw, 1.5rem);
+  --space-lg:  clamp(1.5rem, 1.2rem + 1.5vw, 2.5rem);
+  --fz-xs:   clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
+  --fz-sm:   clamp(0.875rem, 0.8rem + 0.375vw, 1rem);
+  --fz-base: clamp(1rem, 0.94rem + 0.3vw, 1.125rem);
 }
+
+img, video, iframe, svg { max-width: 100%; height: auto; }
 
 *,
 *::before,
@@ -30,6 +42,7 @@ html {
 
 body {
   min-height: 100vh;
+  min-height: 100dvh;
   margin: 0;
   overflow-x: hidden;
   color: #fffaf5;
@@ -95,12 +108,22 @@ iframe {
 .recipes-page {
   width: min(1380px, 100%);
   min-height: 100vh;
+  min-height: 100dvh;
   margin: 0 auto;
-  padding: clamp(22px, 3vw, 34px) clamp(12px, 2vw, 20px) clamp(48px, 6vw, 72px);
+  /* Top padding floor of 96px gives the fixed .back-button (top:22 +
+     ~62 height + halo) a ~12px gap above the card border so it doesn't
+     visually sit ON the stage on mobile/tablet. */
+  padding: clamp(96px, 3vw + 60px, 110px) clamp(12px, 2vw, 20px) clamp(48px, 6vw, 72px);
 }
 
 .recipes-stage {
   position: relative;
+  /* The hero/rail are position:absolute inside this container so they
+     don't contribute to the natural height. The .recipes-stage__bg
+     layers (background-image on <i> elements at inset:-12%) need the
+     stage to have a real height to be visible — without a min-height
+     the stage collapses to the children's intrinsic size and the bg
+     images disappear. */
   min-height: 820px;
   overflow: hidden;
   border-radius: 36px;
@@ -914,6 +937,10 @@ html.page-entering body {
 
 @media (max-width: 920px) {
   .recipes-stage {
+    /* On tablets/mobile the hero/rail become position:relative and
+       contribute to the natural height, but the stage still needs a
+       floor so the .recipes-stage__bg images (absolute, inset:-12%)
+       have a canvas to cover. 960px matches the original V2 layout. */
     min-height: 960px;
   }
 

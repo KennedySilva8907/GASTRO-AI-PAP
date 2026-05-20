@@ -20,7 +20,21 @@
     --trans-dur: 0.3s;
     color-scheme: light;
     font-size: clamp(14px, calc(13px + 0.25vw), 16px);
+
+    /* Fluid spacing/type tokens (mirror of style.css). Kept local so this
+       file works standalone without depending on style.css being loaded. */
+    --space-2xs: clamp(0.25rem, 0.2rem + 0.25vw, 0.5rem);
+    --space-xs:  clamp(0.5rem, 0.4rem + 0.5vw, 0.75rem);
+    --space-sm:  clamp(0.75rem, 0.6rem + 0.75vw, 1rem);
+    --space-md:  clamp(1rem, 0.8rem + 1vw, 1.5rem);
+    --space-lg:  clamp(1.5rem, 1.2rem + 1.5vw, 2.5rem);
+    --fz-xs:   clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
+    --fz-sm:   clamp(0.875rem, 0.8rem + 0.375vw, 1rem);
+    --fz-base: clamp(1rem, 0.94rem + 0.3vw, 1.125rem);
 }
+
+/* Responsive media defaults */
+img, video, iframe, svg { max-width: 100%; height: auto; }
 
 html,
 body {
@@ -41,7 +55,11 @@ body {
     align-items: center;
     justify-content: center;
     min-height: 100vh;
-    padding: clamp(4.4rem, 6vw, 5.6rem) 1.25rem 1.25rem;
+    min-height: 100dvh;
+    /* Back-button (top:22 + ~62 height + 14 halo) ends ~98px from top.
+       We need an additional visible gap (~30px), so floor at 8rem
+       (~128px) and grow modestly with viewport width. */
+    padding: clamp(8rem, 8vw, 9rem) 1.25rem 1.25rem;
     overflow: hidden;
     font: 1rem/1.5 "Poppins", sans-serif;
     color: var(--ink);
@@ -113,11 +131,15 @@ input::placeholder {
 #chat-container {
     position: relative;
     z-index: 2;
-    width: min(680px, calc(100vw - 2.5rem));
-    min-width: 380px;
+    /* Width: fluid down to the viewport minus a small gutter; no hard
+       min-width — at 320px the card simply hugs the screen instead of
+       forcing horizontal scroll. */
+    width: min(680px, calc(100vw - 1.5rem));
     max-width: 680px;
-    height: min(78vh, 680px);
-    min-height: 540px;
+    /* Height: cap at 680px, otherwise use dvh so the iOS URL bar doesn't
+       chop the chat off. Min-height drops to 0 on tiny viewports. */
+    height: min(78dvh, 680px);
+    min-height: min(540px, 80dvh);
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -816,7 +838,9 @@ input::placeholder {
 
 @media screen and (max-width: 900px) {
     body {
-        padding: 5rem 1rem 1rem;
+        /* 7.8rem (~125px) gives a clear ~25px gap below the back-button
+           halo. Tablet/phablet (e.g. iPhone 14 Pro Max at 430px). */
+        padding: 7.8rem 1rem 1rem;
     }
 
     #chat-container {
@@ -829,12 +853,14 @@ input::placeholder {
 
 @media screen and (max-width: 768px) {
     body {
-        padding: 4.8rem 0.85rem 0.85rem;
+        padding: 7.6rem 0.85rem 0.85rem;
     }
 
     #chat-container {
         width: 100%;
-        height: calc(100vh - 5.6rem);
+        /* Match the 7.6rem top padding + ~1rem bottom so the chat card
+           actually fits below the back-button without scroll. */
+        height: calc(100dvh - 8.5rem);
         min-height: 0;
         border-radius: 1.5rem;
     }
@@ -867,11 +893,14 @@ input::placeholder {
 
 @media screen and (max-width: 560px) {
     body {
-        padding-top: 5.4rem;
+        /* Default back-button is still full-size here (icon 38 + halo 14
+           ≈ 98px tail). 7.8rem (~125px) gives a clear ~25px gap below
+           the halo on iPhone 14 Pro Max (430px). */
+        padding-top: 7.8rem;
     }
 
     #chat-container {
-        height: calc(100vh - 6.15rem);
+        height: calc(100dvh - 8.7rem);
         border-radius: 1.45rem;
     }
 
@@ -910,7 +939,10 @@ input::placeholder {
 
 @media screen and (max-width: 420px) {
     body {
-        padding: 4.3rem 0.65rem 0.65rem;
+        /* 5.4rem top = ~86px, leaves comfortable clearance below the
+           back-button (which ends at ~68px) so the chat card no longer
+           sits underneath it on narrow phones. */
+        padding: 5.4rem 0.65rem 0.65rem;
     }
 
     .back-button {

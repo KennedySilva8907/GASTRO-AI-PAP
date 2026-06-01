@@ -1,5 +1,11 @@
 {
   "cleanUrls": true,
+  "crons": [
+    {
+      "path": "/api/cron/keepalive",
+      "schedule": "0 12 * * *"
+    }
+  ],
   "rewrites": [
     { "source": "/", "destination": "/index.html" },
     { "source": "/chat", "destination": "/chat/chatbot.html" },

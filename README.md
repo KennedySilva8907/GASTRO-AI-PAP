@@ -7,19 +7,19 @@
 ![Lighthouse Best Practices](https://img.shields.io/badge/best%20practices-100-brightgreen)
 ![Lighthouse SEO](https://img.shields.io/badge/seo-90-brightgreen)
 
-AI-powered culinary web app featuring real-time cooking challenges, a recipe carousel, and a gastronomy assistant — built with vanilla JavaScript and the Groq API.
+AI-powered culinary web app featuring real-time cooking challenges, a recipe carousel, and a gastronomy assistant, built with vanilla JavaScript and the Groq API.
 
 **[Live Demo](https://gastro-ai-pap.vercel.app)**
 
 ## Features
 
-- **Cooking Challenges** — AI-generated recipes with countdown timer and 4 difficulty levels (Beginner, Intermediate, Advanced, Extreme)
-- **AI Chat Assistant** — Specialized gastronomy chatbot with conversation history, chat export, and typing animation
-- **V3 Accounts & Billing** — Supabase Auth, Free/Pro usage limits, Stripe Checkout and Customer Portal
-- **Recipe Gallery** — Vertical carousel with 10 international recipes, YouTube video links, and detail modals with Web Share API support
-- **Button-anchored Page Transitions** — Pages collapse into the clicked button on exit and expand from the destination button on entry, with an inline head script that bridges the load gap to prevent flashes (`src/shared/transitions.js`)
-- **Interactive Animations** — Physics-based food animations using Matter.js and GSAP
-- **Responsive Design** — Fully responsive across mobile and desktop
+- **Cooking Challenges** - AI-generated recipes with countdown timer and 4 difficulty levels (Beginner, Intermediate, Advanced, Extreme)
+- **AI Chat Assistant** - Specialized gastronomy chatbot with conversation history, chat export, and typing animation
+- **V3 Accounts & Billing** - Supabase Auth, Free/Pro usage limits, Stripe Checkout and Customer Portal
+- **Recipe Gallery** - Vertical carousel with 10 international recipes, YouTube video links, and detail modals with Web Share API support
+- **Button-anchored Page Transitions** - Pages collapse into the clicked button on exit and expand from the destination button on entry, with an inline head script that bridges the load gap to prevent flashes (`src/shared/transitions.js`)
+- **Interactive Animations** - Physics-based food animations using Matter.js and GSAP
+- **Responsive Design** - Fully responsive across mobile and desktop
 
 ## Tech Stack
 
@@ -37,7 +37,7 @@ AI-powered culinary web app featuring real-time cooking challenges, a recipe car
 
 ## Architecture
 
-````mermaid
+```mermaid
 graph TD
     subgraph Client ["Browser - Vanilla JS"]
         Home["Home Page<br/>src/main.js"]
@@ -51,7 +51,7 @@ graph TD
         Static["Static Assets<br/>CDN Edge"]
         ChatFn["api/chat.js<br/>Serverless Function"]
         RecipeFn["api/gemini.js<br/>Serverless Function"]
-        Shared2["api/_shared.js<br/>CORS + Groq + Gemini↔Groq translators"]
+        Shared2["api/_shared.js<br/>CORS + Groq + Gemini-to-Groq translators"]
     end
 
     Groq["Groq API<br/>openai/gpt-oss-120b"]
@@ -63,7 +63,7 @@ graph TD
     ChatFn --> Groq
     RecipeFn --> Groq
     Client --> Static
-```text
+```
 
 > **Backwards-compatible response shape.** The frontend was originally written
 > against the Gemini response envelope (`candidates[0].content.parts[0].text`).
@@ -94,7 +94,7 @@ cp .env.example .env
 
 # Start the development server (Vercel dev runs the serverless functions)
 npm run dev:api
-````
+```
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
 
@@ -130,7 +130,7 @@ npm run test:coverage
 ```
 
 **Test suite:** 233 tests across 27 test files
-**Coverage:** V8 provider — thresholds: 60% lines/functions/statements, 55% branches
+**Coverage:** V8 provider, thresholds: 60% lines/functions/statements, 55% branches
 **CI/CD:** Tests and lint run automatically on every push to `main`/`develop` and on pull requests
 
 ### Test Structure
@@ -162,8 +162,8 @@ npm run test:coverage
 1. Fork or clone this repository to your GitHub account
 2. Import the project on [Vercel](https://vercel.com)
 3. Set environment variables in the Vercel dashboard:
-   - `GROQ_API_KEY` — your Groq Console API key
-   - `PRODUCTION_URL` — your Vercel project URL (e.g., `https://your-project.vercel.app`)
+   - `GROQ_API_KEY` - your Groq Console API key
+   - `PRODUCTION_URL` - your Vercel project URL (e.g., `https://your-project.vercel.app`)
 4. Deploy triggers automatically on every push to `main`
 
 ### Cache policy (`vercel.json`)
@@ -199,17 +199,17 @@ gastro-ai/
 ├── index.html                # Landing page
 ├── style.css                 # Global styles
 ├── api/
-│   ├── _shared.js            # CORS, preflight, callGroq, Gemini↔Groq translators
-│   ├── chat.js               # Serverless function — chat assistant
-│   └── gemini.js             # Serverless function — recipe generation
+│   ├── _shared.js            # CORS, preflight, callGroq, Gemini/Groq translators
+│   ├── chat.js               # Serverless function - chat assistant
+│   └── gemini.js             # Serverless function - recipe generation
 ├── src/
 │   ├── main.js               # Home page module
-│   ├── chat/                  # AI chat modules
+│   ├── chat/                 # AI chat modules
 │   │   ├── index.js
 │   │   ├── handlers.js
 │   │   ├── chat-api.js
 │   │   └── matter-setup.js
-│   ├── recipes/               # Recipe gallery modules
+│   ├── recipes/              # Recipe gallery modules
 │   │   ├── index.js
 │   │   ├── carousel.js
 │   │   ├── catalog.js
@@ -218,26 +218,26 @@ gastro-ai/
 │   │   ├── preloader.js
 │   │   ├── stage-controller.js
 │   │   └── share.js
-│   ├── challenges/            # Cooking challenge modules
+│   ├── challenges/           # Cooking challenge modules
 │   │   ├── index.js
 │   │   ├── timer.js
 │   │   ├── recipe-api.js
 │   │   └── ui.js
-│   └── shared/                # Shared utilities
+│   └── shared/               # Shared utilities
 │       ├── animations.js
 │       ├── constants.js
 │       ├── errors.js
 │       ├── sanitizer.js
-│       └── transitions.js     # Button-anchored page transitions
-├── chat/                      # Chat HTML page
-├── recipes/                   # Recipes HTML page
-├── challenges/                # Challenges HTML page
-├── tests/                     # Test suite
-├── docs/                      # Documentation
-├── .github/workflows/         # CI/CD pipeline
-├── vercel.json                # Vercel routing and caching
-├── vitest.config.js           # Test configuration
-├── eslint.config.js           # Linting rules
+│       └── transitions.js    # Button-anchored page transitions
+├── chat/                     # Chat HTML page
+├── recipes/                  # Recipes HTML page
+├── challenges/               # Challenges HTML page
+├── tests/                    # Test suite
+├── docs/                     # Documentation
+├── .github/workflows/        # CI/CD pipeline
+├── vercel.json               # Vercel routing and caching
+├── vitest.config.js          # Test configuration
+├── eslint.config.js          # Linting rules
 └── package.json
 ```
 

@@ -44,4 +44,23 @@ describe('V3 foundation configuration', () => {
     expect(sql).toContain('window_expires_at');
     expect(sql).toContain('unique (user_id, feature)');
   });
+  it('creates the conversations schema with RLS scoped to the owning account', () => {
+    const migrationPath = path.join(
+      rootDir,
+      'supabase',
+      'migrations',
+      '20260921090000_conversations.sql'
+    );
+    const sql = fs.readFileSync(migrationPath, 'utf8');
+
+    expect(sql).toContain('create table if not exists public.conversations');
+    expect(sql).toContain('create table if not exists public.conversation_messages');
+    expect(sql.match(/on delete cascade/g)).toHaveLength(2);
+    expect(sql).toContain('alter table public.conversations enable row level security');
+    expect(sql).toContain('alter table public.conversation_messages enable row level security');
+    expect(sql).toContain('conversation_messages_select_own');
+    expect(sql).toContain('where c.id = conversation_id and c.user_id = auth.uid()');
+    expect(sql).toContain('conversations_user_updated_idx');
+    expect(sql).toContain('conversation_messages_lookup_idx');
+  });
 });

@@ -10,6 +10,21 @@ let storeState;
 function buildStore() {
   return {
     listForUser: vi.fn(async () => storeState.conversations),
+    getOwned: vi.fn(
+      async ({ conversationId }) =>
+        storeState.conversations.find((conversation) => conversation.id === conversationId) || null
+    ),
+    listMessages: vi.fn(async () => storeState.messages),
+    setTitle: vi.fn(async ({ title }) => {
+      storeState.savedTitle = title;
+    }),
+    remove: vi.fn(async ({ conversationId }) => {
+      const before = storeState.conversations.length;
+      storeState.conversations = storeState.conversations.filter(
+        (conversation) => conversation.id !== conversationId
+      );
+      return storeState.conversations.length < before;
+    }),
     create: vi.fn(async () => {
       const created = {
         id: 'conv-new',
@@ -27,8 +42,10 @@ function buildStore() {
 function resetState() {
   storeState = {
     conversations: [],
+    messages: [],
     plan: 'free',
     subscription: null,
+    savedTitle: null,
     store: null,
   };
   storeState.store = buildStore();
@@ -62,10 +79,15 @@ async function createTestApp() {
   });
 
   const indexModule = await import('../../../api/conversations/index.js');
+  const detailModule = await import('../../../api/conversations/[id].js');
 
   const app = express();
   app.use(express.json());
   app.all('/api/conversations', (req, res) => indexModule.default(req, res));
+  app.all('/api/conversations/:id', (req, res) => {
+    req.query = { ...req.query, id: req.params.id };
+    return detailModule.default(req, res);
+  });
   return app;
 }
 
@@ -156,6 +178,121 @@ describe('conversations list and create', () => {
 
   it('refuses anything other than GET and POST', async () => {
     const res = await request(app).put('/api/conversations').set('Authorization', AUTH_HEADER);
+    expect(res.status).toBe(405);
+  });
+});
+
+describe('conversation detail', () => {
+  let app;
+
+  beforeEach(async () => {
+    resetState();
+    storeState.conversations = [
+      {
+        id: 'c1',
+        title: null,
+        created_at: '2026-09-20T10:00:00.000Z',
+        updated_at: '2026-09-20T10:00:00.000Z',
+        message_count: 2,
+      },
+    ];
+    storeState.messages = [
+      {
+        id: 'm1',
+        role: 'user',
+        content: 'Como faco risoto?',
+        created_at: '2026-09-20T10:00:00.000Z',
+      },
+      {
+        id: 'm2',
+        role: 'model',
+        content: 'Com paciencia.',
+        created_at: '2026-09-20T10:01:00.000Z',
+      },
+    ];
+    process.env.GROQ_API_KEY = 'test-key-12345';
+    app = await createTestApp();
+  });
+
+  it('returns the conversation with its messages in order', async () => {
+    const res = await request(app).get('/api/conversations/c1').set('Authorization', AUTH_HEADER);
+
+    expect(res.status).toBe(200);
+    expect(res.body.conversation.id).toBe('c1');
+    expect(res.body.messages.map((message) => message.role)).toEqual(['user', 'model']);
+  });
+
+  it('answers 404 for a conversation that belongs to someone else', async () => {
+    const res = await request(app)
+      .get('/api/conversations/not-mine')
+      .set('Authorization', AUTH_HEADER);
+
+    expect(res.status).toBe(404);
+  });
+
+  it('scopes every lookup to the signed-in user', async () => {
+    await request(app).get('/api/conversations/c1').set('Authorization', AUTH_HEADER);
+
+    expect(storeState.store.getOwned).toHaveBeenCalledWith({
+      conversationId: 'c1',
+      userId: TEST_USER.id,
+    });
+  });
+
+  it('scopes the delete to the signed-in user too', async () => {
+    await request(app).delete('/api/conversations/c1').set('Authorization', AUTH_HEADER);
+
+    expect(storeState.store.remove).toHaveBeenCalledWith({
+      conversationId: 'c1',
+      userId: TEST_USER.id,
+    });
+  });
+
+  it('deletes and answers 204', async () => {
+    const res = await request(app)
+      .delete('/api/conversations/c1')
+      .set('Authorization', AUTH_HEADER);
+
+    expect(res.status).toBe(204);
+    expect(storeState.conversations).toHaveLength(0);
+  });
+
+  it('generates a title from the first exchange and cleans it up', async () => {
+    globalThis.fetch = vi.fn(async () => ({
+      ok: true,
+      json: async () => ({ choices: [{ message: { content: '"Risoto de cogumelos"' } }] }),
+    }));
+
+    const res = await request(app).patch('/api/conversations/c1').set('Authorization', AUTH_HEADER);
+
+    expect(res.status).toBe(200);
+    expect(res.body.title).toBe('Risoto de cogumelos');
+    expect(storeState.savedTitle).toBe('Risoto de cogumelos');
+  });
+
+  it('falls back to the first question when the model call fails', async () => {
+    globalThis.fetch = vi.fn(async () => ({ ok: false, status: 500, text: async () => 'boom' }));
+
+    const res = await request(app).patch('/api/conversations/c1').set('Authorization', AUTH_HEADER);
+
+    expect(res.status).toBe(200);
+    expect(res.body.title).toBe('Como faco risoto?');
+    expect(storeState.savedTitle).toBe('Como faco risoto?');
+  });
+
+  it('leaves an existing title alone', async () => {
+    globalThis.fetch = vi.fn();
+    storeState.conversations[0].title = 'Ja tenho nome';
+
+    const res = await request(app).patch('/api/conversations/c1').set('Authorization', AUTH_HEADER);
+
+    expect(res.status).toBe(200);
+    expect(res.body.title).toBe('Ja tenho nome');
+    expect(globalThis.fetch).not.toHaveBeenCalled();
+  });
+
+  it('refuses a method it does not implement', async () => {
+    const res = await request(app).put('/api/conversations/c1').set('Authorization', AUTH_HEADER);
     expect(res.status).toBe(405);
   });
 });

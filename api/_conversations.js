@@ -59,11 +59,6 @@ export function createConversationStore(supabase = getSupabaseAdminClient()) {
   return {
     listForUser,
 
-    async findEmptyForUser(userId) {
-      const conversations = await listForUser(userId);
-      return conversations.find((conversation) => conversation.message_count === 0) || null;
-    },
-
     async create(userId) {
       const { data, error } = await supabase
         .from('conversations')

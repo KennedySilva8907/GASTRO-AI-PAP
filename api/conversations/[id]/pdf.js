@@ -2,17 +2,11 @@ import { ERROR_CODES, runPreflight } from '../../_shared.js';
 import { authenticateRequest } from '../../_auth.js';
 import { rateLimit, send429 } from '../../_rate-limit.js';
 import { createConversationStore, isConversationId } from '../../_conversations.js';
-import { renderConversationPdf, slugify } from '../../_pdf.js';
+import { renderConversationPdf, signerName, slugify } from '../../_pdf.js';
 
 function buildFileName(conversation) {
   const day = new Date().toISOString().slice(0, 10);
   return `gastroai-${slugify(conversation.title)}-${day}.pdf`;
-}
-
-function displayName(user) {
-  const local = typeof user.email === 'string' ? user.email.split('@')[0] : '';
-  if (!local) return 'Utilizador';
-  return local.charAt(0).toUpperCase() + local.slice(1);
 }
 
 export default async function handler(req, res) {
@@ -71,7 +65,7 @@ export default async function handler(req, res) {
     const pdf = await renderConversationPdf({
       conversation,
       messages,
-      userName: displayName(auth.user),
+      userName: signerName(auth.user),
     });
 
     res.setHeader('Content-Type', 'application/pdf');

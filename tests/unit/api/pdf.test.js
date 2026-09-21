@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { stripEmoji, markdownToBlocks, slugify } from '../../../api/_pdf.js';
+import { stripEmoji, markdownToBlocks, slugify, signerName } from '../../../api/_pdf.js';
 
 describe('stripEmoji', () => {
   it('removes emoji that have no glyph in the embedded fonts', () => {
@@ -97,5 +97,37 @@ describe('slugify', () => {
 
   it('caps the length', () => {
     expect(slugify('a'.repeat(200)).length).toBeLessThanOrEqual(50);
+  });
+});
+
+describe('signerName', () => {
+  it('uses the name the account was registered with', () => {
+    const user = {
+      email: 'kakabob555@gmail.com',
+      claims: { user_metadata: { name: 'Kennedy Silva' } },
+    };
+
+    expect(signerName(user)).toBe('Kennedy Silva');
+  });
+
+  it('trims a name that was typed with spaces around it', () => {
+    const user = { email: 'a@b.pt', claims: { user_metadata: { name: '  Ana Sousa ' } } };
+
+    expect(signerName(user)).toBe('Ana Sousa');
+  });
+
+  it('falls back to the email when the account has no name', () => {
+    expect(signerName({ email: 'kennedy@example.com', claims: {} })).toBe('Kennedy');
+  });
+
+  it('falls back to the email when the name is only spaces', () => {
+    const user = { email: 'kennedy@example.com', claims: { user_metadata: { name: '   ' } } };
+
+    expect(signerName(user)).toBe('Kennedy');
+  });
+
+  it('survives an account with no email and no name', () => {
+    expect(signerName({})).toBe('Utilizador');
+    expect(signerName(null)).toBe('Utilizador');
   });
 });

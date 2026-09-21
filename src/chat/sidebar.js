@@ -216,7 +216,7 @@ export function initSidebar({ root, scrim, onSelect, onNew }) {
   return {
     refresh,
     bump(id, added = 2) {
-      const item = list.querySelector(`.conversation-item[data-id="${id}"]`);
+      const item = [...list.children].find((child) => child.dataset.id === id);
       if (!item) return;
 
       const current = Number(item.dataset.count);

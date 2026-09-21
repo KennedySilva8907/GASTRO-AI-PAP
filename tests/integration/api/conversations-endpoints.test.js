@@ -27,7 +27,7 @@ function buildStore() {
     }),
     create: vi.fn(async () => {
       const created = {
-        id: 'conv-new',
+        id: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
         title: null,
         created_at: '2026-09-21T09:00:00.000Z',
         updated_at: '2026-09-21T09:00:00.000Z',
@@ -107,7 +107,7 @@ describe('conversations list and create', () => {
   it('lists the conversations of the signed-in user', async () => {
     storeState.conversations = [
       {
-        id: 'c1',
+        id: '11111111-1111-4111-8111-111111111111',
         title: 'Risoto',
         created_at: 'x',
         updated_at: 'y',
@@ -126,13 +126,13 @@ describe('conversations list and create', () => {
     const res = await request(app).post('/api/conversations').set('Authorization', AUTH_HEADER);
 
     expect(res.status).toBe(201);
-    expect(res.body.conversation.id).toBe('conv-new');
+    expect(res.body.conversation.id).toBe('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa');
   });
 
   it('reuses an empty conversation instead of burning another slot', async () => {
     storeState.conversations = [
       {
-        id: 'c-empty',
+        id: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
         title: null,
         created_at: 'x',
         updated_at: 'y',
@@ -143,15 +143,33 @@ describe('conversations list and create', () => {
     const res = await request(app).post('/api/conversations').set('Authorization', AUTH_HEADER);
 
     expect(res.status).toBe(201);
-    expect(res.body.conversation.id).toBe('c-empty');
+    expect(res.body.conversation.id).toBe('bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb');
     expect(storeState.store.create).not.toHaveBeenCalled();
   });
 
   it('answers 409 with the three conversations when a free account is full', async () => {
     storeState.conversations = [
-      { id: 'c1', title: 'Risoto', created_at: 'x', updated_at: 'y', message_count: 8 },
-      { id: 'c2', title: 'Natal', created_at: 'x', updated_at: 'y', message_count: 12 },
-      { id: 'c3', title: 'Vinho', created_at: 'x', updated_at: 'y', message_count: 4 },
+      {
+        id: '11111111-1111-4111-8111-111111111111',
+        title: 'Risoto',
+        created_at: 'x',
+        updated_at: 'y',
+        message_count: 8,
+      },
+      {
+        id: '22222222-2222-4222-8222-222222222222',
+        title: 'Natal',
+        created_at: 'x',
+        updated_at: 'y',
+        message_count: 12,
+      },
+      {
+        id: '33333333-3333-4333-8333-333333333333',
+        title: 'Vinho',
+        created_at: 'x',
+        updated_at: 'y',
+        message_count: 4,
+      },
     ];
 
     const res = await request(app).post('/api/conversations').set('Authorization', AUTH_HEADER);
@@ -166,9 +184,27 @@ describe('conversations list and create', () => {
   it('lets a pro account past the limit', async () => {
     storeState.plan = 'pro';
     storeState.conversations = [
-      { id: 'c1', title: 'a', created_at: 'x', updated_at: 'y', message_count: 1 },
-      { id: 'c2', title: 'b', created_at: 'x', updated_at: 'y', message_count: 1 },
-      { id: 'c3', title: 'c', created_at: 'x', updated_at: 'y', message_count: 1 },
+      {
+        id: '11111111-1111-4111-8111-111111111111',
+        title: 'a',
+        created_at: 'x',
+        updated_at: 'y',
+        message_count: 1,
+      },
+      {
+        id: '22222222-2222-4222-8222-222222222222',
+        title: 'b',
+        created_at: 'x',
+        updated_at: 'y',
+        message_count: 1,
+      },
+      {
+        id: '33333333-3333-4333-8333-333333333333',
+        title: 'c',
+        created_at: 'x',
+        updated_at: 'y',
+        message_count: 1,
+      },
     ];
 
     const res = await request(app).post('/api/conversations').set('Authorization', AUTH_HEADER);
@@ -189,7 +225,7 @@ describe('conversation detail', () => {
     resetState();
     storeState.conversations = [
       {
-        id: 'c1',
+        id: '11111111-1111-4111-8111-111111111111',
         title: null,
         created_at: '2026-09-20T10:00:00.000Z',
         updated_at: '2026-09-20T10:00:00.000Z',
@@ -215,42 +251,48 @@ describe('conversation detail', () => {
   });
 
   it('returns the conversation with its messages in order', async () => {
-    const res = await request(app).get('/api/conversations/c1').set('Authorization', AUTH_HEADER);
+    const res = await request(app)
+      .get('/api/conversations/11111111-1111-4111-8111-111111111111')
+      .set('Authorization', AUTH_HEADER);
 
     expect(res.status).toBe(200);
-    expect(res.body.conversation.id).toBe('c1');
+    expect(res.body.conversation.id).toBe('11111111-1111-4111-8111-111111111111');
     expect(res.body.messages.map((message) => message.role)).toEqual(['user', 'model']);
   });
 
   it('answers 404 for a conversation that belongs to someone else', async () => {
     const res = await request(app)
-      .get('/api/conversations/not-mine')
+      .get('/api/conversations/cccccccc-cccc-4ccc-8ccc-cccccccccccc')
       .set('Authorization', AUTH_HEADER);
 
     expect(res.status).toBe(404);
   });
 
   it('scopes every lookup to the signed-in user', async () => {
-    await request(app).get('/api/conversations/c1').set('Authorization', AUTH_HEADER);
+    await request(app)
+      .get('/api/conversations/11111111-1111-4111-8111-111111111111')
+      .set('Authorization', AUTH_HEADER);
 
     expect(storeState.store.getOwned).toHaveBeenCalledWith({
-      conversationId: 'c1',
+      conversationId: '11111111-1111-4111-8111-111111111111',
       userId: TEST_USER.id,
     });
   });
 
   it('scopes the delete to the signed-in user too', async () => {
-    await request(app).delete('/api/conversations/c1').set('Authorization', AUTH_HEADER);
+    await request(app)
+      .delete('/api/conversations/11111111-1111-4111-8111-111111111111')
+      .set('Authorization', AUTH_HEADER);
 
     expect(storeState.store.remove).toHaveBeenCalledWith({
-      conversationId: 'c1',
+      conversationId: '11111111-1111-4111-8111-111111111111',
       userId: TEST_USER.id,
     });
   });
 
   it('deletes and answers 204', async () => {
     const res = await request(app)
-      .delete('/api/conversations/c1')
+      .delete('/api/conversations/11111111-1111-4111-8111-111111111111')
       .set('Authorization', AUTH_HEADER);
 
     expect(res.status).toBe(204);
@@ -263,7 +305,9 @@ describe('conversation detail', () => {
       json: async () => ({ choices: [{ message: { content: '"Risoto de cogumelos"' } }] }),
     }));
 
-    const res = await request(app).patch('/api/conversations/c1').set('Authorization', AUTH_HEADER);
+    const res = await request(app)
+      .patch('/api/conversations/11111111-1111-4111-8111-111111111111')
+      .set('Authorization', AUTH_HEADER);
 
     expect(res.status).toBe(200);
     expect(res.body.title).toBe('Risoto de cogumelos');
@@ -276,7 +320,9 @@ describe('conversation detail', () => {
       json: async () => ({ choices: [{ message: { content: 'Risoto de cogumelos' } }] }),
     }));
 
-    await request(app).patch('/api/conversations/c1').set('Authorization', AUTH_HEADER);
+    await request(app)
+      .patch('/api/conversations/11111111-1111-4111-8111-111111111111')
+      .set('Authorization', AUTH_HEADER);
 
     const body = JSON.parse(globalThis.fetch.mock.calls[0][1].body);
 
@@ -290,7 +336,9 @@ describe('conversation detail', () => {
       json: async () => ({ choices: [{ message: { content: '' }, finish_reason: 'length' }] }),
     }));
 
-    const res = await request(app).patch('/api/conversations/c1').set('Authorization', AUTH_HEADER);
+    const res = await request(app)
+      .patch('/api/conversations/11111111-1111-4111-8111-111111111111')
+      .set('Authorization', AUTH_HEADER);
 
     expect(res.status).toBe(200);
     expect(res.body.title).toBe('Como faco risoto?');
@@ -299,7 +347,9 @@ describe('conversation detail', () => {
   it('falls back to the first question when the model call fails', async () => {
     globalThis.fetch = vi.fn(async () => ({ ok: false, status: 500, text: async () => 'boom' }));
 
-    const res = await request(app).patch('/api/conversations/c1').set('Authorization', AUTH_HEADER);
+    const res = await request(app)
+      .patch('/api/conversations/11111111-1111-4111-8111-111111111111')
+      .set('Authorization', AUTH_HEADER);
 
     expect(res.status).toBe(200);
     expect(res.body.title).toBe('Como faco risoto?');
@@ -310,7 +360,9 @@ describe('conversation detail', () => {
     globalThis.fetch = vi.fn();
     storeState.conversations[0].title = 'Ja tenho nome';
 
-    const res = await request(app).patch('/api/conversations/c1').set('Authorization', AUTH_HEADER);
+    const res = await request(app)
+      .patch('/api/conversations/11111111-1111-4111-8111-111111111111')
+      .set('Authorization', AUTH_HEADER);
 
     expect(res.status).toBe(200);
     expect(res.body.title).toBe('Ja tenho nome');
@@ -318,7 +370,9 @@ describe('conversation detail', () => {
   });
 
   it('refuses a method it does not implement', async () => {
-    const res = await request(app).put('/api/conversations/c1').set('Authorization', AUTH_HEADER);
+    const res = await request(app)
+      .put('/api/conversations/11111111-1111-4111-8111-111111111111')
+      .set('Authorization', AUTH_HEADER);
     expect(res.status).toBe(405);
   });
 });

@@ -1,4 +1,4 @@
-export function confirmDialog({ kicker, heading, body, warning, confirmLabel, cancelLabel }) {
+function confirmDialog({ kicker, heading, body, warning, confirmLabel }) {
   const backdrop = document.createElement('div');
   backdrop.className = 'dialog-backdrop';
 
@@ -29,7 +29,7 @@ export function confirmDialog({ kicker, heading, body, warning, confirmLabel, ca
   const cancel = document.createElement('button');
   cancel.type = 'button';
   cancel.className = 'button-ghost';
-  cancel.textContent = cancelLabel || 'Cancelar';
+  cancel.textContent = 'Cancelar';
 
   const confirm = document.createElement('button');
   confirm.type = 'button';

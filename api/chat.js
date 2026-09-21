@@ -7,7 +7,7 @@ import {
 } from './_shared.js';
 import { authenticateRequest } from './_auth.js';
 import { checkAndIncrementUsage } from './_usage.js';
-import { buildHistory, createConversationStore } from './_conversations.js';
+import { buildHistory, createConversationStore, isConversationId } from './_conversations.js';
 
 const CHAT_MAX_OUTPUT_TOKENS = 3072;
 const CHAT_MESSAGE_MAX_LENGTH = 500;
@@ -38,7 +38,7 @@ function normalizeChatRequestBody(body) {
   }
 
   const conversationId = typeof body.conversationId === 'string' ? body.conversationId.trim() : '';
-  if (!conversationId) {
+  if (!isConversationId(conversationId)) {
     return null;
   }
 

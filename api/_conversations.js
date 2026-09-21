@@ -1,7 +1,13 @@
 import { getSupabaseAdminClient } from './_supabase.js';
 
+const CONVERSATION_ID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 export const FREE_CONVERSATION_LIMIT = 3;
-export const TITLE_MAX_LENGTH = 60;
+
+export function isConversationId(value) {
+  return typeof value === 'string' && CONVERSATION_ID_PATTERN.test(value);
+}
+const TITLE_MAX_LENGTH = 60;
 
 export function sanitizeTitle(raw) {
   if (typeof raw !== 'string') return null;

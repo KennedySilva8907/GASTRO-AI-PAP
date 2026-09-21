@@ -1,7 +1,7 @@
 import { ERROR_CODES, GROQ_MODEL, callGroq, runPreflight } from '../_shared.js';
 import { authenticateRequest } from '../_auth.js';
 import { rateLimit, send429 } from '../_rate-limit.js';
-import { createConversationStore, sanitizeTitle } from '../_conversations.js';
+import { createConversationStore, isConversationId, sanitizeTitle } from '../_conversations.js';
 
 const ALLOWED_METHODS = ['GET', 'DELETE', 'PATCH'];
 const TITLE_EXCERPT_MAX_LENGTH = 1200;
@@ -92,10 +92,10 @@ export default async function handler(req, res) {
   }
 
   const conversationId = req.query?.id;
-  if (typeof conversationId !== 'string' || !conversationId) {
-    return res.status(400).json({
-      error: 'Invalid conversation id',
-      code: ERROR_CODES.INVALID_INPUT,
+  if (!isConversationId(conversationId)) {
+    return res.status(404).json({
+      error: 'Conversation not found',
+      code: ERROR_CODES.NOT_FOUND,
     });
   }
 

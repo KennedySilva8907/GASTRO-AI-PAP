@@ -66,7 +66,12 @@ describe('API Handler Integration Tests', () => {
     process.env.GROQ_API_KEY = 'test-key-12345';
     mockUsageResult = null;
     conversationState = {
-      conversation: { id: 'c1', title: null, created_at: 'x', updated_at: 'y' },
+      conversation: {
+        id: '11111111-1111-4111-8111-111111111111',
+        title: null,
+        created_at: 'x',
+        updated_at: 'y',
+      },
       messages: [],
       store: null,
     };
@@ -124,7 +129,7 @@ describe('API Handler Integration Tests', () => {
         .post('/api/chat')
         .set('Origin', 'http://localhost:3000')
         .set('Authorization', AUTH_HEADER)
-        .send({ message: 'hello', conversationId: 'c1' });
+        .send({ message: 'hello', conversationId: '11111111-1111-4111-8111-111111111111' });
 
       expect(res.status).not.toBe(403);
     });
@@ -133,7 +138,7 @@ describe('API Handler Integration Tests', () => {
       const res = await request(app)
         .post('/api/chat')
         .set('Origin', 'http://localhost:5173')
-        .send({ message: 'hello', conversationId: 'c1' });
+        .send({ message: 'hello', conversationId: '11111111-1111-4111-8111-111111111111' });
 
       expect(res.status).not.toBe(403);
     });
@@ -175,7 +180,7 @@ describe('API Handler Integration Tests', () => {
       const res = await request(app)
         .post('/api/chat')
         .set('Origin', 'http://localhost:3000')
-        .send({ message: 'hello', conversationId: 'c1' });
+        .send({ message: 'hello', conversationId: '11111111-1111-4111-8111-111111111111' });
 
       expect(res.status).toBe(401);
       expect(res.body.code).toBe('ERR_AUTH_001');
@@ -193,7 +198,7 @@ describe('API Handler Integration Tests', () => {
         .post('/api/chat')
         .set('Origin', 'http://localhost:3000')
         .set('Authorization', AUTH_HEADER)
-        .send({ message: 'hello', conversationId: 'c1' });
+        .send({ message: 'hello', conversationId: '11111111-1111-4111-8111-111111111111' });
 
       expect(res.status).toBe(429);
       expect(res.body.code).toBe('ERR_RATE_LIMIT_001');
@@ -218,7 +223,7 @@ describe('API Handler Integration Tests', () => {
         .post('/api/chat')
         .set('Origin', 'http://localhost:3000')
         .set('Authorization', AUTH_HEADER)
-        .send({ message: 'hello', conversationId: 'c1' });
+        .send({ message: 'hello', conversationId: '11111111-1111-4111-8111-111111111111' });
 
       expect(res.status).toBe(500);
       expect(res.body.code).toBe('ERR_CONFIG_001');
@@ -231,7 +236,7 @@ describe('API Handler Integration Tests', () => {
         .post('/api/chat')
         .set('Origin', 'http://localhost:3000')
         .set('Authorization', AUTH_HEADER)
-        .send({ message: 'hello', conversationId: 'c1' });
+        .send({ message: 'hello', conversationId: '11111111-1111-4111-8111-111111111111' });
 
       expect(res.status).toBe(200);
       expect(res.body.candidates).toBeDefined();
@@ -245,7 +250,10 @@ describe('API Handler Integration Tests', () => {
         .post('/api/chat')
         .set('Origin', 'http://localhost:3000')
         .set('Authorization', AUTH_HEADER)
-        .send({ message: 'Como fazer risoto?', conversationId: 'c1' });
+        .send({
+          message: 'Como fazer risoto?',
+          conversationId: '11111111-1111-4111-8111-111111111111',
+        });
 
       expect(globalThis.fetch).toHaveBeenCalledTimes(1);
 
@@ -276,7 +284,7 @@ describe('API Handler Integration Tests', () => {
         .post('/api/chat')
         .set('Origin', 'http://localhost:3000')
         .set('Authorization', AUTH_HEADER)
-        .send({ message: 'continua', conversationId: 'c1' });
+        .send({ message: 'continua', conversationId: '11111111-1111-4111-8111-111111111111' });
 
       const body = JSON.parse(globalThis.fetch.mock.calls[0][1].body);
       expect(body.messages.map((m) => m.role)).toEqual(['system', 'user', 'assistant', 'user']);
@@ -292,7 +300,7 @@ describe('API Handler Integration Tests', () => {
         .post('/api/chat')
         .set('Origin', 'http://localhost:3000')
         .set('Authorization', AUTH_HEADER)
-        .send({ message: 'hello', conversationId: 'c1' });
+        .send({ message: 'hello', conversationId: '11111111-1111-4111-8111-111111111111' });
 
       expect(res.status).toBe(500);
       expect(res.body.code).toBe('ERR_GROQ_001');
@@ -305,7 +313,7 @@ describe('API Handler Integration Tests', () => {
         .post('/api/chat')
         .set('Origin', 'http://localhost:3000')
         .set('Authorization', AUTH_HEADER)
-        .send({ message: 'hello', conversationId: 'c1' });
+        .send({ message: 'hello', conversationId: '11111111-1111-4111-8111-111111111111' });
 
       expect(res.status).toBe(500);
       // Body should NOT contain the raw error message or stack
@@ -322,7 +330,7 @@ describe('API Handler Integration Tests', () => {
         .post('/api/chat')
         .set('Origin', 'http://localhost:3000')
         .set('Authorization', AUTH_HEADER)
-        .send({ message: 'hello', conversationId: 'c1' });
+        .send({ message: 'hello', conversationId: '11111111-1111-4111-8111-111111111111' });
 
       expect(res.body.error).toBe('An error occurred processing your request');
       expect(res.body.code).toBe('ERR_INTERNAL_001');
@@ -390,7 +398,7 @@ describe('API Handler Integration Tests', () => {
         .post('/api/chat')
         .set('Origin', 'http://localhost:3000')
         .set('Authorization', AUTH_HEADER)
-        .send({ message: 'Ola', conversationId: 'not-mine' });
+        .send({ message: 'Ola', conversationId: 'cccccccc-cccc-4ccc-8ccc-cccccccccccc' });
 
       expect(res.status).toBe(404);
       expect(globalThis.fetch).not.toHaveBeenCalled();
@@ -401,7 +409,7 @@ describe('API Handler Integration Tests', () => {
         .post('/api/chat')
         .set('Origin', 'http://localhost:3000')
         .set('Authorization', AUTH_HEADER)
-        .send({ message: 'Ola', conversationId: 'not-mine' });
+        .send({ message: 'Ola', conversationId: 'cccccccc-cccc-4ccc-8ccc-cccccccccccc' });
 
       expect(conversationState.store.listMessages).not.toHaveBeenCalled();
       expect(conversationState.store.appendMessage).not.toHaveBeenCalled();
@@ -412,7 +420,10 @@ describe('API Handler Integration Tests', () => {
         .post('/api/chat')
         .set('Origin', 'http://localhost:3000')
         .set('Authorization', AUTH_HEADER)
-        .send({ message: 'Como faco risoto?', conversationId: 'c1' });
+        .send({
+          message: 'Como faco risoto?',
+          conversationId: '11111111-1111-4111-8111-111111111111',
+        });
 
       expect(res.status).toBe(200);
       expect(conversationState.store.appendMessage.mock.calls.map((call) => call[0].role)).toEqual([
@@ -431,7 +442,10 @@ describe('API Handler Integration Tests', () => {
         .post('/api/chat')
         .set('Origin', 'http://localhost:3000')
         .set('Authorization', AUTH_HEADER)
-        .send({ message: 'Como faco risoto?', conversationId: 'c1' });
+        .send({
+          message: 'Como faco risoto?',
+          conversationId: '11111111-1111-4111-8111-111111111111',
+        });
 
       expect(conversationState.store.appendMessage).toHaveBeenCalledTimes(1);
       expect(conversationState.store.appendMessage.mock.calls[0][0].role).toBe('user');
@@ -448,7 +462,7 @@ describe('API Handler Integration Tests', () => {
         .set('Authorization', AUTH_HEADER)
         .send({
           message: 'seguinte',
-          conversationId: 'c1',
+          conversationId: '11111111-1111-4111-8111-111111111111',
           history: [{ role: 'user', text: 'inventado pelo cliente' }],
         });
 
@@ -464,9 +478,9 @@ describe('API Handler Integration Tests', () => {
         .post('/api/chat')
         .set('Origin', 'http://localhost:3000')
         .set('Authorization', AUTH_HEADER)
-        .send({ message: 'Ola', conversationId: 'c1' });
+        .send({ message: 'Ola', conversationId: '11111111-1111-4111-8111-111111111111' });
 
-      expect(res.body.conversationId).toBe('c1');
+      expect(res.body.conversationId).toBe('11111111-1111-4111-8111-111111111111');
     });
   });
 });

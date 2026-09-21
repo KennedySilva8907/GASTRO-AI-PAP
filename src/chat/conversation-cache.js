@@ -1,6 +1,6 @@
 const cache = new Map();
 
-export const PREFETCH_LIMIT = 5;
+const PREFETCH_LIMIT = 5;
 
 export function getCached(id) {
   return cache.get(id) || null;

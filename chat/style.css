@@ -1407,6 +1407,12 @@ input::placeholder {
     right: 0.15rem;
   }
 
+  .drawer-button,
+  .new-chat-button {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
   .conversation-item,
   .chat-sidebar.is-collapsed .conversation-item {
     padding-right: 2.9rem;

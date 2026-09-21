@@ -106,7 +106,7 @@ function removeTypingIndicator(chatMessages) {
  * @param {string} message - Original message text
  * @returns {object} Message element and content element
  */
-function createMessageElement(sender, message) {
+function createMessageElement(sender, message, time = getCurrentTime()) {
   const messageElement = document.createElement('div');
   messageElement.classList.add('message', sender);
   messageElement.setAttribute('data-full-text', message);
@@ -116,7 +116,7 @@ function createMessageElement(sender, message) {
 
   const timestamp = document.createElement('span');
   timestamp.classList.add('timestamp');
-  timestamp.textContent = getCurrentTime();
+  timestamp.textContent = time;
 
   messageElement.appendChild(contentElement);
   messageElement.appendChild(timestamp);
@@ -169,6 +169,25 @@ function buildTypedOptions(htmlContent, chatMessages, sender, message, elements,
  * @param {object} elements - DOM element references
  * @returns {Promise<void>}
  */
+function formatStoredTime(iso) {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return getCurrentTime();
+  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
+function renderStoredMessage(sender, message, chatMessages, sanitizeHtml, createdAt) {
+  const { messageElement, contentElement } = createMessageElement(
+    sender,
+    message,
+    formatStoredTime(createdAt)
+  );
+  contentElement.innerHTML = sanitizeHtml(marked.parse(message));
+  messageElement.style.opacity = '1';
+  messageElement.style.transform = 'none';
+  messageElement.style.animation = 'none';
+  chatMessages.appendChild(messageElement);
+}
+
 function addMessage(sender, message, chatMessages, sanitizeHtml, elements) {
   return new Promise((resolve) => {
     const { messageElement, contentElement } = createMessageElement(sender, message);
@@ -359,21 +378,30 @@ async function startNewConversation(elements, sanitizeHtml) {
 }
 
 export async function openConversation(id, elements, sanitizeHtml) {
+  if (currentTyped) {
+    currentTyped.destroy();
+    currentTyped = null;
+  }
+  isTyping = false;
+
   const { conversation, messages } = await loadConversation(id);
   currentConversationId = conversation.id;
   elements.chatMessages.replaceChildren();
 
   for (const message of messages) {
-    await addMessage(
+    renderStoredMessage(
       message.role === 'model' ? 'bot' : 'user',
       message.content,
       elements.chatMessages,
       sanitizeHtml,
-      elements
+      message.created_at
     );
   }
 
+  elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
   togglePdfButton(elements.exportButton, messages.length > 0);
+  toggleStopButton(elements.stopButton, false);
+  toggleInputs(elements, true);
   elements.userInput.focus();
 }
 

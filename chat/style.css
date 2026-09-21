@@ -383,10 +383,9 @@ input::placeholder {
   gap: 0.1rem;
   min-width: 0;
   opacity: 1;
-  transform: translateX(0);
   transition:
-    opacity 0.2s ease 0.1s,
-    transform 0.28s cubic-bezier(0.4, 0, 0.2, 1) 0.06s;
+    opacity 0.18s ease 0.12s,
+    width 0.34s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .conversation-title {
@@ -440,12 +439,28 @@ input::placeholder {
 }
 
 .chat-sidebar.is-collapsed .conversation-item {
-  padding: 0.5rem 0.25rem;
+  padding: 0.5rem 0;
   justify-content: center;
+  gap: 0;
+  background: transparent;
 }
 
-.chat-sidebar.is-collapsed .conversation-text,
-.chat-sidebar.is-collapsed .conversation-delete,
+.chat-sidebar.is-collapsed .conversation-item:hover {
+  background: transparent;
+}
+
+.chat-sidebar.is-collapsed .conversation-text {
+  width: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition-delay: 0s;
+  pointer-events: none;
+}
+
+.chat-sidebar.is-collapsed .conversation-delete {
+  display: none;
+}
+
 .chat-sidebar.is-collapsed .sidebar-foot-text {
   opacity: 0;
   transform: translateX(-0.4rem);

@@ -11,11 +11,25 @@ AI-powered culinary web app featuring real-time cooking challenges, a recipe car
 
 **[Live Demo](https://gastro-ai-pap.vercel.app)**
 
+## Screenshots
+
+| Home                                                                                         | Recipe gallery                                                                               |
+| -------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| ![Landing page with the animated logo and the three entry points](docs/screenshots/home.jpg) | ![Recipe gallery showing Bacalhau a Bras and the country list](docs/screenshots/recipes.jpg) |
+
+| AI chat with saved conversations                                                                      | Cooking challenges                                                                           |
+| ----------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| ![Chat with the conversation list on the left and a recipe answer](docs/screenshots/chat-sidebar.jpg) | ![The four difficulty levels, from Principiante to Extremo](docs/screenshots/challenges.jpg) |
+
+| A conversation exported to PDF                                                                     | The list on a phone                                                                              |
+| -------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| ![PDF of a conversation with the masthead, ingredients and steps](docs/screenshots/pdf-export.png) | ![Conversation drawer open over the chat on a narrow screen](docs/screenshots/mobile-drawer.jpg) |
+
 ## Features
 
 - **Cooking Challenges** - AI-generated recipes with countdown timer and 4 difficulty levels (Beginner, Intermediate, Advanced, Extreme)
-- **AI Chat Assistant** - Specialized gastronomy chatbot with conversation history, chat export, and typing animation
-- **V3 Accounts & Billing** - Supabase Auth, Free/Pro usage limits, Stripe Checkout and Customer Portal
+- **AI Chat Assistant** - Specialized gastronomy chatbot with typing animation, saved conversations you can reopen and carry on from, and export to a branded PDF
+- **Accounts & Billing** - Supabase Auth, Free/Pro usage limits, Stripe Checkout and Customer Portal. Free keeps three saved conversations and chooses none of them for you
 - **Recipe Gallery** - Vertical carousel with 10 international recipes, YouTube video links, and detail modals with Web Share API support
 - **Button-anchored Page Transitions** - Pages collapse into the clicked button on exit and expand from the destination button on entry, with an inline head script that bridges the load gap to prevent flashes (`src/shared/transitions.js`)
 - **Interactive Animations** - Physics-based food animations using Matter.js and GSAP
@@ -31,6 +45,7 @@ AI-powered culinary web app featuring real-time cooking challenges, a recipe car
 | Auth & Database | Supabase Auth + Postgres                   |
 | Billing         | Stripe Checkout, Customer Portal, Webhooks |
 | Backend         | Node.js (Vercel Serverless Functions)      |
+| PDF             | pdfkit, marked (server-side rendering)     |
 | Testing         | Vitest 4, supertest, jsdom                 |
 | CI/CD           | GitHub Actions                             |
 | Deployment      | Vercel                                     |
@@ -177,17 +192,23 @@ fonts/images that _are_ fingerprinted by upstream CDNs keep long caches.
 
 ## API Reference
 
-Two serverless endpoints proxy requests to the Groq API. See [docs/api.md](docs/api.md) for full documentation including request/response examples, error codes and the migration history.
+Eleven serverless functions, all of them authenticated except the public Supabase config. See [docs/api.md](docs/api.md) for full documentation including request/response examples, error codes and the migration history.
 
-| Endpoint                | Method | Purpose                                                     |
-| ----------------------- | ------ | ----------------------------------------------------------- |
-| `/api/auth/config`      | GET    | Public Supabase browser configuration                       |
-| `/api/auth/session`     | POST   | Authenticated user, plan and daily usage summary            |
-| `/api/chat`             | POST   | Authenticated AI chat assistant (conversation with history) |
-| `/api/gemini`           | POST   | Authenticated recipe generation for timed challenges        |
-| `/api/billing/checkout` | POST   | Stripe Checkout session for Pro                             |
-| `/api/billing/portal`   | POST   | Stripe Customer Portal session                              |
-| `/api/webhooks/stripe`  | POST   | Stripe subscription webhook                                 |
+| Endpoint                     | Method | Purpose                                                     |
+| ---------------------------- | ------ | ----------------------------------------------------------- |
+| `/api/auth/config`           | GET    | Public Supabase browser configuration                       |
+| `/api/auth/session`          | POST   | Authenticated user, plan and daily usage summary            |
+| `/api/chat`                  | POST   | Authenticated AI chat assistant (conversation with history) |
+| `/api/gemini`                | POST   | Authenticated recipe generation for timed challenges        |
+| `/api/conversations`         | GET    | The signed-in user's saved conversations                    |
+| `/api/conversations`         | POST   | Start one, or 409 with the list when a free account is full |
+| `/api/conversations/:id`     | GET    | A conversation with its messages                            |
+| `/api/conversations/:id`     | DELETE | Delete it                                                   |
+| `/api/conversations/:id`     | PATCH  | Name it from the first exchange                             |
+| `/api/conversations/:id/pdf` | GET    | The conversation as a PDF                                   |
+| `/api/billing/checkout`      | POST   | Stripe Checkout session for Pro                             |
+| `/api/billing/portal`        | POST   | Stripe Customer Portal session                              |
+| `/api/webhooks/stripe`       | POST   | Stripe subscription webhook                                 |
 
 > The `/api/gemini` path is kept for backwards compatibility with the recipe
 > client code; the endpoint itself now talks to Groq, not Google.
@@ -200,14 +221,32 @@ gastro-ai/
 ├── style.css                 # Global styles
 ├── api/
 │   ├── _shared.js            # CORS, preflight, callGroq, Gemini/Groq translators
+│   ├── _auth.js              # Supabase JWT verification
+│   ├── _usage.js             # Plan resolution and daily limits
+│   ├── _conversations.js     # Conversation and message data access
+│   ├── _pdf.js               # Markdown to PDF rendering
+│   ├── _rate-limit.js        # Per-IP rate limiting
+│   ├── _fonts/               # Subsetted Poppins and Cormorant Garamond
 │   ├── chat.js               # Serverless function - chat assistant
-│   └── gemini.js             # Serverless function - recipe generation
+│   ├── gemini.js             # Serverless function - recipe generation
+│   ├── auth/                 # Public config and session summary
+│   ├── billing/              # Stripe checkout and customer portal
+│   ├── conversations/        # List, read, delete, name, export
+│   ├── cron/                 # Daily Supabase health probe
+│   └── webhooks/             # Stripe subscription events
 ├── src/
 │   ├── main.js               # Home page module
+│   ├── auth/                 # Sign-in pages, account bar, plan cache
 │   ├── chat/                 # AI chat modules
 │   │   ├── index.js
 │   │   ├── handlers.js
 │   │   ├── chat-api.js
+│   │   ├── conversations-api.js
+│   │   ├── conversation-cache.js
+│   │   ├── sidebar.js
+│   │   ├── limit-dialog.js
+│   │   ├── confirm-dialog.js
+│   │   ├── pdf-button.js
 │   │   └── matter-setup.js
 │   ├── recipes/              # Recipe gallery modules
 │   │   ├── index.js
@@ -235,7 +274,8 @@ gastro-ai/
 ├── tests/                    # Test suite
 ├── docs/                     # Documentation
 ├── .github/workflows/        # CI/CD pipeline
-├── vercel.json               # Vercel routing and caching
+├── supabase/migrations/      # Schema and row level security
+├── vercel.json               # Vercel routing, caching and function config
 ├── vitest.config.js          # Test configuration
 ├── eslint.config.js          # Linting rules
 └── package.json

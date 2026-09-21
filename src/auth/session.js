@@ -1,4 +1,5 @@
 import { getSupabaseClient, sanitizeRedirect } from './client.js';
+import { clearPlan, planLabel, readPlan, shouldOfferUpgrade, writePlan } from './plan-cache.js';
 import { initials } from './initials.js';
 import { API_ENDPOINTS } from '../shared/constants.js';
 
@@ -151,30 +152,35 @@ async function refreshAccountState() {
     logoutButton.hidden = true;
     upgradeButton.hidden = true;
     cachedPlan = null;
+    clearPlan();
     return;
   }
 
   const email = session.user?.email ?? '';
-  // Show plan in status if known
-  if (cachedPlan) {
-    const label = cachedPlan === 'pro' ? 'Pro' : 'Free';
-    status.textContent = email ? `${label} · ${email}` : label;
-  } else {
-    status.textContent = email ? `Conta: ${email}` : 'Conta ativa';
-    // Fetch plan in the background (non-blocking)
-    fetchPlan(session).then((plan) => {
-      cachedPlan = plan;
-      if (!accountBar) return;
-      const newLabel = plan === 'pro' ? 'Pro' : 'Free';
-      status.textContent = email ? `${newLabel} · ${email}` : newLabel;
-      // Hide upgrade button for Pro users
-      if (plan === 'pro') upgradeButton.hidden = true;
-    });
+  const userId = session.user?.id ?? null;
+
+  function paintPlan(plan) {
+    const label = planLabel(plan);
+    if (label) {
+      status.textContent = email ? `${label} · ${email}` : label;
+    } else {
+      status.textContent = email ? `Conta: ${email}` : 'Conta ativa';
+    }
+    upgradeButton.hidden = !shouldOfferUpgrade(plan);
   }
+
+  if (!cachedPlan) cachedPlan = readPlan(userId);
+  paintPlan(cachedPlan);
+
+  fetchPlan(session).then((plan) => {
+    if (!plan || !accountBar) return;
+    cachedPlan = plan;
+    writePlan(userId, plan);
+    paintPlan(plan);
+  });
 
   loginButton.hidden = true;
   logoutButton.hidden = false;
-  upgradeButton.hidden = cachedPlan === 'pro';
 }
 
 async function startCheckout() {

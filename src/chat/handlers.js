@@ -3,13 +3,14 @@
  * Manages chat UI, message history, API communication, and typing animations
  */
 
-import { handleAsyncError } from '../shared/errors.js';
+import { handleAsyncError, UserFacingError } from '../shared/errors.js';
 import { fetchWithAuth } from '../shared/api-client.js';
 import { API_ENDPOINTS } from '../shared/constants.js';
 import {
   buildChatRequestPayload,
   extractChatResponseText,
   getTypeSpeed,
+  messageForApiError,
   MAX_MESSAGE_LENGTH,
 } from './chat-api.js';
 import {
@@ -229,14 +230,16 @@ async function getChatbotResponse(message, conversationId) {
     });
 
     if (!response.ok) {
-      let errorMsg = `HTTP error! status: ${response.status}`;
+      let errorData = {};
       try {
-        const errorData = await response.json();
-        errorMsg = errorData?.error || errorMsg;
+        errorData = await response.json();
       } catch {
-        // Ignore if error response is not valid JSON
+        errorData = {};
       }
-      throw new Error(errorMsg);
+      throw new UserFacingError(
+        errorData?.error || `HTTP error! status: ${response.status}`,
+        messageForApiError({ code: errorData?.code, status: response.status })
+      );
     }
 
     const data = await response.json();

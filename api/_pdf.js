@@ -70,6 +70,16 @@ export function slugify(title) {
   return slug || 'conversa';
 }
 
+export function signerName(user) {
+  const registered = user?.claims?.user_metadata?.name;
+  const trimmed = typeof registered === 'string' ? registered.trim() : '';
+  if (trimmed) return trimmed;
+
+  const local = typeof user?.email === 'string' ? user.email.split('@')[0] : '';
+  if (!local) return 'Utilizador';
+  return local.charAt(0).toUpperCase() + local.slice(1);
+}
+
 const PAPER = '#fff8ef';
 const INK = '#1f2937';
 const MUTED = '#7b6557';

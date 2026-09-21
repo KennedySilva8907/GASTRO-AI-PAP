@@ -33,7 +33,57 @@
     </button>
 
     <main id="chat-container">
+        <aside class="chat-sidebar" id="chat-sidebar">
+            <div class="chat-sidebar-head">
+                <button
+                    class="sidebar-toggle"
+                    id="sidebar-toggle"
+                    type="button"
+                    aria-expanded="true"
+                    aria-controls="conversation-list"
+                    title="Minimizar conversas"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                </button>
+                <span class="sidebar-label"><span class="sidebar-kicker">Conversas</span></span>
+                <button
+                    class="new-chat-button"
+                    id="new-chat-button"
+                    type="button"
+                    title="Nova conversa"
+                    aria-label="Nova conversa"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                </button>
+            </div>
+            <div class="conversation-list" id="conversation-list"></div>
+            <div class="sidebar-foot" id="sidebar-foot">
+                <span class="sidebar-foot-text" tabindex="0"></span>
+            </div>
+        </aside>
+
+        <div class="scrim" id="sidebar-scrim" hidden></div>
+
+        <div class="chat-main">
         <div id="chat-header">
+            <button
+                class="drawer-button"
+                id="drawer-button"
+                type="button"
+                title="As minhas conversas"
+                aria-label="As minhas conversas"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <line x1="3" y1="12" x2="21" y2="12"></line>
+                    <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+            </button>
             <div class="chat-header-main">
                 <span class="chat-kicker">GastroAI Atelier</span>
                 <h1>Chef AI</h1>
@@ -87,8 +137,9 @@
                         type="button"
                         id="export-button"
                         class="control-button export-button"
-                        title="Exportar conversa"
-                        aria-label="Exportar conversa"
+                        disabled
+                        title="Descarregar a conversa em PDF"
+                        aria-label="Descarregar a conversa em PDF"
                     >
                         <span class="button-icon" aria-hidden="true">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -97,24 +148,23 @@
                                 <line x1="12" y1="15" x2="12" y2="3"></line>
                             </svg>
                         </span>
-                        <span class="control-label">Exportar</span>
+                        <span class="control-label">PDF</span>
                     </button>
 
                     <button
-                        id="clear-button"
-                        class="control-button clear-button"
+                        id="new-conversation-button"
+                        class="control-button new-conversation-button"
                         type="button"
-                        disabled
-                        title="Limpar mensagens"
-                        aria-label="Limpar mensagens"
+                        title="Começar uma conversa nova"
+                        aria-label="Começar uma conversa nova"
                     >
                         <span class="button-icon" aria-hidden="true">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <line x1="18" y1="6" x2="6" y2="18"></line>
-                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
                             </svg>
                         </span>
-                        <span class="control-label">Limpar</span>
+                        <span class="control-label">Nova</span>
                     </button>
 
                     <button
@@ -134,6 +184,7 @@
                     </button>
                 </div>
             </form>
+        </div>
         </div>
     </main>
 

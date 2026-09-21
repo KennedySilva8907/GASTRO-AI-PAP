@@ -25,6 +25,7 @@ globalThis.Typed = class {
 globalThis.marked = { parse: (text) => `<p>${text}</p>` };
 
 const { openConversation } = await import('../../../src/chat/handlers.js');
+const { clearCache, getCached } = await import('../../../src/chat/conversation-cache.js');
 
 function elementsFixture() {
   document.body.innerHTML = `
@@ -44,6 +45,7 @@ function elementsFixture() {
 
 describe('opening a saved conversation', () => {
   beforeEach(() => {
+    clearCache();
     typedConstructor.mockReset();
     loadConversation.mockReset().mockResolvedValue({
       conversation: { id: 'c1', title: 'Risoto' },
@@ -180,5 +182,68 @@ describe('opening a saved conversation', () => {
 
     expect(elements.chatMessages.textContent).toContain('mensagem de c2');
     expect(elements.chatMessages.textContent).not.toContain('mensagem de c1');
+  });
+
+  it('keeps the conversation so going back to it costs nothing', async () => {
+    const elements = elementsFixture();
+
+    await openConversation('c1', elements, (html) => html);
+
+    expect(getCached('c1')).not.toBeNull();
+  });
+
+  it('paints a conversation you already opened without waiting for the server', async () => {
+    const elements = elementsFixture();
+    await openConversation('c1', elements, (html) => html);
+
+    let release;
+    loadConversation.mockReturnValue(
+      new Promise((resolve) => {
+        release = () =>
+          resolve({
+            conversation: { id: 'c1', title: 'Risoto' },
+            messages: [
+              {
+                id: 'm1',
+                role: 'user',
+                content: 'Como faco risoto?',
+                created_at: '2026-09-20T14:32:00Z',
+              },
+              {
+                id: 'm2',
+                role: 'model',
+                content: 'Com paciencia.',
+                created_at: '2026-09-20T14:33:00Z',
+              },
+            ],
+          });
+      })
+    );
+
+    const pending = openConversation('c1', elements, (html) => html);
+
+    expect(elements.chatMessages.querySelector('.conversation-loading')).toBeNull();
+    expect(elements.chatMessages.textContent).toContain('Como faco risoto?');
+
+    release();
+    await pending;
+  });
+
+  it('corrects the screen when the server has something the cache did not', async () => {
+    const elements = elementsFixture();
+    await openConversation('c1', elements, (html) => html);
+
+    loadConversation.mockResolvedValue({
+      conversation: { id: 'c1', title: 'Risoto' },
+      messages: [
+        { id: 'm1', role: 'user', content: 'Como faco risoto?', created_at: 'x' },
+        { id: 'm2', role: 'model', content: 'Com paciencia.', created_at: 'y' },
+        { id: 'm3', role: 'user', content: 'e o vinho?', created_at: 'z' },
+      ],
+    });
+
+    await openConversation('c1', elements, (html) => html);
+
+    expect(elements.chatMessages.textContent).toContain('e o vinho?');
   });
 });

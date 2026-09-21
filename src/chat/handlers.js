@@ -20,6 +20,7 @@ import {
   requestTitle,
 } from './conversations-api.js';
 import { askWhichToDelete } from './limit-dialog.js';
+import { dropCached, getCached, sameConversation, setCached } from './conversation-cache.js';
 
 // Chat state
 let currentConversationId = null;
@@ -300,6 +301,7 @@ async function handleChatSubmit(event, elements, sanitizeHtml) {
       await addMessage('bot', botResponse, elements.chatMessages, sanitizeHtml, elements);
 
       togglePdfButton(elements.exportButton, true);
+      dropCached(conversationId);
       onConversationsChanged(conversationId);
 
       if (isFirstMessage) {
@@ -397,36 +399,51 @@ export async function openConversation(id, elements, sanitizeHtml) {
   isTyping = false;
 
   pendingConversationLoad = id;
-  showConversationLoading(elements.chatMessages);
 
-  const { conversation, messages } = await loadConversation(id);
-  if (pendingConversationLoad !== id) return;
+  function paint(payload) {
+    const { conversation, messages } = payload;
+    currentConversationId = conversation.id;
+    elements.chatMessages.replaceChildren();
 
-  currentConversationId = conversation.id;
-  elements.chatMessages.replaceChildren();
-
-  renderStoredMessage(
-    'bot',
-    GREETING,
-    elements.chatMessages,
-    sanitizeHtml,
-    conversation.created_at
-  );
-
-  for (const message of messages) {
     renderStoredMessage(
-      message.role === 'model' ? 'bot' : 'user',
-      message.content,
+      'bot',
+      GREETING,
       elements.chatMessages,
       sanitizeHtml,
-      message.created_at
+      conversation.created_at
     );
+
+    for (const message of messages) {
+      renderStoredMessage(
+        message.role === 'model' ? 'bot' : 'user',
+        message.content,
+        elements.chatMessages,
+        sanitizeHtml,
+        message.created_at
+      );
+    }
+
+    elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
+    togglePdfButton(elements.exportButton, messages.length > 0);
+    toggleStopButton(elements.stopButton, false);
+    toggleInputs(elements, true);
   }
 
-  elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
-  togglePdfButton(elements.exportButton, messages.length > 0);
-  toggleStopButton(elements.stopButton, false);
-  toggleInputs(elements, true);
+  const cached = getCached(id);
+  if (cached) {
+    paint(cached);
+    elements.userInput.focus();
+  } else {
+    showConversationLoading(elements.chatMessages);
+  }
+
+  const fresh = await loadConversation(id);
+  if (pendingConversationLoad !== id) return;
+
+  setCached(id, fresh);
+  if (!cached || !sameConversation(cached, fresh)) {
+    paint(fresh);
+  }
   elements.userInput.focus();
 }
 

@@ -17,6 +17,8 @@ import {
   setConversationsChangedHandler,
 } from './handlers.js';
 import { initSidebar } from './sidebar.js';
+import { prefetchConversations } from './conversation-cache.js';
+import { loadConversation } from './conversations-api.js';
 
 async function loadPlan() {
   try {
@@ -200,7 +202,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
       getCurrentSession().then((session) => {
         if (!session?.access_token) return;
-        sidebar.refresh().catch(() => {});
+        sidebar
+          .refresh()
+          .then((conversations) => prefetchConversations(conversations, loadConversation))
+          .catch(() => {});
         loadPlan().then((plan) => sidebar.setPlan(plan));
       });
     }

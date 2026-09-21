@@ -7,11 +7,11 @@ import {
 } from './_shared.js';
 import { authenticateRequest } from './_auth.js';
 import { checkAndIncrementUsage } from './_usage.js';
+import { buildHistory, createConversationStore } from './_conversations.js';
 
 const CHAT_MAX_OUTPUT_TOKENS = 3072;
 const CHAT_MESSAGE_MAX_LENGTH = 500;
 const CHAT_HISTORY_MAX_ENTRIES = 10;
-const CHAT_HISTORY_ENTRY_MAX_LENGTH = 4000;
 const CHAT_SYSTEM_INSTRUCTION = [
   'És o GastroAI, um chef português apaixonado por gastronomia. Falas sempre em português de Portugal, com naturalidade — frases curtas, tom caloroso e confiante, nada de jargão de call center.',
   '',
@@ -37,27 +37,12 @@ function normalizeChatRequestBody(body) {
     return null;
   }
 
-  const rawHistory = body.history ?? [];
-  if (!Array.isArray(rawHistory) || rawHistory.length > CHAT_HISTORY_MAX_ENTRIES) {
+  const conversationId = typeof body.conversationId === 'string' ? body.conversationId.trim() : '';
+  if (!conversationId) {
     return null;
   }
 
-  const history = [];
-  for (const entry of rawHistory) {
-    if (!entry || typeof entry !== 'object' || Array.isArray(entry)) {
-      return null;
-    }
-
-    const role = entry.role;
-    const text = typeof entry.text === 'string' ? entry.text.trim() : '';
-    if (!['user', 'model'].includes(role) || !text || text.length > CHAT_HISTORY_ENTRY_MAX_LENGTH) {
-      return null;
-    }
-
-    history.push({ role, text });
-  }
-
-  return { message, history };
+  return { message, conversationId };
 }
 
 function buildChatGroqPayload({ message, history }) {
@@ -112,6 +97,25 @@ export default async function handler(req, res) {
       });
     }
 
+    const store = createConversationStore();
+    if (!store) {
+      return res.status(500).json({
+        error: 'Conversation service is not configured',
+        code: ERROR_CODES.API_KEY_MISSING,
+      });
+    }
+
+    const conversation = await store.getOwned({
+      conversationId: normalizedRequest.conversationId,
+      userId: auth.user.id,
+    });
+    if (!conversation) {
+      return res.status(404).json({
+        error: 'Conversation not found',
+        code: ERROR_CODES.NOT_FOUND,
+      });
+    }
+
     const usageGate = await checkAndIncrementUsage({
       user: auth.user,
       feature: 'chat',
@@ -120,9 +124,18 @@ export default async function handler(req, res) {
       return res.status(usageGate.status).json(usageGate.body);
     }
 
+    const storedMessages = await store.listMessages(conversation.id);
+    const history = buildHistory(storedMessages, CHAT_HISTORY_MAX_ENTRIES);
+
+    await store.appendMessage({
+      conversationId: conversation.id,
+      role: 'user',
+      content: normalizedRequest.message,
+    });
+
     const response = await callGroq({
       apiKey: API_KEY,
-      body: buildChatGroqPayload(normalizedRequest),
+      body: buildChatGroqPayload({ message: normalizedRequest.message, history }),
     });
 
     if (!response.ok) {
@@ -140,7 +153,18 @@ export default async function handler(req, res) {
     }
 
     const data = await response.json();
-    return res.status(200).json(groqToGeminiResponse(data));
+    const answer = groqToGeminiResponse(data);
+    const answerText = answer?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+
+    if (answerText) {
+      await store.appendMessage({
+        conversationId: conversation.id,
+        role: 'model',
+        content: answerText,
+      });
+    }
+
+    return res.status(200).json({ ...answer, conversationId: conversation.id });
   } catch (error) {
     console.error('[Chat Error]', {
       message: error.message,

@@ -170,9 +170,9 @@ document.addEventListener('DOMContentLoaded', () => {
         root: sidebarRoot,
         scrim: document.getElementById('sidebar-scrim'),
         onSelect: async (id) => {
+          sidebar.setActive(id);
           try {
             await openConversation(id, elements, sanitizeHtml);
-            sidebar.setActive(id);
           } catch (error) {
             handleAsyncError(error, 'Não consegui abrir essa conversa.');
           }
@@ -183,7 +183,12 @@ document.addEventListener('DOMContentLoaded', () => {
         },
       });
 
-      setConversationsChangedHandler(async (id) => {
+      setConversationsChangedHandler(async (id, { reload = false } = {}) => {
+        if (!reload) {
+          sidebar.bump(id);
+          sidebar.setActive(id);
+          return;
+        }
         await sidebar.refresh();
         sidebar.setActive(id);
       });

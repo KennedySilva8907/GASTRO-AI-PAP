@@ -93,12 +93,13 @@ export function createConversationStore(supabase = getSupabaseAdminClient()) {
       return data || [];
     },
 
-    async appendMessage({ conversationId, role, content }) {
+    async appendMessage({ conversationId, role, content, touch = true }) {
       const { error } = await supabase
         .from('conversation_messages')
         .insert({ conversation_id: conversationId, role, content });
 
       if (error) throw error;
+      if (!touch) return;
 
       const { error: touchError } = await supabase
         .from('conversations')

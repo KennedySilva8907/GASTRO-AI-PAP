@@ -131,6 +131,7 @@ export default async function handler(req, res) {
       conversationId: conversation.id,
       role: 'user',
       content: normalizedRequest.message,
+      touch: false,
     });
 
     const response = await callGroq({

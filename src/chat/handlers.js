@@ -303,7 +303,9 @@ async function handleChatSubmit(event, elements, sanitizeHtml) {
       onConversationsChanged(conversationId);
 
       if (isFirstMessage) {
-        requestTitle(conversationId).then(() => onConversationsChanged(conversationId));
+        requestTitle(conversationId).then(() =>
+          onConversationsChanged(conversationId, { reload: true })
+        );
       }
     } catch (error) {
       if (error.requiresAuth) {

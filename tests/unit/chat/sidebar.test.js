@@ -181,7 +181,7 @@ describe('sidebar', () => {
     expect(items[1].classList.contains('is-active')).toBe(true);
   });
 
-  it('asks before deleting and refreshes afterwards', async () => {
+  it('takes the row off the list straight away, without refetching', async () => {
     vi.spyOn(window, 'confirm').mockReturnValue(true);
     const sidebar = build();
     await sidebar.refresh();
@@ -189,7 +189,24 @@ describe('sidebar', () => {
     await document.querySelector('.conversation-delete').onclick(new window.Event('click'));
 
     expect(deleteConversation).toHaveBeenCalledWith('c1');
-    expect(listConversations).toHaveBeenCalledTimes(2);
+    expect(document.querySelectorAll('.conversation-item')).toHaveLength(1);
+    expect(listConversations).toHaveBeenCalledTimes(1);
+  });
+
+  it('puts the row back where it was when the delete fails', async () => {
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
+    deleteConversation.mockRejectedValue(new Error('rede em baixo'));
+    const sidebar = build();
+    await sidebar.refresh();
+
+    await document
+      .querySelector('.conversation-delete')
+      .onclick(new window.Event('click'))
+      .catch(() => {});
+
+    const items = document.querySelectorAll('.conversation-item');
+    expect(items).toHaveLength(2);
+    expect(items[0].dataset.id).toBe('c1');
   });
 
   it('does not delete when the user says no', async () => {

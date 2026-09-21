@@ -146,9 +146,23 @@ export function initSidebar({ root, scrim, onSelect, onNew }) {
     remove.onclick = async (event) => {
       event.stopPropagation();
       if (!window.confirm(`Apagar "${label}"? Isto não tem volta.`)) return;
-      await deleteConversation(conversation.id);
+
+      const position = [...list.children].indexOf(item);
+      item.remove();
+      conversationCount = Math.max(0, conversationCount - 1);
+      applyPlan();
       if (conversation.id === activeId) activeId = null;
-      await refresh();
+
+      try {
+        await deleteConversation(conversation.id);
+      } catch (error) {
+        const siblings = list.children;
+        if (position >= siblings.length) list.appendChild(item);
+        else list.insertBefore(item, siblings[position]);
+        conversationCount += 1;
+        applyPlan();
+        throw error;
+      }
     };
 
     item.addEventListener('click', () => {
@@ -188,6 +202,17 @@ export function initSidebar({ root, scrim, onSelect, onNew }) {
 
   return {
     refresh,
+    bump(id) {
+      const item = list.querySelector(`.conversation-item[data-id="${id}"]`);
+      if (!item) return;
+      const meta = item.querySelector('.conversation-meta');
+      if (meta) {
+        const current = Number.parseInt(meta.textContent, 10);
+        const next = Number.isNaN(current) ? 1 : current + 2;
+        meta.textContent = `hoje · ${next} mensagens`;
+      }
+      list.prepend(item);
+    },
     openDrawer,
     closeDrawer,
     setPlan(next) {

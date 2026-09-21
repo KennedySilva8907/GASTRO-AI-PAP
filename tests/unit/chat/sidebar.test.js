@@ -260,4 +260,58 @@ describe('sidebar', () => {
     expect(document.getElementById('chat-sidebar').classList.contains('is-open')).toBe(false);
     expect(scrim.hidden).toBe(true);
   });
+
+  it('counts messages correctly after an exchange', async () => {
+    const sidebar = build();
+    await sidebar.refresh();
+
+    sidebar.bump('c1');
+
+    const item = document.querySelector('.conversation-item[data-id="c1"]');
+    expect(item.dataset.count).toBe('10');
+    expect(item.querySelector('.conversation-meta').textContent).toContain('10 mensagens');
+  });
+
+  it('keeps counting up across several exchanges', async () => {
+    const sidebar = build();
+    await sidebar.refresh();
+
+    sidebar.bump('c1');
+    sidebar.bump('c1');
+    sidebar.bump('c1');
+
+    const item = document.querySelector('.conversation-item[data-id="c1"]');
+    expect(item.querySelector('.conversation-meta').textContent).toContain('14 mensagens');
+  });
+
+  it('starts an empty conversation at two, not at one', async () => {
+    const sidebar = build();
+    await sidebar.refresh();
+
+    sidebar.bump('c2');
+
+    const item = document.querySelector('.conversation-item[data-id="c2"]');
+    expect(item.querySelector('.conversation-meta').textContent).toContain('2 mensagens');
+  });
+
+  it('writes mensagem in the singular for one', async () => {
+    listConversations.mockResolvedValue([
+      { id: 'c9', title: 'Uma so', updated_at: new Date().toISOString(), message_count: 1 },
+    ]);
+    const sidebar = build();
+    await sidebar.refresh();
+
+    const meta = document.querySelector('.conversation-meta').textContent;
+    expect(meta).toContain('1 mensagem');
+    expect(meta).not.toContain('1 mensagens');
+  });
+
+  it('moves the conversation you just used to the top', async () => {
+    const sidebar = build();
+    await sidebar.refresh();
+
+    sidebar.bump('c2');
+
+    expect(document.querySelectorAll('.conversation-item')[0].dataset.id).toBe('c2');
+  });
 });

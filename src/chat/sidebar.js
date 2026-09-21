@@ -35,6 +35,15 @@ function relativeDate(iso) {
   return new Date(then).toLocaleDateString('pt-PT');
 }
 
+function messageLabel(count) {
+  return count === 1 ? '1 mensagem' : `${count} mensagens`;
+}
+
+function metaText(updatedAt, count) {
+  const when = relativeDate(updatedAt);
+  return when ? `${when} · ${messageLabel(count)}` : messageLabel(count);
+}
+
 function initial(title) {
   return (title || UNTITLED).trim().charAt(0).toUpperCase();
 }
@@ -117,6 +126,7 @@ export function initSidebar({ root, scrim, onSelect, onNew }) {
     item.type = 'button';
     item.className = 'conversation-item';
     item.dataset.id = conversation.id;
+    item.dataset.count = String(conversation.message_count);
     item.title = label;
     item.setAttribute('aria-label', label);
     if (conversation.id === activeId) item.classList.add('is-active');
@@ -135,7 +145,7 @@ export function initSidebar({ root, scrim, onSelect, onNew }) {
 
     const meta = document.createElement('span');
     meta.className = 'conversation-meta';
-    meta.textContent = `${relativeDate(conversation.updated_at)} · ${conversation.message_count} mensagens`;
+    meta.textContent = metaText(conversation.updated_at, conversation.message_count);
 
     const remove = document.createElement('span');
     remove.className = 'conversation-delete';
@@ -205,15 +215,17 @@ export function initSidebar({ root, scrim, onSelect, onNew }) {
 
   return {
     refresh,
-    bump(id) {
+    bump(id, added = 2) {
       const item = list.querySelector(`.conversation-item[data-id="${id}"]`);
       if (!item) return;
+
+      const current = Number(item.dataset.count);
+      const next = (Number.isNaN(current) ? 0 : current) + added;
+      item.dataset.count = String(next);
+
       const meta = item.querySelector('.conversation-meta');
-      if (meta) {
-        const current = Number.parseInt(meta.textContent, 10);
-        const next = Number.isNaN(current) ? 1 : current + 2;
-        meta.textContent = `hoje · ${next} mensagens`;
-      }
+      if (meta) meta.textContent = metaText(new Date().toISOString(), next);
+
       list.prepend(item);
     },
     openDrawer,

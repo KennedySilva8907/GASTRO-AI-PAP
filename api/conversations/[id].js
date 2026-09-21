@@ -5,8 +5,18 @@ import { createConversationStore, sanitizeTitle } from '../_conversations.js';
 
 const ALLOWED_METHODS = ['GET', 'DELETE', 'PATCH'];
 const TITLE_EXCERPT_MAX_LENGTH = 1200;
-const TITLE_SYSTEM_INSTRUCTION =
-  'Dás um nome curto a uma conversa de cozinha. Responde só com o nome, entre três e cinco palavras, em português de Portugal, sem aspas, sem pontuação final e sem markdown.';
+const TITLE_MAX_TOKENS = 512;
+const TITLE_SYSTEM_INSTRUCTION = [
+  'Dás um nome a uma conversa de cozinha, para aparecer numa lista estreita.',
+  'Resume o assunto em três a cinco palavras. Não copies a pergunta.',
+  'Português de Portugal, sem aspas, sem pontuação final, sem markdown, sem prefixos.',
+  'Responde apenas com o nome.',
+  '',
+  'Exemplos:',
+  'Pergunta: "ola boa tarde, queria uma receita de mousse de limao" -> Mousse de limão',
+  'Pergunta: "o que posso fazer para o jantar de natal para 8 pessoas?" -> Menu de Natal para oito',
+  'Pergunta: "que vinho combina com bacalhau à brás" -> Vinho para bacalhau à brás',
+].join('\n');
 
 function buildTitleExcerpt(messages) {
   return messages
@@ -32,15 +42,29 @@ async function generateTitle(messages) {
           { role: 'system', content: TITLE_SYSTEM_INSTRUCTION },
           { role: 'user', content: buildTitleExcerpt(messages) },
         ],
-        max_tokens: 24,
+        max_tokens: TITLE_MAX_TOKENS,
         temperature: 0.3,
+        reasoning_effort: 'low',
       },
     });
 
-    if (!response.ok) return null;
+    if (!response.ok) {
+      console.error('[Title Generation Error]', { status: response.status });
+      return null;
+    }
 
     const data = await response.json();
-    return sanitizeTitle(data?.choices?.[0]?.message?.content);
+    const choice = data?.choices?.[0];
+    const title = sanitizeTitle(choice?.message?.content);
+
+    if (!title) {
+      console.error('[Title Generation Empty]', {
+        finishReason: choice?.finish_reason,
+        completionTokens: data?.usage?.completion_tokens,
+      });
+    }
+
+    return title;
   } catch (error) {
     console.error('[Title Generation Error]', { message: error?.message });
     return null;

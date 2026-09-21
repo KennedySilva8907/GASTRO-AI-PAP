@@ -270,6 +270,32 @@ describe('conversation detail', () => {
     expect(storeState.savedTitle).toBe('Risoto de cogumelos');
   });
 
+  it('gives the model room to answer instead of a budget it burns on thinking', async () => {
+    globalThis.fetch = vi.fn(async () => ({
+      ok: true,
+      json: async () => ({ choices: [{ message: { content: 'Risoto de cogumelos' } }] }),
+    }));
+
+    await request(app).patch('/api/conversations/c1').set('Authorization', AUTH_HEADER);
+
+    const body = JSON.parse(globalThis.fetch.mock.calls[0][1].body);
+
+    expect(body.max_tokens).toBeGreaterThanOrEqual(256);
+    expect(body.reasoning_effort).toBe('low');
+  });
+
+  it('falls back to the first question when the model answers with nothing', async () => {
+    globalThis.fetch = vi.fn(async () => ({
+      ok: true,
+      json: async () => ({ choices: [{ message: { content: '' }, finish_reason: 'length' }] }),
+    }));
+
+    const res = await request(app).patch('/api/conversations/c1').set('Authorization', AUTH_HEADER);
+
+    expect(res.status).toBe(200);
+    expect(res.body.title).toBe('Como faco risoto?');
+  });
+
   it('falls back to the first question when the model call fails', async () => {
     globalThis.fetch = vi.fn(async () => ({ ok: false, status: 500, text: async () => 'boom' }));
 

@@ -3,12 +3,35 @@
  * Initializes Matter.js physics and chat message handling
  */
 
-import { foodImages } from '../shared/constants.js';
+import { API_ENDPOINTS, foodImages } from '../shared/constants.js';
 import { sanitizeHtml } from '../shared/sanitizer.js';
 import { handleAsyncError } from '../shared/errors.js';
 import { navigateTo, revealPage } from '../shared/transitions.js';
+import { fetchWithAuth } from '../shared/api-client.js';
+import { getCurrentSession } from '../auth/session.js';
 import { initPhysics } from './matter-setup.js';
-import { initChatHandlers } from './handlers.js';
+import {
+  initChatHandlers,
+  openConversation,
+  resetConversation,
+  setConversationsChangedHandler,
+} from './handlers.js';
+import { initSidebar } from './sidebar.js';
+
+async function loadPlan() {
+  try {
+    const response = await fetchWithAuth(API_ENDPOINTS.authSession, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: '{}',
+    });
+    if (!response.ok) return 'free';
+    const payload = await response.json();
+    return payload?.plan === 'pro' ? 'pro' : 'free';
+  } catch {
+    return 'free';
+  }
+}
 
 // Play entry reveal if arriving from home page
 revealPage();
@@ -73,32 +96,6 @@ function initTooltips() {
 }
 
 /**
- * Initializes export button with animation
- */
-function initExportButton() {
-  const exportButton = document.getElementById('export-button');
-
-  exportButton.addEventListener('click', () => {
-    exportButton.style.animation = 'bounce 0.5s';
-    setTimeout(() => {
-      exportButton.style.animation = '';
-    }, 500);
-  });
-
-  let timeoutId;
-  exportButton.addEventListener('mouseenter', () => {
-    timeoutId = setTimeout(() => {
-      exportButton.classList.add('show-tooltip');
-    }, 2000);
-  });
-
-  exportButton.addEventListener('mouseleave', () => {
-    clearTimeout(timeoutId);
-    exportButton.classList.remove('show-tooltip');
-  });
-}
-
-/**
  * Initializes chat dragging functionality
  * @param {HTMLElement} chatContainer - Chat container element
  * @param {HTMLElement} chatHeader - Chat header element
@@ -158,21 +155,54 @@ document.addEventListener('DOMContentLoaded', () => {
       userInput: document.getElementById('user-input'),
       submitButton: document.querySelector('#chat-form button[type="submit"]'),
       stopButton: document.getElementById('stop-button'),
-      clearButton: document.getElementById('clear-button'),
+      newConversationButton: document.getElementById('new-conversation-button'),
       exportButton: document.getElementById('export-button'),
     };
 
     const chatContainer = document.getElementById('chat-container');
     const chatHeader = document.getElementById('chat-header');
 
-    // Initialize chat handlers
     initChatHandlers(elements, sanitizeHtml);
 
-    // Initialize UI features
+    const sidebarRoot = document.getElementById('chat-sidebar');
+    if (sidebarRoot) {
+      const sidebar = initSidebar({
+        root: sidebarRoot,
+        scrim: document.getElementById('sidebar-scrim'),
+        onSelect: async (id) => {
+          try {
+            await openConversation(id, elements, sanitizeHtml);
+            sidebar.setActive(id);
+          } catch (error) {
+            handleAsyncError(error, 'Não consegui abrir essa conversa.');
+          }
+        },
+        onNew: async () => {
+          await resetConversation(elements, sanitizeHtml);
+          sidebar.setActive(null);
+        },
+      });
+
+      setConversationsChangedHandler(async (id) => {
+        await sidebar.refresh();
+        sidebar.setActive(id);
+      });
+
+      const drawerButton = document.getElementById('drawer-button');
+      if (drawerButton) {
+        drawerButton.addEventListener('click', () => sidebar.openDrawer());
+      }
+
+      getCurrentSession().then((session) => {
+        if (!session?.access_token) return;
+        sidebar.refresh().catch(() => {});
+        loadPlan().then((plan) => sidebar.setPlan(plan));
+      });
+    }
+
     initBackButton();
     initButtonAnimations();
     initTooltips();
-    initExportButton();
     initChatDragging(chatContainer, chatHeader);
   } catch (error) {
     handleAsyncError(error, 'Erro ao iniciar o chat. Recarregue a página.');

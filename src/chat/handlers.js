@@ -10,12 +10,19 @@ import {
   buildChatRequestPayload,
   extractChatResponseText,
   getTypeSpeed,
-  MAX_HISTORY_ENTRIES,
   MAX_MESSAGE_LENGTH,
 } from './chat-api.js';
+import {
+  ConversationLimitError,
+  createConversation,
+  deleteConversation,
+  loadConversation,
+  requestTitle,
+} from './conversations-api.js';
+import { askWhichToDelete } from './limit-dialog.js';
 
 // Chat state
-let conversationHistory = [];
+let currentConversationId = null;
 let isProcessing = false;
 let currentTyped = null;
 let isTyping = false;
@@ -55,12 +62,12 @@ function toggleStopButton(stopButton, enable) {
 
 /**
  * Toggles clear button enabled/disabled state
- * @param {HTMLElement} clearButton - Clear button element
+ * @param {HTMLElement} exportButton - PDF button element
  * @param {boolean} enable - Whether to enable or disable
  */
-function toggleClearButton(clearButton, enable) {
-  clearButton.disabled = !enable;
-  clearButton.classList.toggle('disabled', !enable);
+function togglePdfButton(exportButton, enable) {
+  exportButton.disabled = !enable;
+  exportButton.classList.toggle('disabled', !enable);
 }
 
 /**
@@ -148,14 +155,6 @@ function buildTypedOptions(htmlContent, chatMessages, sender, message, elements,
         toggleInputs(elements, true);
       }
       currentTyped = null;
-      conversationHistory.push({
-        role: sender === 'user' ? 'user' : 'model',
-        text: message,
-      });
-      if (conversationHistory.length > MAX_HISTORY_ENTRIES) {
-        conversationHistory.splice(0, conversationHistory.length - MAX_HISTORY_ENTRIES);
-      }
-      toggleClearButton(elements.clearButton, true);
       resolve();
     },
   };
@@ -196,7 +195,7 @@ function addMessage(sender, message, chatMessages, sanitizeHtml, elements) {
  * @param {string} message - User message
  * @returns {Promise<string>} Bot response text
  */
-async function getChatbotResponse(message) {
+async function getChatbotResponse(message, conversationId) {
   const controller = new AbortController();
   const signal = controller.signal;
   currentRequest = controller;
@@ -205,7 +204,7 @@ async function getChatbotResponse(message) {
     const response = await fetchWithAuth(API_ENDPOINTS.chat, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(buildChatRequestPayload(message, conversationHistory)),
+      body: JSON.stringify(buildChatRequestPayload(message, conversationId)),
       signal: signal,
     });
 
@@ -246,20 +245,46 @@ async function handleChatSubmit(event, elements, sanitizeHtml) {
 
   if (message && !isProcessing) {
     isProcessing = true;
-    elements.userInput.value = '';
-
     toggleInputs(elements, false);
+
+    let conversationId;
+    try {
+      conversationId = await ensureConversation();
+    } catch (error) {
+      isProcessing = false;
+      toggleInputs(elements, true);
+      if (!error.requiresAuth) {
+        handleAsyncError(error, 'Não consegui começar a conversa. Tenta outra vez.');
+      }
+      return;
+    }
+
+    if (!conversationId) {
+      isProcessing = false;
+      toggleInputs(elements, true);
+      elements.userInput.focus();
+      return;
+    }
+
+    const isFirstMessage = elements.chatMessages.querySelectorAll('.message.user').length === 0;
+    elements.userInput.value = '';
     toggleStopButton(elements.stopButton, true);
 
     try {
       await addMessage('user', message, elements.chatMessages, sanitizeHtml, elements);
       const typingIndicator = showTypingIndicator(elements.chatMessages);
 
-      const botResponse = await getChatbotResponse(message);
+      const botResponse = await getChatbotResponse(message, conversationId);
       if (typingIndicator && typingIndicator.parentNode) {
         elements.chatMessages.removeChild(typingIndicator);
       }
       await addMessage('bot', botResponse, elements.chatMessages, sanitizeHtml, elements);
+
+      togglePdfButton(elements.exportButton, true);
+      if (isFirstMessage) {
+        await requestTitle(conversationId);
+      }
+      onConversationsChanged(conversationId);
     } catch (error) {
       if (error.requiresAuth) {
         removeTypingIndicator(elements.chatMessages);
@@ -319,57 +344,85 @@ async function stopCurrentRequest(elements, sanitizeHtml) {
   );
 }
 
-/**
- * Clears chat messages and resets conversation
- * @param {object} elements - DOM element references
- * @param {function} sanitizeHtml - HTML sanitizer function
- */
-async function clearChat(elements, sanitizeHtml) {
-  elements.chatMessages.innerHTML = '';
-  conversationHistory = [];
-  await addMessage(
-    'bot',
-    'Olá! Sou o GastroAI, o seu assistente de culinária especializado. Como posso ajudá-lo com questões de gastronomia hoje?',
-    elements.chatMessages,
-    sanitizeHtml,
-    elements
-  );
+const GREETING =
+  'Olá! Sou o GastroAI, o seu assistente de culinária especializado. Como posso ajudá-lo com questões de gastronomia hoje?';
+
+let onConversationsChanged = () => {};
+
+async function startNewConversation(elements, sanitizeHtml) {
+  currentConversationId = null;
+  elements.chatMessages.replaceChildren();
+  togglePdfButton(elements.exportButton, false);
+  await addMessage('bot', GREETING, elements.chatMessages, sanitizeHtml, elements);
   elements.userInput.value = '';
   elements.userInput.focus();
 }
 
-/**
- * Exports chat conversation as text file
- * @param {HTMLElement} chatMessages - Chat messages container
- */
-function exportChat(chatMessages) {
-  const messages = chatMessages.querySelectorAll('.message');
+export async function openConversation(id, elements, sanitizeHtml) {
+  const { conversation, messages } = await loadConversation(id);
+  currentConversationId = conversation.id;
+  elements.chatMessages.replaceChildren();
 
-  let conversationText = 'Conversa com GastroAI\n';
-  conversationText += 'Data: ' + new Date().toLocaleDateString() + '\n';
-  conversationText += 'Hora: ' + new Date().toLocaleTimeString() + '\n\n';
+  for (const message of messages) {
+    await addMessage(
+      message.role === 'model' ? 'bot' : 'user',
+      message.content,
+      elements.chatMessages,
+      sanitizeHtml,
+      elements
+    );
+  }
 
-  messages.forEach((message) => {
-    const isBot = message.classList.contains('bot');
-    const sender = isBot ? 'GastroAI' : 'Você';
-    const timestamp = message.querySelector('.timestamp').textContent;
-    const content =
-      message.getAttribute('data-full-text') ||
-      message.querySelector('.message-content').textContent;
+  togglePdfButton(elements.exportButton, messages.length > 0);
+  elements.userInput.focus();
+}
 
-    conversationText += `[${timestamp}] ${sender}:\n${content}\n\n`;
-  });
+export function resetConversation(elements, sanitizeHtml) {
+  return startNewConversation(elements, sanitizeHtml);
+}
 
-  const blob = new Blob([conversationText], { type: 'text/plain' });
+export function setConversationsChangedHandler(handler) {
+  onConversationsChanged = handler;
+}
+
+async function ensureConversation() {
+  if (currentConversationId) return currentConversationId;
+
+  try {
+    const conversation = await createConversation();
+    currentConversationId = conversation.id;
+    return conversation.id;
+  } catch (error) {
+    if (!(error instanceof ConversationLimitError)) throw error;
+
+    const chosen = await askWhichToDelete({
+      conversations: error.conversations,
+      limit: error.limit,
+    });
+    if (!chosen) return null;
+
+    await deleteConversation(chosen);
+    const conversation = await createConversation();
+    currentConversationId = conversation.id;
+    return conversation.id;
+  }
+}
+
+async function downloadPdf(conversationId) {
+  const response = await fetchWithAuth(`${API_ENDPOINTS.conversations}/${conversationId}/pdf`);
+
+  if (!response.ok) {
+    throw new Error('PDF request failed');
+  }
+
+  const blob = await response.blob();
   const url = URL.createObjectURL(blob);
-
-  const downloadLink = document.createElement('a');
-  downloadLink.href = url;
-  downloadLink.download = `gastroai-conversa-${new Date().toISOString().slice(0, 10)}.txt`;
-  document.body.appendChild(downloadLink);
-  downloadLink.click();
-  document.body.removeChild(downloadLink);
-
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `gastroai-conversa-${new Date().toISOString().slice(0, 10)}.pdf`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
   setTimeout(() => URL.revokeObjectURL(url), 100);
 }
 
@@ -389,31 +442,25 @@ export function initChatHandlers(elements, sanitizeHtml) {
     stopCurrentRequest(elements, sanitizeHtml);
   });
 
-  // Clear button handler
-  elements.clearButton.addEventListener('click', () => {
-    clearChat(elements, sanitizeHtml);
+  elements.newConversationButton.addEventListener('click', () => {
+    startNewConversation(elements, sanitizeHtml);
   });
 
-  // Export button handler
-  elements.exportButton.addEventListener('click', () => {
-    exportChat(elements.chatMessages);
+  elements.exportButton.addEventListener('click', async () => {
+    if (!currentConversationId) return;
+    try {
+      await downloadPdf(currentConversationId);
+    } catch (error) {
+      handleAsyncError(error, 'Não consegui gerar o PDF. Tenta outra vez.');
+    }
   });
 
-  // Initialize UI state
   toggleInputs(elements, true);
   toggleStopButton(elements.stopButton, false);
-  toggleClearButton(elements.clearButton, false);
+  togglePdfButton(elements.exportButton, false);
 
-  // Initial greeting
   setTimeout(
-    () =>
-      addMessage(
-        'bot',
-        'Olá! Sou o GastroAI, o seu assistente de culinária especializado. Como posso ajudá-lo com questões de gastronomia hoje?',
-        elements.chatMessages,
-        sanitizeHtml,
-        elements
-      ),
+    () => addMessage('bot', GREETING, elements.chatMessages, sanitizeHtml, elements),
     1000
   );
 }

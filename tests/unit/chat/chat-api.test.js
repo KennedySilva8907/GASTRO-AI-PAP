@@ -1,23 +1,27 @@
 import { describe, it, expect } from 'vitest';
 import { UserFacingError } from '../../../src/shared/errors.js';
 import {
-  MAX_HISTORY_ENTRIES,
   buildChatRequestPayload,
   extractChatResponseText,
   getTypeSpeed,
 } from '../../../src/chat/chat-api.js';
 
 describe('buildChatRequestPayload', () => {
-  it('trims the message and keeps only the newest history entries', () => {
-    const history = Array.from({ length: MAX_HISTORY_ENTRIES + 2 }, (_, index) => ({
-      role: index % 2 === 0 ? 'user' : 'model',
-      text: `mensagem ${index}`,
-    }));
-
-    expect(buildChatRequestPayload('  Como temperar salmão?  ', history)).toEqual({
+  it('trims the message and carries the conversation id', () => {
+    expect(buildChatRequestPayload('  Como temperar salmão?  ', 'conv-1')).toEqual({
       message: 'Como temperar salmão?',
-      history: history.slice(-MAX_HISTORY_ENTRIES),
+      conversationId: 'conv-1',
     });
+  });
+
+  it('sends no history, because the server reads it from the database', () => {
+    expect(buildChatRequestPayload('ola', 'conv-1')).not.toHaveProperty('history');
+  });
+
+  it('caps the message length', () => {
+    const payload = buildChatRequestPayload('a'.repeat(900), 'conv-1');
+
+    expect(payload.message).toHaveLength(500);
   });
 });
 

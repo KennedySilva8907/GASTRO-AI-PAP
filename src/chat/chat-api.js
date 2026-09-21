@@ -1,7 +1,5 @@
 import { UserFacingError } from '../shared/errors.js';
 
-export const MAX_HISTORY_PAIRS = 5;
-export const MAX_HISTORY_ENTRIES = MAX_HISTORY_PAIRS * 2;
 export const MAX_MESSAGE_LENGTH = 500;
 export const DEFAULT_TYPING_SPEED = 10;
 export const MAX_TYPING_TIME = 30000;
@@ -18,10 +16,12 @@ const BLOCKED_FINISH_REASONS = new Set([
   'RECITATION',
 ]);
 
-export function buildChatRequestPayload(message, history = []) {
+export function buildChatRequestPayload(message, conversationId) {
   return {
-    message: String(message ?? '').trim().slice(0, MAX_MESSAGE_LENGTH),
-    history: history.slice(-MAX_HISTORY_ENTRIES),
+    message: String(message ?? '')
+      .trim()
+      .slice(0, MAX_MESSAGE_LENGTH),
+    conversationId,
   };
 }
 

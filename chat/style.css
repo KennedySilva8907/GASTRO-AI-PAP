@@ -151,7 +151,7 @@ input::placeholder {
   height: min(78dvh, 680px);
   min-height: min(540px, 80dvh);
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   overflow: hidden;
   resize: none;
   border: 1px solid rgba(255, 255, 255, 0.28);

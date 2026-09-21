@@ -35,7 +35,11 @@ describe('API_ENDPOINTS', () => {
     expect(API_ENDPOINTS.billingPortal).toBe('/api/billing/portal');
   });
 
-  it('has exactly 6 endpoint keys', () => {
-    expect(Object.keys(API_ENDPOINTS)).toHaveLength(6);
+  it('has the conversations endpoint', () => {
+    expect(API_ENDPOINTS.conversations).toBe('/api/conversations');
+  });
+
+  it('has exactly 7 endpoint keys', () => {
+    expect(Object.keys(API_ENDPOINTS)).toHaveLength(7);
   });
 });

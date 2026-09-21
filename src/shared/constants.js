@@ -20,6 +20,7 @@ export const foodImages = [
 // API endpoint configuration
 export const API_ENDPOINTS = {
   chat: '/api/chat',
+  conversations: '/api/conversations',
   gemini: '/api/gemini',
   authConfig: '/api/auth/config',
   authSession: '/api/auth/session',

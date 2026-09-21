@@ -6,6 +6,7 @@ const AUTH_HEADER = 'Bearer valid-token';
 const TEST_USER = { id: 'user-1', email: 'chef@example.com' };
 
 let mockUsageResult;
+let conversationState;
 
 /**
  * Creates a test Express app wrapping the Vercel serverless handlers.
@@ -38,6 +39,14 @@ async function createTestApp() {
     ),
   }));
 
+  vi.doMock('../../../api/_conversations.js', async () => {
+    const actual = await vi.importActual('../../../api/_conversations.js');
+    return {
+      ...actual,
+      createConversationStore: () => conversationState.store,
+    };
+  });
+
   const chatModule = await import('../../../api/chat.js');
   const geminiModule = await import('../../../api/gemini.js');
   const app = express();
@@ -56,6 +65,23 @@ describe('API Handler Integration Tests', () => {
     savedApiKey = process.env.GROQ_API_KEY;
     process.env.GROQ_API_KEY = 'test-key-12345';
     mockUsageResult = null;
+    conversationState = {
+      conversation: {
+        id: '11111111-1111-4111-8111-111111111111',
+        title: null,
+        created_at: 'x',
+        updated_at: 'y',
+      },
+      messages: [],
+      store: null,
+    };
+    conversationState.store = {
+      getOwned: vi.fn(async ({ conversationId }) =>
+        conversationId === conversationState.conversation.id ? conversationState.conversation : null
+      ),
+      listMessages: vi.fn(async () => conversationState.messages),
+      appendMessage: vi.fn(async () => {}),
+    };
 
     app = await createTestApp();
 
@@ -103,7 +129,7 @@ describe('API Handler Integration Tests', () => {
         .post('/api/chat')
         .set('Origin', 'http://localhost:3000')
         .set('Authorization', AUTH_HEADER)
-        .send({ message: 'hello' });
+        .send({ message: 'hello', conversationId: '11111111-1111-4111-8111-111111111111' });
 
       expect(res.status).not.toBe(403);
     });
@@ -112,7 +138,7 @@ describe('API Handler Integration Tests', () => {
       const res = await request(app)
         .post('/api/chat')
         .set('Origin', 'http://localhost:5173')
-        .send({ message: 'hello' });
+        .send({ message: 'hello', conversationId: '11111111-1111-4111-8111-111111111111' });
 
       expect(res.status).not.toBe(403);
     });
@@ -154,7 +180,7 @@ describe('API Handler Integration Tests', () => {
       const res = await request(app)
         .post('/api/chat')
         .set('Origin', 'http://localhost:3000')
-        .send({ message: 'hello' });
+        .send({ message: 'hello', conversationId: '11111111-1111-4111-8111-111111111111' });
 
       expect(res.status).toBe(401);
       expect(res.body.code).toBe('ERR_AUTH_001');
@@ -172,7 +198,7 @@ describe('API Handler Integration Tests', () => {
         .post('/api/chat')
         .set('Origin', 'http://localhost:3000')
         .set('Authorization', AUTH_HEADER)
-        .send({ message: 'hello' });
+        .send({ message: 'hello', conversationId: '11111111-1111-4111-8111-111111111111' });
 
       expect(res.status).toBe(429);
       expect(res.body.code).toBe('ERR_RATE_LIMIT_001');
@@ -197,7 +223,7 @@ describe('API Handler Integration Tests', () => {
         .post('/api/chat')
         .set('Origin', 'http://localhost:3000')
         .set('Authorization', AUTH_HEADER)
-        .send({ message: 'hello' });
+        .send({ message: 'hello', conversationId: '11111111-1111-4111-8111-111111111111' });
 
       expect(res.status).toBe(500);
       expect(res.body.code).toBe('ERR_CONFIG_001');
@@ -210,7 +236,7 @@ describe('API Handler Integration Tests', () => {
         .post('/api/chat')
         .set('Origin', 'http://localhost:3000')
         .set('Authorization', AUTH_HEADER)
-        .send({ message: 'hello', history: [{ role: 'user', text: 'previous turn' }] });
+        .send({ message: 'hello', conversationId: '11111111-1111-4111-8111-111111111111' });
 
       expect(res.status).toBe(200);
       expect(res.body.candidates).toBeDefined();
@@ -218,11 +244,16 @@ describe('API Handler Integration Tests', () => {
     });
 
     it('builds the Groq chat payload on the server with bearer auth', async () => {
+      conversationState.messages = [{ role: 'user', content: 'Olá', created_at: 'x' }];
+
       await request(app)
         .post('/api/chat')
         .set('Origin', 'http://localhost:3000')
         .set('Authorization', AUTH_HEADER)
-        .send({ message: 'Como fazer risoto?', history: [{ role: 'user', text: 'Olá' }] });
+        .send({
+          message: 'Como fazer risoto?',
+          conversationId: '11111111-1111-4111-8111-111111111111',
+        });
 
       expect(globalThis.fetch).toHaveBeenCalledTimes(1);
 
@@ -244,17 +275,16 @@ describe('API Handler Integration Tests', () => {
     });
 
     it('maps history role "model" to "assistant" when forwarding to Groq', async () => {
+      conversationState.messages = [
+        { role: 'user', content: 'Olá', created_at: 'x' },
+        { role: 'model', content: 'Olá! Como posso ajudar?', created_at: 'y' },
+      ];
+
       await request(app)
         .post('/api/chat')
         .set('Origin', 'http://localhost:3000')
         .set('Authorization', AUTH_HEADER)
-        .send({
-          message: 'continua',
-          history: [
-            { role: 'user', text: 'Olá' },
-            { role: 'model', text: 'Olá! Como posso ajudar?' },
-          ],
-        });
+        .send({ message: 'continua', conversationId: '11111111-1111-4111-8111-111111111111' });
 
       const body = JSON.parse(globalThis.fetch.mock.calls[0][1].body);
       expect(body.messages.map((m) => m.role)).toEqual(['system', 'user', 'assistant', 'user']);
@@ -270,7 +300,7 @@ describe('API Handler Integration Tests', () => {
         .post('/api/chat')
         .set('Origin', 'http://localhost:3000')
         .set('Authorization', AUTH_HEADER)
-        .send({ message: 'hello' });
+        .send({ message: 'hello', conversationId: '11111111-1111-4111-8111-111111111111' });
 
       expect(res.status).toBe(500);
       expect(res.body.code).toBe('ERR_GROQ_001');
@@ -283,7 +313,7 @@ describe('API Handler Integration Tests', () => {
         .post('/api/chat')
         .set('Origin', 'http://localhost:3000')
         .set('Authorization', AUTH_HEADER)
-        .send({ message: 'hello' });
+        .send({ message: 'hello', conversationId: '11111111-1111-4111-8111-111111111111' });
 
       expect(res.status).toBe(500);
       // Body should NOT contain the raw error message or stack
@@ -300,7 +330,7 @@ describe('API Handler Integration Tests', () => {
         .post('/api/chat')
         .set('Origin', 'http://localhost:3000')
         .set('Authorization', AUTH_HEADER)
-        .send({ message: 'hello' });
+        .send({ message: 'hello', conversationId: '11111111-1111-4111-8111-111111111111' });
 
       expect(res.body.error).toBe('An error occurred processing your request');
       expect(res.body.code).toBe('ERR_INTERNAL_001');
@@ -348,6 +378,109 @@ describe('API Handler Integration Tests', () => {
 
       expect(res.status).toBe(400);
       expect(res.body.code).toBe('ERR_INPUT_001');
+    });
+  });
+
+  describe('conversation persistence', () => {
+    it('rejects a chat request without a conversation id', async () => {
+      const res = await request(app)
+        .post('/api/chat')
+        .set('Origin', 'http://localhost:3000')
+        .set('Authorization', AUTH_HEADER)
+        .send({ message: 'Ola' });
+
+      expect(res.status).toBe(400);
+      expect(res.body.code).toBe('ERR_INPUT_001');
+    });
+
+    it('answers 404 for a conversation that is not the caller own', async () => {
+      const res = await request(app)
+        .post('/api/chat')
+        .set('Origin', 'http://localhost:3000')
+        .set('Authorization', AUTH_HEADER)
+        .send({ message: 'Ola', conversationId: 'cccccccc-cccc-4ccc-8ccc-cccccccccccc' });
+
+      expect(res.status).toBe(404);
+      expect(globalThis.fetch).not.toHaveBeenCalled();
+    });
+
+    it('does not spend a daily chat when the conversation does not exist', async () => {
+      await request(app)
+        .post('/api/chat')
+        .set('Origin', 'http://localhost:3000')
+        .set('Authorization', AUTH_HEADER)
+        .send({ message: 'Ola', conversationId: 'cccccccc-cccc-4ccc-8ccc-cccccccccccc' });
+
+      expect(conversationState.store.listMessages).not.toHaveBeenCalled();
+      expect(conversationState.store.appendMessage).not.toHaveBeenCalled();
+    });
+
+    it('saves the question before calling the model and the answer after', async () => {
+      const res = await request(app)
+        .post('/api/chat')
+        .set('Origin', 'http://localhost:3000')
+        .set('Authorization', AUTH_HEADER)
+        .send({
+          message: 'Como faco risoto?',
+          conversationId: '11111111-1111-4111-8111-111111111111',
+        });
+
+      expect(res.status).toBe(200);
+      expect(conversationState.store.appendMessage.mock.calls.map((call) => call[0].role)).toEqual([
+        'user',
+        'model',
+      ]);
+      expect(conversationState.store.appendMessage.mock.calls[0][0].content).toBe(
+        'Como faco risoto?'
+      );
+    });
+
+    it('keeps the question when the model call fails', async () => {
+      globalThis.fetch = vi.fn().mockResolvedValue({ ok: false, status: 502 });
+
+      await request(app)
+        .post('/api/chat')
+        .set('Origin', 'http://localhost:3000')
+        .set('Authorization', AUTH_HEADER)
+        .send({
+          message: 'Como faco risoto?',
+          conversationId: '11111111-1111-4111-8111-111111111111',
+        });
+
+      expect(conversationState.store.appendMessage).toHaveBeenCalledTimes(1);
+      expect(conversationState.store.appendMessage.mock.calls[0][0].role).toBe('user');
+    });
+
+    it('ignores history sent by the client and uses the stored messages', async () => {
+      conversationState.messages = [
+        { role: 'user', content: 'pergunta guardada', created_at: 'x' },
+      ];
+
+      await request(app)
+        .post('/api/chat')
+        .set('Origin', 'http://localhost:3000')
+        .set('Authorization', AUTH_HEADER)
+        .send({
+          message: 'seguinte',
+          conversationId: '11111111-1111-4111-8111-111111111111',
+          history: [{ role: 'user', text: 'inventado pelo cliente' }],
+        });
+
+      const body = JSON.parse(globalThis.fetch.mock.calls[0][1].body);
+      const contents = body.messages.map((entry) => entry.content);
+
+      expect(contents).toContain('pergunta guardada');
+      expect(contents).not.toContain('inventado pelo cliente');
+    });
+
+    it('returns the conversation id so the client can keep using it', async () => {
+      const res = await request(app)
+        .post('/api/chat')
+        .set('Origin', 'http://localhost:3000')
+        .set('Authorization', AUTH_HEADER)
+        .send({ message: 'Ola', conversationId: '11111111-1111-4111-8111-111111111111' });
+
+      expect(res.body.conversationId).toBe('11111111-1111-4111-8111-111111111111');
     });
   });
 });

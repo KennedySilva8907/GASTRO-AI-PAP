@@ -1,23 +1,28 @@
 import { describe, it, expect } from 'vitest';
 import { UserFacingError } from '../../../src/shared/errors.js';
 import {
-  MAX_HISTORY_ENTRIES,
+  messageForApiError,
   buildChatRequestPayload,
   extractChatResponseText,
   getTypeSpeed,
 } from '../../../src/chat/chat-api.js';
 
 describe('buildChatRequestPayload', () => {
-  it('trims the message and keeps only the newest history entries', () => {
-    const history = Array.from({ length: MAX_HISTORY_ENTRIES + 2 }, (_, index) => ({
-      role: index % 2 === 0 ? 'user' : 'model',
-      text: `mensagem ${index}`,
-    }));
-
-    expect(buildChatRequestPayload('  Como temperar salmão?  ', history)).toEqual({
+  it('trims the message and carries the conversation id', () => {
+    expect(buildChatRequestPayload('  Como temperar salmão?  ', 'conv-1')).toEqual({
       message: 'Como temperar salmão?',
-      history: history.slice(-MAX_HISTORY_ENTRIES),
+      conversationId: 'conv-1',
     });
+  });
+
+  it('sends no history, because the server reads it from the database', () => {
+    expect(buildChatRequestPayload('ola', 'conv-1')).not.toHaveProperty('history');
+  });
+
+  it('caps the message length', () => {
+    const payload = buildChatRequestPayload('a'.repeat(900), 'conv-1');
+
+    expect(payload.message).toHaveLength(500);
   });
 });
 
@@ -29,7 +34,11 @@ describe('extractChatResponseText', () => {
           {
             finishReason: 'STOP',
             content: {
-              parts: [{ text: 'Olá ' }, { inlineData: { mimeType: 'image/png' } }, { text: 'chef' }],
+              parts: [
+                { text: 'Olá ' },
+                { inlineData: { mimeType: 'image/png' } },
+                { text: 'chef' },
+              ],
             },
           },
         ],
@@ -76,5 +85,30 @@ describe('getTypeSpeed', () => {
 
     expect(typeSpeed).toBeGreaterThan(0);
     expect(Number.isNaN(typeSpeed)).toBe(false);
+  });
+});
+
+describe('messageForApiError', () => {
+  it('says you ran out of daily messages instead of a generic error', () => {
+    const text = messageForApiError({ code: 'ERR_RATE_LIMIT_001', status: 429 });
+
+    expect(text).toContain('limite de mensagens de hoje');
+    expect(text).not.toContain('ocorreu um erro');
+  });
+
+  it('falls back on the status when there is no code', () => {
+    expect(messageForApiError({ status: 429 })).toContain('limite de mensagens');
+    expect(messageForApiError({ status: 404 })).toContain('já não existe');
+    expect(messageForApiError({ status: 401 })).toContain('sessão');
+  });
+
+  it('tells you to slow down when you are being rate limited by IP', () => {
+    expect(messageForApiError({ code: 'ERR_RATE_LIMIT_002' })).toContain('muito depressa');
+  });
+
+  it('keeps the old generic message for anything it does not know', () => {
+    expect(messageForApiError({ code: 'ERR_SOMETHING_NEW', status: 500 })).toContain(
+      'ocorreu um erro'
+    );
   });
 });

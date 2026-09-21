@@ -81,16 +81,17 @@ const NAME_INK = '#3d2d23';
 const FOOTER_RULE = '#e8d9c9';
 
 const MARGIN = 56;
-const FONT_DIR = new URL('./_fonts/', import.meta.url);
-
-function loadFont(fileName) {
-  return readFileSync(new URL(fileName, FONT_DIR));
-}
 
 function registerFonts(doc) {
-  doc.registerFont('body', loadFont('Poppins-Regular.ttf'));
-  doc.registerFont('bodyBold', loadFont('Poppins-SemiBold.ttf'));
-  doc.registerFont('display', loadFont('CormorantGaramond-SemiBold.ttf'));
+  doc.registerFont('body', readFileSync(new URL('./_fonts/Poppins-Regular.ttf', import.meta.url)));
+  doc.registerFont(
+    'bodyBold',
+    readFileSync(new URL('./_fonts/Poppins-SemiBold.ttf', import.meta.url))
+  );
+  doc.registerFont(
+    'display',
+    readFileSync(new URL('./_fonts/CormorantGaramond-SemiBold.ttf', import.meta.url))
+  );
 }
 
 function paintPage(doc) {

@@ -22,6 +22,7 @@ import {
 } from './conversations-api.js';
 import { askWhichToDelete } from './limit-dialog.js';
 import { dropCached, getCached, sameConversation, setCached } from './conversation-cache.js';
+import { createPdfButton, readWithProgress } from './pdf-button.js';
 
 // Chat state
 let currentConversationId = null;
@@ -481,22 +482,41 @@ async function ensureConversation() {
   }
 }
 
-async function downloadPdf(conversationId) {
-  const response = await fetchWithAuth(`${API_ENDPOINTS.conversations}/${conversationId}/pdf`);
+function fileNameFromResponse(response) {
+  const disposition = response.headers.get('Content-Disposition') || '';
+  const match = /filename="([^"]+)"/.exec(disposition);
+  return match?.[1] || `gastroai-conversa-${new Date().toISOString().slice(0, 10)}.pdf`;
+}
 
-  if (!response.ok) {
-    throw new Error('PDF request failed');
-  }
-
-  const blob = await response.blob();
+function saveBlob(blob, fileName) {
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href = url;
-  link.download = `gastroai-conversa-${new Date().toISOString().slice(0, 10)}.pdf`;
+  link.download = fileName;
   document.body.appendChild(link);
   link.click();
   link.remove();
   setTimeout(() => URL.revokeObjectURL(url), 100);
+}
+
+async function downloadPdf(conversationId, onProgress) {
+  const response = await fetchWithAuth(`${API_ENDPOINTS.conversations}/${conversationId}/pdf`);
+
+  if (!response.ok) {
+    let body;
+    try {
+      body = await response.json();
+    } catch {
+      body = {};
+    }
+    throw new UserFacingError(
+      body?.error || 'PDF request failed',
+      messageForApiError({ code: body?.code, status: response.status })
+    );
+  }
+
+  const blob = await readWithProgress(response, onProgress);
+  saveBlob(blob, fileNameFromResponse(response));
 }
 
 /**
@@ -519,11 +539,17 @@ export function initChatHandlers(elements, sanitizeHtml) {
     startNewConversation(elements, sanitizeHtml);
   });
 
+  const pdfButton = createPdfButton(elements.exportButton);
+
   elements.exportButton.addEventListener('click', async () => {
     if (!currentConversationId) return;
+
+    pdfButton.start();
     try {
-      await downloadPdf(currentConversationId);
+      await downloadPdf(currentConversationId, (percent) => pdfButton.setProgress(percent));
+      pdfButton.succeed();
     } catch (error) {
+      pdfButton.fail();
       handleAsyncError(error, 'Não consegui gerar o PDF. Tenta outra vez.');
     }
   });

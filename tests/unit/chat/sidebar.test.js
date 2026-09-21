@@ -69,7 +69,7 @@ describe('sidebar', () => {
       },
     ]);
     deleteConversation.mockReset().mockResolvedValue(true);
-    localStorage.clear();
+    window.localStorage.clear();
   });
 
   it('renders one item per conversation with an initial badge', async () => {
@@ -105,7 +105,7 @@ describe('sidebar', () => {
     const first = build();
     first.collapse();
 
-    expect(localStorage.getItem('gastro-sidebar-collapsed')).toBe('true');
+    expect(window.localStorage.getItem('gastro-sidebar-collapsed')).toBe('true');
 
     const second = build();
 
@@ -186,7 +186,7 @@ describe('sidebar', () => {
     const sidebar = build();
     await sidebar.refresh();
 
-    await document.querySelector('.conversation-delete').onclick(new Event('click'));
+    await document.querySelector('.conversation-delete').onclick(new window.Event('click'));
 
     expect(deleteConversation).toHaveBeenCalledWith('c1');
     expect(listConversations).toHaveBeenCalledTimes(2);
@@ -197,7 +197,7 @@ describe('sidebar', () => {
     const sidebar = build();
     await sidebar.refresh();
 
-    await document.querySelector('.conversation-delete').onclick(new Event('click'));
+    await document.querySelector('.conversation-delete').onclick(new window.Event('click'));
 
     expect(deleteConversation).not.toHaveBeenCalled();
   });

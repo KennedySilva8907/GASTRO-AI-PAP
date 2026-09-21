@@ -11,6 +11,20 @@ AI-powered culinary web app featuring real-time cooking challenges, a recipe car
 
 **[Live Demo](https://gastro-ai-pap.vercel.app)**
 
+## Screenshots
+
+| Home                                                                                         | Recipe gallery                                                                               |
+| -------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| ![Landing page with the animated logo and the three entry points](docs/screenshots/home.jpg) | ![Recipe gallery showing Bacalhau a Bras and the country list](docs/screenshots/recipes.jpg) |
+
+| AI chat with saved conversations                                                                      | Cooking challenges                                                                           |
+| ----------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| ![Chat with the conversation list on the left and a recipe answer](docs/screenshots/chat-sidebar.jpg) | ![The four difficulty levels, from Principiante to Extremo](docs/screenshots/challenges.jpg) |
+
+| A conversation exported to PDF                                                                     | The list on a phone                                                                              |
+| -------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| ![PDF of a conversation with the masthead, ingredients and steps](docs/screenshots/pdf-export.png) | ![Conversation drawer open over the chat on a narrow screen](docs/screenshots/mobile-drawer.jpg) |
+
 ## Features
 
 - **Cooking Challenges** - AI-generated recipes with countdown timer and 4 difficulty levels (Beginner, Intermediate, Advanced, Extreme)

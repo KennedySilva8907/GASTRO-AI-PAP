@@ -10,6 +10,9 @@ vi.mock('../../../src/chat/conversations-api.js', () => ({
   deleteConversation,
 }));
 
+const confirmDeleteConversation = vi.fn();
+vi.mock('../../../src/chat/confirm-dialog.js', () => ({ confirmDeleteConversation }));
+
 const store = new Map();
 Object.defineProperty(window, 'localStorage', {
   configurable: true,
@@ -69,6 +72,7 @@ describe('sidebar', () => {
       },
     ]);
     deleteConversation.mockReset().mockResolvedValue(true);
+    confirmDeleteConversation.mockReset().mockResolvedValue(true);
     window.localStorage.clear();
   });
 
@@ -182,7 +186,6 @@ describe('sidebar', () => {
   });
 
   it('takes the row off the list straight away, without refetching', async () => {
-    vi.spyOn(window, 'confirm').mockReturnValue(true);
     const sidebar = build();
     await sidebar.refresh();
 
@@ -194,7 +197,6 @@ describe('sidebar', () => {
   });
 
   it('puts the row back where it was when the delete fails', async () => {
-    vi.spyOn(window, 'confirm').mockReturnValue(true);
     deleteConversation.mockRejectedValue(new Error('rede em baixo'));
     const sidebar = build();
     await sidebar.refresh();
@@ -210,13 +212,22 @@ describe('sidebar', () => {
   });
 
   it('does not delete when the user says no', async () => {
-    vi.spyOn(window, 'confirm').mockReturnValue(false);
+    confirmDeleteConversation.mockResolvedValue(false);
     const sidebar = build();
     await sidebar.refresh();
 
     await document.querySelector('.conversation-delete').onclick(new window.Event('click'));
 
     expect(deleteConversation).not.toHaveBeenCalled();
+  });
+
+  it('asks with the in-app dialog rather than the browser one', async () => {
+    const sidebar = build();
+    await sidebar.refresh();
+
+    await document.querySelector('.conversation-delete').onclick(new window.Event('click'));
+
+    expect(confirmDeleteConversation).toHaveBeenCalledWith('Risoto de cogumelos');
   });
 
   it('shows how many slots a free account has left', async () => {

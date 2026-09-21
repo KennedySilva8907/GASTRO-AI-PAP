@@ -1,4 +1,6 @@
 import { listConversations, deleteConversation } from './conversations-api.js';
+import { dropCached } from './conversation-cache.js';
+import { confirmDeleteConversation } from './confirm-dialog.js';
 
 const COLLAPSED_KEY = 'gastro-sidebar-collapsed';
 const UNTITLED = 'Conversa nova';
@@ -145,7 +147,7 @@ export function initSidebar({ root, scrim, onSelect, onNew }) {
 
     remove.onclick = async (event) => {
       event.stopPropagation();
-      if (!window.confirm(`Apagar "${label}"? Isto não tem volta.`)) return;
+      if (!(await confirmDeleteConversation(label))) return;
 
       const position = [...list.children].indexOf(item);
       item.remove();
@@ -155,6 +157,7 @@ export function initSidebar({ root, scrim, onSelect, onNew }) {
 
       try {
         await deleteConversation(conversation.id);
+        dropCached(conversation.id);
       } catch (error) {
         const siblings = list.children;
         if (position >= siblings.length) list.appendChild(item);

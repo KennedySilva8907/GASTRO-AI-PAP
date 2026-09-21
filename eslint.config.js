@@ -36,9 +36,9 @@ export default [
         sessionStorage: 'readonly',
         localStorage: 'readonly',
         URLSearchParams: 'readonly',
-        FileReader: 'readonly'
-      }
-    }
+        FileReader: 'readonly',
+      },
+    },
   },
   js.configs.recommended,
   prettier,
@@ -46,8 +46,8 @@ export default [
     rules: {
       'no-console': 'error',
       'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
-      'no-undef': 'error'
-    }
+      'no-undef': 'error',
+    },
   },
   {
     files: ['api/**/*.js'],
@@ -57,12 +57,14 @@ export default [
       globals: {
         process: 'readonly',
         console: 'readonly',
-        fetch: 'readonly'
-      }
+        fetch: 'readonly',
+        Buffer: 'readonly',
+        URL: 'readonly',
+      },
     },
     rules: {
-      'no-console': ['error', { allow: ['error', 'warn', 'info'] }]
-    }
+      'no-console': ['error', { allow: ['error', 'warn', 'info'] }],
+    },
   },
   {
     files: ['tests/**/*.js'],
@@ -78,16 +80,17 @@ export default [
         vi: 'readonly',
         process: 'readonly',
         globalThis: 'readonly',
+        Buffer: 'readonly',
         DOMException: 'readonly',
         window: 'readonly',
         document: 'readonly',
-      }
+      },
     },
     rules: {
       'no-console': 'off',
-    }
+    },
   },
   {
-    ignores: ['node_modules/', 'public/', '.planning/', 'backend/', 'coverage/']
-  }
+    ignores: ['node_modules/', 'public/', '.planning/', 'backend/', 'coverage/'],
+  },
 ];

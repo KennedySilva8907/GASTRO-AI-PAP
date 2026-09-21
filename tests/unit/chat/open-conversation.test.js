@@ -127,4 +127,58 @@ describe('opening a saved conversation', () => {
 
     expect(elements.exportButton.disabled).toBe(false);
   });
+
+  it('clears the previous conversation before the new one arrives', async () => {
+    const elements = elementsFixture();
+    elements.chatMessages.innerHTML = '<div class="message bot">conversa anterior</div>';
+
+    let release;
+    loadConversation.mockReturnValue(
+      new Promise((resolve) => {
+        release = () =>
+          resolve({
+            conversation: { id: 'c1' },
+            messages: [{ id: 'm1', role: 'user', content: 'nova', created_at: 'x' }],
+          });
+      })
+    );
+
+    const pending = openConversation('c1', elements, (html) => html);
+
+    expect(elements.chatMessages.textContent).not.toContain('conversa anterior');
+    expect(elements.chatMessages.querySelector('.conversation-loading')).not.toBeNull();
+
+    release();
+    await pending;
+
+    expect(elements.chatMessages.querySelector('.conversation-loading')).toBeNull();
+    expect(elements.chatMessages.textContent).toContain('nova');
+  });
+
+  it('ignores a slow answer for a conversation you already moved away from', async () => {
+    const elements = elementsFixture();
+
+    const resolvers = {};
+    loadConversation.mockImplementation(
+      (id) =>
+        new Promise((resolve) => {
+          resolvers[id] = () =>
+            resolve({
+              conversation: { id },
+              messages: [{ id: 'm', role: 'user', content: `mensagem de ${id}`, created_at: 'x' }],
+            });
+        })
+    );
+
+    const slow = openConversation('c1', elements, (html) => html);
+    const fast = openConversation('c2', elements, (html) => html);
+
+    resolvers.c2();
+    await fast;
+    resolvers.c1();
+    await slow;
+
+    expect(elements.chatMessages.textContent).toContain('mensagem de c2');
+    expect(elements.chatMessages.textContent).not.toContain('mensagem de c1');
+  });
 });

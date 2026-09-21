@@ -496,6 +496,17 @@ input::placeholder {
   display: none;
 }
 
+.conversation-loading {
+  align-self: center;
+  margin: auto;
+  padding: 0.6rem 1rem;
+  border-radius: 999px;
+  background: rgba(154, 52, 18, 0.05);
+  color: var(--muted);
+  font-size: 0.78rem;
+  letter-spacing: 0.01em;
+}
+
 .dialog-backdrop {
   position: absolute;
   inset: 0;

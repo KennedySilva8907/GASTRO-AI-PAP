@@ -370,8 +370,17 @@ const GREETING =
   'Olá! Sou o GastroAI, o seu assistente de culinária especializado. Como posso ajudá-lo com questões de gastronomia hoje?';
 
 let onConversationsChanged = () => {};
+let pendingConversationLoad = null;
+
+function showConversationLoading(chatMessages) {
+  const placeholder = document.createElement('div');
+  placeholder.className = 'conversation-loading';
+  placeholder.textContent = 'A abrir a conversa...';
+  chatMessages.replaceChildren(placeholder);
+}
 
 async function startNewConversation(elements, sanitizeHtml) {
+  pendingConversationLoad = null;
   currentConversationId = null;
   elements.chatMessages.replaceChildren();
   togglePdfButton(elements.exportButton, false);
@@ -387,7 +396,12 @@ export async function openConversation(id, elements, sanitizeHtml) {
   }
   isTyping = false;
 
+  pendingConversationLoad = id;
+  showConversationLoading(elements.chatMessages);
+
   const { conversation, messages } = await loadConversation(id);
+  if (pendingConversationLoad !== id) return;
+
   currentConversationId = conversation.id;
   elements.chatMessages.replaceChildren();
 

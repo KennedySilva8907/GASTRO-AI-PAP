@@ -73,9 +73,9 @@ describe('opening a saved conversation', () => {
     await openConversation('c1', elements, (html) => html);
 
     const rendered = elements.chatMessages.querySelectorAll('.message');
-    expect(rendered).toHaveLength(2);
-    expect(rendered[0].classList.contains('user')).toBe(true);
-    expect(rendered[1].classList.contains('bot')).toBe(true);
+    expect(rendered).toHaveLength(3);
+    expect(rendered[1].classList.contains('user')).toBe(true);
+    expect(rendered[2].classList.contains('bot')).toBe(true);
   });
 
   it('shows the text of each message instead of an empty bubble', async () => {
@@ -86,7 +86,7 @@ describe('opening a saved conversation', () => {
     const contents = [...elements.chatMessages.querySelectorAll('.message-content')].map(
       (node) => node.textContent
     );
-    expect(contents).toEqual(['Como faco risoto?', 'Com paciencia.']);
+    expect(contents.slice(1)).toEqual(['Como faco risoto?', 'Com paciencia.']);
   });
 
   it('keeps the original time of each message, not the time you opened it', async () => {
@@ -107,7 +107,17 @@ describe('opening a saved conversation', () => {
     await openConversation('c1', elements, (html) => html);
 
     expect(elements.chatMessages.textContent).not.toContain('antiga');
-    expect(elements.chatMessages.querySelectorAll('.message')).toHaveLength(2);
+    expect(elements.chatMessages.querySelectorAll('.message')).toHaveLength(3);
+  });
+
+  it('opens with the greeting, the same as a new chat does', async () => {
+    const elements = elementsFixture();
+
+    await openConversation('c1', elements, (html) => html);
+
+    const first = elements.chatMessages.querySelector('.message');
+    expect(first.classList.contains('bot')).toBe(true);
+    expect(first.textContent).toContain('Sou o GastroAI');
   });
 
   it('enables the PDF button once there are messages', async () => {

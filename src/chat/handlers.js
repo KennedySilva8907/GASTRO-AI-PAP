@@ -300,10 +300,11 @@ async function handleChatSubmit(event, elements, sanitizeHtml) {
       await addMessage('bot', botResponse, elements.chatMessages, sanitizeHtml, elements);
 
       togglePdfButton(elements.exportButton, true);
-      if (isFirstMessage) {
-        await requestTitle(conversationId);
-      }
       onConversationsChanged(conversationId);
+
+      if (isFirstMessage) {
+        requestTitle(conversationId).then(() => onConversationsChanged(conversationId));
+      }
     } catch (error) {
       if (error.requiresAuth) {
         removeTypingIndicator(elements.chatMessages);
@@ -387,6 +388,14 @@ export async function openConversation(id, elements, sanitizeHtml) {
   const { conversation, messages } = await loadConversation(id);
   currentConversationId = conversation.id;
   elements.chatMessages.replaceChildren();
+
+  renderStoredMessage(
+    'bot',
+    GREETING,
+    elements.chatMessages,
+    sanitizeHtml,
+    conversation.created_at
+  );
 
   for (const message of messages) {
     renderStoredMessage(

@@ -190,7 +190,7 @@ input::placeholder {
   flex-shrink: 0;
   overflow: hidden;
   border-right: 1px solid var(--paper-line);
-  background: linear-gradient(180deg, rgba(255, 244, 232, 0.96), rgba(255, 250, 244, 0.84));
+  background: linear-gradient(180deg, rgba(255, 244, 232, 0.99), rgba(255, 250, 244, 0.97));
   transition: width 0.34s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -293,6 +293,7 @@ input::placeholder {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
+  overflow-x: hidden;
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
@@ -622,7 +623,7 @@ input::placeholder {
   padding: 1rem 1.2rem 0.8rem;
   background:
     radial-gradient(circle at 100% 0%, rgba(255, 152, 0, 0.07), transparent 24%),
-    linear-gradient(180deg, rgba(255, 250, 244, 0.95), rgba(255, 247, 241, 0.58));
+    linear-gradient(180deg, rgba(255, 250, 244, 0.97), rgba(255, 249, 244, 0.94));
 }
 
 #chat-messages::-webkit-scrollbar {

@@ -1391,6 +1391,40 @@ input::placeholder {
     pointer-events: auto;
   }
 
+  .chat-sidebar.is-collapsed .conversation-text {
+    width: auto;
+    overflow: visible;
+  }
+
+  .chat-sidebar.is-collapsed .conversation-delete {
+    display: inline-flex;
+  }
+
+  .conversation-delete {
+    opacity: 1;
+    width: 2.5rem;
+    height: 2.5rem;
+    right: 0.15rem;
+  }
+
+  .conversation-item,
+  .chat-sidebar.is-collapsed .conversation-item {
+    padding-right: 2.9rem;
+  }
+
+  .chat-sidebar.is-collapsed .conversation-item {
+    gap: 0.6rem;
+    background: transparent;
+  }
+
+  .chat-sidebar.is-collapsed .conversation-item.is-active {
+    background: rgba(255, 152, 0, 0.14);
+  }
+
+  .chat-sidebar.is-collapsed .conversation-item.is-active::before {
+    opacity: 1;
+  }
+
   .chat-sidebar.is-collapsed .conversation-item {
     padding: 0.5rem 1.9rem 0.5rem 0.6rem;
     justify-content: flex-start;

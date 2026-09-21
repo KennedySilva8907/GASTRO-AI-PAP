@@ -507,6 +507,155 @@ input::placeholder {
   letter-spacing: 0.01em;
 }
 
+.export-button {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.export-button .button-icon,
+.export-button .control-label {
+  position: relative;
+  z-index: 1;
+}
+
+.export-button .control-label {
+  font-variant-numeric: tabular-nums;
+  min-width: 2.6rem;
+  text-align: left;
+}
+
+.pdf-progress {
+  position: absolute;
+  inset: 0 auto 0 0;
+  z-index: 0;
+  width: 0;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(255, 152, 0, 0.22), rgba(249, 115, 22, 0.38));
+  transition: width 0.24s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+}
+
+.export-button.is-working {
+  color: var(--accent-ink);
+  border-color: rgba(249, 115, 22, 0.3);
+}
+
+.export-button.is-working .pdf-progress {
+  width: 45%;
+  animation: pdf-sweep 1.15s ease-in-out infinite;
+}
+
+.export-button.is-working .button-icon {
+  animation: pdf-nudge 1.15s ease-in-out infinite;
+}
+
+.export-button.is-counting {
+  color: var(--accent-ink);
+  border-color: rgba(249, 115, 22, 0.3);
+}
+
+.export-button.is-done {
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 10px 22px rgba(249, 115, 22, 0.3);
+  animation: pdf-pop 0.42s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.export-button.is-done .pdf-progress {
+  width: 100%;
+  background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+}
+
+.export-button.is-done .button-icon svg {
+  display: none;
+}
+
+.export-button.is-done .button-icon::after {
+  content: '';
+  width: 0.72rem;
+  height: 0.38rem;
+  border-left: 2.2px solid currentColor;
+  border-bottom: 2.2px solid currentColor;
+  transform: rotate(-45deg) translate(1px, -2px);
+  animation: pdf-check 0.32s ease-out 0.08s both;
+}
+
+.export-button.is-failed {
+  color: var(--accent-ink);
+  border-color: rgba(154, 52, 18, 0.4);
+  animation: pdf-shake 0.4s ease;
+}
+
+.export-button.is-failed .pdf-progress {
+  width: 100%;
+  background: rgba(154, 52, 18, 0.12);
+}
+
+.export-button:disabled,
+.export-button.disabled {
+  cursor: default;
+}
+
+.export-button.is-working,
+.export-button.is-counting,
+.export-button.is-done {
+  opacity: 1;
+}
+
+@keyframes pdf-sweep {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(240%);
+  }
+}
+
+@keyframes pdf-nudge {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(2px);
+  }
+}
+
+@keyframes pdf-pop {
+  0% {
+    transform: scale(1);
+  }
+  45% {
+    transform: scale(1.07);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes pdf-check {
+  0% {
+    clip-path: inset(0 100% 0 0);
+  }
+  100% {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@keyframes pdf-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-4px);
+  }
+  75% {
+    transform: translateX(4px);
+  }
+}
+
 .dialog-backdrop {
   position: absolute;
   inset: 0;

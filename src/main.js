@@ -3,9 +3,10 @@
  * Handles navigation transitions, AI info modal, food animations, and mouse effects.
  */
 import { foodImages } from './shared/constants.js';
-import { createFoodElement, createFoodParticles } from './shared/animations.js';
+import { createFoodParticles } from './shared/animations.js';
 import { navigateTo, revealPage } from './shared/transitions.js';
 import { initAccountBar } from './auth/session.js';
+import { startHomeVideo } from './home-video.js';
 
 // Play entry reveal if arriving from a sub-page
 revealPage();
@@ -56,11 +57,9 @@ function initSparkTrail() {
 
 // ===== INITIALIZATION =====
 
-// Create food movement container and start animation
-const foodMovement = document.createElement('div');
-foodMovement.classList.add('food-movement');
-document.body.appendChild(foodMovement);
-createFoodElement(foodMovement);
+window.addEventListener('load', () => {
+  startHomeVideo(document.querySelector('.home-video__media'));
+});
 
 // Initialize mouse effects
 initFoodTrail();

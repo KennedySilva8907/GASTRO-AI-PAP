@@ -2,45 +2,6 @@
  * Shared food animation utilities used by home page and potentially other pages.
  * Extracted from main.js to eliminate duplication and enable reuse.
  */
-import { foodImages } from './constants.js';
-
-/**
- * Returns a random food image URL from the shared foodImages array.
- * @returns {string} URL of a random food image
- */
-export function getRandomFoodImage() {
-  const randomIndex = Math.floor(Math.random() * foodImages.length);
-  return foodImages[randomIndex];
-}
-
-/**
- * Creates an animated food element that floats across the screen.
- * Appends to the provided container, auto-recycles on animation end.
- * @param {HTMLElement} container - The DOM element to append the food element to
- */
-export function createFoodElement(container) {
-  const foodElement = document.createElement('div');
-  foodElement.classList.add('food-element');
-  foodElement.style.backgroundImage = `url('${getRandomFoodImage()}')`;
-
-  const startX = Math.random() * 100;
-  const startY = Math.random() * 100;
-  const endX = Math.random() * 100;
-  const endY = Math.random() * 100;
-
-  foodElement.style.setProperty('--start-x', startX);
-  foodElement.style.setProperty('--start-y', startY);
-  foodElement.style.setProperty('--end-x', endX);
-  foodElement.style.setProperty('--end-y', endY);
-
-  container.appendChild(foodElement);
-
-  foodElement.addEventListener('animationend', () => {
-    foodElement.remove();
-    createFoodElement(container);
-  });
-}
-
 /**
  * Creates particle explosion effect from a click point using anime.js.
  * @param {MouseEvent} e - The mouse event with click coordinates

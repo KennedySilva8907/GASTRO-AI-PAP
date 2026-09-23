@@ -13,9 +13,9 @@ AI-powered culinary web app featuring real-time cooking challenges, a recipe car
 
 ## Screenshots
 
-| Home                                                                                         | Recipe gallery                                                                               |
-| -------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
-| ![Landing page with the animated logo and the three entry points](docs/screenshots/home.jpg) | ![Recipe gallery showing Bacalhau a Bras and the country list](docs/screenshots/recipes.jpg) |
+| Home                                                                                             | Recipe gallery                                                                               |
+| ------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------- |
+| ![Landing page with the animated logo over the looping kitchen video](docs/screenshots/home.jpg) | ![Recipe gallery showing Bacalhau a Bras and the country list](docs/screenshots/recipes.jpg) |
 
 | AI chat with saved conversations                                                                      | Cooking challenges                                                                           |
 | ----------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |

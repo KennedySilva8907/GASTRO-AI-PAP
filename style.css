@@ -494,40 +494,33 @@ body {
   }
 }
 
-/* Animações de comida flutuando */
-.food-movement {
+.home-video {
   position: fixed;
-  top: 0;
-  left: 0;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.home-video__media {
   width: 100%;
   height: 100%;
-  z-index: -2;
-  pointer-events: none;
-  /* Soft defocus on the floating food layer so it reads as ambient
-     background rather than competing with the centered logo + buttons.
-     Slight saturation bump keeps the colors from looking washed out
-     after the blur dilutes them. */
-  filter: blur(10px) saturate(1.1);
-  -webkit-filter: blur(10px) saturate(1.1);
+  object-fit: cover;
+  object-position: center 70%;
 }
 
-.food-element {
+.home-video::after {
+  content: '';
   position: absolute;
-  width: 120px;
-  height: 120px;
-  background-size: cover;
-  animation: foodAnimation 10s linear;
-  z-index: 5;
+  inset: 0;
+  background:
+    radial-gradient(120% 80% at 50% 45%, rgba(10, 8, 6, 0.05) 0%, rgba(10, 8, 6, 0.35) 70%, rgba(10, 8, 6, 0.7) 100%),
+    linear-gradient(to bottom, rgba(10, 8, 6, 0.3), rgba(10, 8, 6, 0) 40%, rgba(10, 8, 6, 0.45));
 }
 
-@keyframes foodAnimation {
-  0% {
-    transform: translate(calc(var(--start-x) * 1vw), calc(var(--start-y) * 1vh)) rotate(0deg);
-    opacity: 1;
-  }
-  100% {
-    transform: translate(calc(var(--end-x) * 1vw), calc(var(--end-y) * 1vh)) rotate(360deg);
-    opacity: 0;
+@media screen and (max-width: 768px) {
+  .home-video__media {
+    object-position: center 55%;
   }
 }
 
@@ -543,17 +536,6 @@ body {
 }
 
 /* ==================== ELEMENTOS DE INTERFACE ==================== */
-/* Fundo desfocado para modal */
-.blur-background {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  backdrop-filter: blur(5px);
-  z-index: -1;
-}
-
 /* ==================== BOTÃO DE INFORMAÇÕES (AI) ==================== */
 /* ==================== SHARED BUTTON STYLE (E3 Gradient Underline) ==================== */
 .ai-button,
@@ -1780,7 +1762,6 @@ body {
 
 /* Ajuste para telas de alta densidade de pixels */
 @media screen and (min-resolution: 192dpi) {
-  .food-element,
   .food-particle {
     image-rendering: -webkit-optimize-contrast;
     image-rendering: crisp-edges;

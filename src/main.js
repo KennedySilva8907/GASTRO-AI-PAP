@@ -2,58 +2,15 @@
  * Home page entry point — GastroAI landing page.
  * Handles navigation transitions, AI info modal, food animations, and mouse effects.
  */
-import { foodImages } from './shared/constants.js';
 import { createFoodParticles } from './shared/animations.js';
 import { navigateTo, revealPage } from './shared/transitions.js';
 import { initAccountBar } from './auth/session.js';
 import { startHomeVideo } from './home-video.js';
+import { initTitleRepel } from './home-title.js';
+import { initEmbers } from './home-embers.js';
 
 // Play entry reveal if arriving from a sub-page
 revealPage();
-
-/**
- * Initialize the mouse food trail effect.
- * Creates food images that follow the cursor with a throttle.
- */
-function initFoodTrail() {
-  let canCreateSpark = true;
-
-  document.addEventListener('mousemove', (e) => {
-    if (canCreateSpark) {
-      const foodSpark = document.createElement('div');
-      foodSpark.classList.add('food-spark');
-      document.body.appendChild(foodSpark);
-
-      const randomImage = foodImages[Math.floor(Math.random() * foodImages.length)];
-      foodSpark.style.backgroundImage = `url('${randomImage}')`;
-      foodSpark.style.left = `${e.pageX - 15}px`;
-      foodSpark.style.top = `${e.pageY - 15}px`;
-
-      setTimeout(() => foodSpark.remove(), 1000);
-
-      canCreateSpark = false;
-      setTimeout(() => {
-        canCreateSpark = true;
-      }, 200);
-    }
-  });
-}
-
-/**
- * Initialize the spark trail effect on mouse movement.
- */
-function initSparkTrail() {
-  document.addEventListener('mousemove', (e) => {
-    const spark = document.createElement('div');
-    spark.classList.add('spark');
-    document.body.appendChild(spark);
-
-    spark.style.left = `${e.pageX}px`;
-    spark.style.top = `${e.pageY}px`;
-
-    setTimeout(() => spark.remove(), 700);
-  });
-}
 
 // ===== INITIALIZATION =====
 
@@ -61,9 +18,8 @@ window.addEventListener('load', () => {
   startHomeVideo(document.querySelector('.home-video__media'));
 });
 
-// Initialize mouse effects
-initFoodTrail();
-initSparkTrail();
+initTitleRepel(document.querySelector('.container'));
+initEmbers();
 
 // DOMContentLoaded — set up navigation and AI info modal
 document.addEventListener('DOMContentLoaded', () => {
